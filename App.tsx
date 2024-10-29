@@ -21,7 +21,7 @@ function App(): React.JSX.Element {
         <Stack.Screen name="Start" component={StartScreen} />
         <Stack.Screen name="Login" component={LoginScreen} /> 
         <Stack.Screen name="SignUp" component={SignupScreen} /> 
-        <Stack.Screen name="Hoe" component={HomeScreen} /> 
+        <Stack.Screen name="Home" component={HomeScreen} /> 
       </Stack.Navigator>
     </NavigationContainer>
   );
