@@ -1,9 +1,7 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity, Dimensions } from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import React from 'react';
 import { colors } from '../utiles/colors'; 
 import { useNavigation } from '@react-navigation/native'; 
-
-const { width, height } = Dimensions.get('window');
 
 const StartScreen = () => {
   const navigation = useNavigation(); 
@@ -22,7 +20,7 @@ const StartScreen = () => {
         <Image source={require('../Assests/beads.png')} style={styles.logo} />
       </View>
     
-      <Text style={[styles.Description, { paddingTop: height * 0.03 }]}>Welcome to Digital Tasbeeh!</Text>
+      <Text style={[styles.Description, { paddingTop: 30 }]}>Welcome to Digital Tasbeeh!</Text>
       <Text style={styles.Description}>Start counting your blessings with ease and</Text>
       <Text style={styles.Description}>accuracy.</Text>
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
@@ -41,43 +39,43 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   Tasbeehimage: {
-    width: width * 0.7,
-    height: height * 0.35,
-    marginTop: height * 0.15,
-    marginBottom: height * 0.08,
+    width: 258,
+    height: 276,
+    marginTop: 150,
+    marginBottom: 60,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: height * 0.02,
+    marginTop: 20,
   },
   logo: {
-    width: width * 0.1,
-    height: width * 0.1,
-    marginLeft: width * 0.02,
+    width: 38,
+    height: 38,
+    marginLeft: 10,
   },
   Text: {
     color: 'black',
     fontWeight: 'bold',
-    fontSize: width * 0.06,
-    marginLeft: width * 0.02,
+    fontSize: 24,
+    marginLeft: 10,
   },
   Description: {
-    fontSize: width * 0.04,
+    fontSize: 16,
     color: 'black',
     textAlign: 'center',
   },
   button: {         
     backgroundColor: colors.primary,
-    paddingVertical: height * 0.02,
-    paddingHorizontal: width * 0.25,
-    borderRadius: width * 0.08,
-    marginTop: height * 0.05,
+    paddingVertical: 15,
+    paddingHorizontal: 100,
+    borderRadius: 30,
+    marginTop: 50,
   },
   buttonText: {
     color: colors.white,          
     fontWeight: 'bold',      
-    fontSize: width * 0.06,             
+    fontSize: 24,             
     textAlign: 'center',
   }
-});
+}); 

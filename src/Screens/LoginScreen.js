@@ -1,10 +1,8 @@
-import { StyleSheet, View, TouchableOpacity, Text, TextInput, Dimensions } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Text, TextInput, Alert } from 'react-native';
 import React, { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { colors } from '../utiles/colors';  
-
-const { width, height } = Dimensions.get('window');
 
 const LoginScreen = () => {
   const navigation = useNavigation();
@@ -12,7 +10,9 @@ const LoginScreen = () => {
   const [password, setPassword] = useState('');
 
   const handleHome = () => {
-    navigation.navigate('Home'); 
+   
+      navigation.navigate('Home'); 
+  
   };
 
   const handleSignup = () => {
@@ -23,7 +23,7 @@ const LoginScreen = () => {
   return (
     <View style={styles.container}>
       <TouchableOpacity onPress={() => navigation.goBack()}>
-        <Ionicons name="arrow-back-circle-sharp" size={width * 0.1} color="#000" />
+        <Ionicons name="arrow-back-circle-sharp" size={40} color="#000" />
       </TouchableOpacity>
       
       <View style={styles.textcontainer}>
@@ -73,41 +73,41 @@ export default LoginScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: width * 0.05,
+    padding: 20,
     backgroundColor: '#fff',
   },
   textcontainer: {
-    marginVertical: height * 0.015,
+    marginVertical: 10,
   },
   headingtext: {
-    fontSize: width * 0.1,
+    fontSize: 45,
     color: 'black',
     fontWeight: 'bold',
   },
   label: {
     color: 'black',
     fontWeight: 'bold',
-    fontSize: width * 0.05,
-    paddingLeft: width * 0.025,
+    fontSize: 20,
+    paddingLeft: 10,
   },
   input: {
-    height: height * 0.06,
+    height: 50,
     borderColor: '#000',
     borderWidth: 1,
-    paddingHorizontal: width * 0.03,
-    borderRadius: width * 0.5,
+    padding: 10,
+    borderRadius: 100,
   },
   button: {         
     backgroundColor: colors.primary, 
-    paddingVertical: height * 0.02,
-    paddingHorizontal: width * 0.2,
-    borderRadius: width * 0.08,
-    marginTop: height * 0.05,
+    paddingVertical: 15,
+    paddingHorizontal: 60,
+    borderRadius: 30,
+    marginTop: 50,
   },
   buttonText: {
     color: colors.white, 
     fontWeight: 'bold',
-    fontSize: width * 0.06,
+    fontSize: 24,
     textAlign: 'center',
   },
 });
