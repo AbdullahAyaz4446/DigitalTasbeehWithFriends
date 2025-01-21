@@ -6,14 +6,29 @@ import { colors } from '../utiles/colors';
 
 const LoginScreen = () => {
   const navigation = useNavigation();
-  const [email, setemail] = useState('');
-  const [password, setPassword] = useState('');
+  const [Email, setemail] = useState('');
+  const [Password, setPassword] = useState('');
 
-  const handleHome = () => {
+  const Login=async()=>{
+    try {
+      const query = `Login?email=${encodeURIComponent(Email)}&password=${encodeURIComponent(Password)}`;
+      const responce=await fetch(url+query);
+      if(responce.ok){
+        var Userid=await responce.text();
+        console.log(Userid); 
+        navigation.navigate('Home',{
+          "Userid":Userid
+        }); 
+      }else{
+        const ans = await responce.text();
+        console.log(ans);
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
    
-      navigation.navigate('Home'); 
-  
-  };
+
+  }
 
   const handleSignup = () => {
     console.log('Button Pressed!'); 
@@ -38,7 +53,7 @@ const LoginScreen = () => {
           style={[styles.input, { color: 'black' }]}
           placeholder="Enter your email"
           placeholderTextColor="#A9A9A9"
-          value={email}
+          value={Email}
           onChangeText={setemail}
           autoCapitalize="none"
         />
@@ -50,14 +65,14 @@ const LoginScreen = () => {
           style={[styles.input, { color: 'black' }]}
           placeholder="Enter your Password"
           placeholderTextColor="#A9A9A9"
-          value={password}
+          value={Password}
           onChangeText={setPassword}
           keyboardType="default"
           secureTextEntry
         />
       </View>
       
-      <TouchableOpacity style={styles.button} onPress={handleHome}>
+      <TouchableOpacity style={styles.button} onPress={Login}>
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
       

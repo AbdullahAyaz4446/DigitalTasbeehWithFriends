@@ -6,10 +6,15 @@ import StartScreen from './src/Screens/StartScreen';
 import LoginScreen from './src/Screens/LoginScreen';
 import  SignupScreen from './src/Screens/SignupScreen';
 import HomeScreen from './src/Screens/HomeScreen';
+import AllTasbeehScreen from './src/Screens/Alltasbeeh';
+import CreateTasbeeh from './src/Screens/CreateTasbeeh';
 
 const Stack = createNativeStackNavigator();
 
-function App(): React.JSX.Element {
+const App=()=> {
+   var ipadd='192.168.225.68';
+   global.url=`http://${ipadd}/DigitalTasbeehWithFriendsApi/api/user/`;
+   global.tasbeehurl=`http://${ipadd}/DigitalTasbeehWithFriendsApi/api/CreateTasbeeh/`;
   return (
     <NavigationContainer >
       <Stack.Navigator 
@@ -18,10 +23,14 @@ function App(): React.JSX.Element {
           headerShown: false,
         }}
       >
+       
         <Stack.Screen name="Start" component={StartScreen} />
         <Stack.Screen name="Login" component={LoginScreen} /> 
         <Stack.Screen name="SignUp" component={SignupScreen} /> 
         <Stack.Screen name="Home" component={HomeScreen} /> 
+        <Stack.Screen name="Alltasbeeh" component={AllTasbeehScreen} /> 
+        <Stack.Screen name="CraeteTasbeeh" component={CreateTasbeeh} /> 
+        
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -3,13 +3,47 @@ import React, { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { colors } from '../utiles/colors'; 
+import { ScrollView } from 'react-native-gesture-handler';
 
 const SignupScreen = () => {
   const navigation = useNavigation();
-  const [email, setemail] = useState('');
-  const [password, setPassword] = useState('');
-  const [phone, setphone] = useState('');
-  const [name, setname] = useState('');
+  const [Email, setemail] = useState('');
+  const [Password, setPassword] = useState('');
+  const [cpassword, setcPassword] = useState('');
+  const [Username, setname] = useState('');
+  const Signupuser = async () => {
+    if (Password === cpassword) {
+      const User = {
+        Username: Username,
+        Email: Email,
+        password: Password
+      };
+  
+      try {
+        const response = await fetch(url+"Signup", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(User)
+        });
+  
+        if (response.ok) {
+          const ans = await response.text();
+          console.log(ans); 
+          navigation.goBack();
+        } else {
+          const ans = await response.text();
+          console.log(ans);
+        }
+      } catch (error) {
+        console.log(error.message);
+      }
+    } else {
+      console.log("Passwords do not match");
+    }
+  };
+  
 
   return (
     <View style={styles.container}>
@@ -22,28 +56,20 @@ const SignupScreen = () => {
         <Text style={styles.headingtext}>Started</Text>
       </View>
 
-      <View style={styles.inputcontainer}>
+<View>
+  
+<View style={styles.inputcontainer}>
         <Text style={styles.label}>Username</Text>
         <TextInput
           style={[styles.input, { color: 'black' }]}
           placeholder="Enter your username"
           placeholderTextColor="#A9A9A9"
-          value={name}
+          value={Username}
           onChangeText={setname}
         />
       </View>
 
-      <View style={styles.inputcontainer}>
-        <Text style={styles.label}>Phone Number</Text>
-        <TextInput
-          style={[styles.input, { color: 'black' }]}
-          placeholder="Enter your Phone Number"
-          placeholderTextColor="#A9A9A9"
-          value={phone}
-          onChangeText={setphone}
-          keyboardType="number-pad"
-        />
-      </View>
+   
 
       <View style={styles.inputcontainer}>
         <Text style={styles.label}>Email</Text>
@@ -51,7 +77,7 @@ const SignupScreen = () => {
           style={[styles.input, { color: 'black' }]}
           placeholder="Enter your Email"
           placeholderTextColor="#A9A9A9"
-          value={email}
+          value={Email}
           onChangeText={setemail}
           keyboardType="email-address"
         />
@@ -63,7 +89,7 @@ const SignupScreen = () => {
           style={[styles.input, { color: 'black' }]}
           placeholder="Enter your Password"
           placeholderTextColor="#A9A9A9"
-          value={password}
+          value={Password}
           onChangeText={setPassword}
           keyboardType="default"
           secureTextEntry
@@ -76,14 +102,20 @@ const SignupScreen = () => {
           style={[styles.input, { color: 'black' }]}
           placeholder="Confirm your Password"
           placeholderTextColor="#A9A9A9"
-          value={password}
-          onChangeText={setPassword}
+          value={cpassword}
+          onChangeText={setcPassword}
           keyboardType="default"
           secureTextEntry
         />
       </View>
+  
+</View>
+  
 
-      <TouchableOpacity style={styles.button}>
+
+     
+
+      <TouchableOpacity onPress={Signupuser} style={styles.button}>
         <Text style={styles.buttonText}>Sign Up</Text>
       </TouchableOpacity>
     </View>
@@ -135,4 +167,4 @@ const styles = StyleSheet.create({
     fontSize: 24,
     textAlign: 'center',
   },
-});  
+});
