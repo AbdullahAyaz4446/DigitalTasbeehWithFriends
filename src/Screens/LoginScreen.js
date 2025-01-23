@@ -5,19 +5,22 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { colors } from '../utiles/colors';  
 
 const LoginScreen = () => {
+    {/*Varaiables*/ }
   const navigation = useNavigation();
   const [Email, setemail] = useState('');
   const [Password, setPassword] = useState('');
 
+   {/*LogIn APi Function on the base of email and password and return user id */ }
   const Login=async()=>{
     try {
       const query = `Login?email=${encodeURIComponent(Email)}&password=${encodeURIComponent(Password)}`;
       const responce=await fetch(url+query);
       if(responce.ok){
-        var Userid=await responce.text();
+        var Userid=await responce.json();
         console.log(Userid); 
         navigation.navigate('Home',{
-          "Userid":Userid
+          "Userid":Userid.ID,
+          image:Userid.Image
         }); 
       }else{
         const ans = await responce.text();
@@ -30,6 +33,7 @@ const LoginScreen = () => {
 
   }
 
+   {/*Move Screen Sign Up */ }
   const handleSignup = () => {
     console.log('Button Pressed!'); 
     navigation.navigate('SignUp'); 

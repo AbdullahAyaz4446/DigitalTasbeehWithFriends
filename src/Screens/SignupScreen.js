@@ -3,34 +3,78 @@ import React, { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { colors } from '../utiles/colors'; 
-import { ScrollView } from 'react-native-gesture-handler';
+import * as ImagePicker from 'react-native-image-picker'
+
 
 const SignupScreen = () => {
+  {/* Varaible */}
   const navigation = useNavigation();
   const [Email, setemail] = useState('');
   const [Password, setPassword] = useState('');
   const [cpassword, setcPassword] = useState('');
   const [Username, setname] = useState('');
+  const [imageURI, setImageURI] = useState(null);
+
+  {/* SignUp Api Function */}
+  // const Signupuser = async () => {
+  //   if (Password === cpassword) {
+  //     const User = {
+  //       Username: Username,
+  //       Email: Email,
+  //       password: Password
+  //     };
+  
+  //     try {
+  //       const response = await fetch(url+"Signup", {
+  //         method: 'POST',
+  //         headers: {
+  //           'Content-Type': 'application/json'
+  //         },
+  //         body: JSON.stringify(User)
+  //       });
+  
+  //       if (response.ok) {
+  //         const ans = await response.text();
+  //         console.log(ans); 
+  //         navigation.goBack();
+  //       } else {
+  //         const ans = await response.text();
+  //         console.log(ans);
+  //       }
+  //     } catch (error) {
+  //       console.log(error.message);
+  //     }
+  //   } else {
+  //     console.log("Passwords do not match");
+  //   }
+  // };
   const Signupuser = async () => {
     if (Password === cpassword) {
+      const formData = new FormData();
       const User = {
-        Username: Username,
-        Email: Email,
-        password: Password
-      };
-  
+             Username: Username,
+             Email: Email,
+              password: Password
+           };
+           formData.append('User', JSON.stringify(User));
+           var myImage = {
+            uri: imageURI,
+            name: `${Username}.jpg`,
+            type: 'image/jpeg'
+        }
+        formData.append('file', myImage);
       try {
-        const response = await fetch(url+"Signup", {
+        const response = await fetch(url + "Signup", {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+         'Content-Type': 'multipart/form-data'
           },
-          body: JSON.stringify(User)
+          body: formData
         });
   
         if (response.ok) {
           const ans = await response.text();
-          console.log(ans); 
+          console.log(ans);
           navigation.goBack();
         } else {
           const ans = await response.text();
@@ -45,6 +89,31 @@ const SignupScreen = () => {
   };
   
 
+  {/* Shoot Pic */}
+  const shootImage=()=>{
+    ImagePicker.launchCamera({ 'mediaType': 'photo' },
+      (response) => {
+          if (response.assets && response.assets.length>0)
+              setImageURI(response.assets[0].uri)
+      }
+  );
+  }
+  const selectImageFromGallery = () => {
+    launchImageLibrary(
+      {
+        mediaType: 'photo',
+      },
+      (response) => {
+        if (response.didCancel) {
+          console.log('User cancelled image picker');
+        } else if (response.errorCode) {
+          console.log('Image Picker Error: ', response.errorMessage);
+        } else if (response.assets && response.assets.length > 0) {
+          setImageURI(response.assets[0].uri);
+        }
+      }
+    );
+  };
   return (
     <View style={styles.container}>
       <TouchableOpacity onPress={() => navigation.goBack()}>

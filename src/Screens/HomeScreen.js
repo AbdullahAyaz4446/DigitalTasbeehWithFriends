@@ -1,26 +1,22 @@
 import { StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { colors } from '../utiles/colors'
 import { useNavigation } from '@react-navigation/native';
 
 
 const HomeScreen = ({ route }) => {
+  {/* Varaible */ }
   const navigation = useNavigation();
-  const { Userid } = route.params;
+  const { Userid ,image} = route.params;
+ useEffect(()=>{
+  console.log(image);
+  <Image source={{uri:image}}style={styles.profile} />
+ },[])
   return (
-
     <View style={styles.container}>
       <View style={styles.header}>
         <Image
-          source={require('../Assests/Activeunactive.png')}
-          style={{
-            height: 40,
-            width: 40,
-            borderRadius: 20,
-            borderWidth: 2,
-            borderColor: '#ccc'
-          }}
-        />
+          source={{uri:image}}style={styles.profile} />
 
         <Text style={styles.headerTitle}>Home</Text>
       </View>
@@ -89,9 +85,7 @@ const HomeScreen = ({ route }) => {
     </View>
   )
 }
-
 export default HomeScreen
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -141,6 +135,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 24,
     fontWeight: 'bold',
+  }, profile: {
+    height: 40,
+    width: 40,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: '#ccc'
   }
 });
 

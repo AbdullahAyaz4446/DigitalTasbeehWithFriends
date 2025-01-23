@@ -5,7 +5,7 @@ import {
     TouchableOpacity,
     StyleSheet,
     TextInput,
-    FlatList
+    FlatList, Image
 } from 'react-native';
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useNavigation } from '@react-navigation/native';
@@ -13,14 +13,8 @@ import { colors } from '../utiles/colors';
 import { SelectList } from 'react-native-dropdown-select-list';
 
 const CreateTasbeeh = ({ route }) => {
-    const navigation = useNavigation();
+    {/*Varaiables*/ }
     const { Userid } = route.params;
-
-    const surahData = [
-        { key: '1', value: 'Al-Fatiha', ayahs: [1, 2, 3, 4, 5, 6, 7] },
-        { key: '2', value: 'Al-Baqarah', ayahs: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] },
-        { key: '3', value: 'Al-Imran', ayahs: [1, 2, 3, 4, 5] },
-    ];
     const [tasbeehTitle, setTasbeehTitle] = useState('');
     const [count, setCount] = useState('');
     const [selectedSurah, setSelectedSurah] = useState(null);
@@ -31,6 +25,15 @@ const CreateTasbeeh = ({ route }) => {
     const [quranid, setquranid] = useState(null);
     const [qurantasbeehdata, setqurantasbeehdata] = useState([]);
     const [compund, setcompund] = useState([]);
+    const navigation = useNavigation();
+
+    const surahData = [
+        { key: '1', value: 'Al-Fatiha', ayahs: [1, 2, 3, 4, 5, 6, 7] },
+        { key: '2', value: 'Al-Baqarah', ayahs: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] },
+        { key: '3', value: 'Al-Imran', ayahs: [1, 2, 3, 4, 5] },
+    ];
+
+    {/*Sign Up Api Function */ }
     const Addtitle = async () => {
         try {
             const Tasbeeh = {
@@ -47,9 +50,9 @@ const CreateTasbeeh = ({ route }) => {
 
             if (response.ok) {
                 const ans = await response.json();
-                
+
                 return ans;
-               
+
             } else {
                 const ans = await response.text();
                 console.log(ans);
@@ -58,6 +61,7 @@ const CreateTasbeeh = ({ route }) => {
             console.log(error.message);
         }
     };
+    {/*Add Quran Tasbeeh Function */ }
     const Addqurantasbeeh = async () => {
         try {
             if (selectedSurah && selectedAyahFrom && selectedAyahTo && count) {
@@ -84,7 +88,7 @@ const CreateTasbeeh = ({ route }) => {
                     ans.forEach(element => {
                         setquranid(element.ID)
                     });
-                   
+
                 } else {
                     const ans = await response.text();
                     console.log(ans);
@@ -96,9 +100,10 @@ const CreateTasbeeh = ({ route }) => {
             console.log(error.message);
         }
     };
+    {/*Compund Qurantasbeeh Id and Tasbeeh Id  Function*/ }
     const Compundtasbeehdata = async () => {
-        var id= await Addtitle();
-          if(id){
+        var id = await Addtitle();
+        if (id) {
             try {
                 const updatedCompund = compund.map((element) => ({
                     ...element,
@@ -111,7 +116,7 @@ const CreateTasbeeh = ({ route }) => {
                     },
                     body: JSON.stringify(updatedCompund),
                 });
-    
+
                 if (response.ok) {
                     const ans = await response.text();
                     console.log(ans);
@@ -126,9 +131,33 @@ const CreateTasbeeh = ({ route }) => {
             } catch (error) {
                 console.log(error.message);
             }
-          }
-         
+        }
+
     };
+    {/*Delete quranTasbeeh Api Function*/ }
+    const deletequrantasbeeh = async (ID) => {
+        if (!ID) {
+            console.log("Invalid ID: ID is null or undefined.");
+            return;
+        }
+        try {
+            const query = `Deletequrantasbeeh?id=${ID}`;
+            const response = await fetch(tasbeehurl + query);
+            if (response.ok) {
+                const ans = await response.json(); // Assuming `ans` contains the deleted ID
+                console.log("Delete Response:", ans);
+                setcompund((prevItems) => prevItems.filter(item => item.Quran_Tasbeeh_id !== ans));
+                setqurantasbeehdata((pre) => pre.filter(item => item.ID !== ID));
+            } else {
+                const ans = await response.text();
+                console.log("Error Response:", ans);
+            }
+        } catch (error) {
+            console.log("Error:", error.message);
+        }
+    };
+
+    {/*Handle Surah From the drop down function*/ }
     const handleSurahChange = (surahKey) => {
         setSelectedSurah(surahKey);
         const selected = surahData.find((s) => s.key === surahKey);
@@ -143,7 +172,7 @@ const CreateTasbeeh = ({ route }) => {
             setAyahToOptions([]);
         }
     };
-
+    {/*Handle ayahnumber From the drop down function*/ }
     const handleAyahFromChange = (ayahFromKey) => {
         setSelectedAyahFrom(ayahFromKey);
         const startAyah = parseInt(ayahFromKey, 10);
@@ -153,22 +182,39 @@ const CreateTasbeeh = ({ route }) => {
         setAyahToOptions(filteredAyahs);
         setSelectedAyahTo(null);
     };
+    {/*Flate List Function To Show The Data Of Quran Tasbeeh Added */ }
     const showdata = ({ item }) => (
-        <View style={{ marginVertical: 10 }}>
-            <Text style={{ color: 'black', fontSize: 16 }}>Surah Name:{item.Sura_name}</Text>
-            <Text style={{ color: 'black', fontSize: 14 }}>Text:{item.Ayah_text}</Text>
+        <View style={{ marginVertical: 10, backgroundColor: colors.tasbeehconatiner, borderRadius: 20 }}>
+            <View style={{ margin: 20 }}>
+                <Text style={{ color: 'black', fontSize: 16 }}>ID:{item.ID}</Text>
+                <Text style={{ color: 'black', fontSize: 16 }}>Surah Name:{item.Sura_name}</Text>
+                <Text style={{ color: 'black', fontSize: 14 }}>Text:{item.Ayah_text}</Text>
+            </View>
+            <View style={{ alignItems: 'center', marginVertical: 20 }}>
+                <TouchableOpacity onPress={() => {
+                    deletequrantasbeeh(item.ID);
+                }}>
+                    <Image source={require('../Assests/trash.png')} style={styles.logo} />
+                </TouchableOpacity>
+            </View>
+
         </View>
     );
+    {/*Use Effect For Add Quran Id in the Compund Arry To Store The each Id of Quran tasbeeh */ }
     useEffect(() => {
-        if(quranid){
-            var obj={"Quran_Tasbeeh_id":quranid
+        if (quranid) {
+            var obj = {
+                "Quran_Tasbeeh_id": quranid
             };
-            setcompund([...compund,obj])
-            console.log(quranid);
+            setcompund([...compund, obj])
         }
         console.log("Final compund state after update:", compund);
-        
+
     }, [quranid]);
+    {/*Use Effect For Delete Quran Tasbeeh to refresh screen*/ }
+    useEffect(() => {
+        console.log("Refreshing");
+    }, [compund]);
     return (
         <View style={styles.container}>
             <View style={styles.header}>
@@ -286,12 +332,8 @@ const CreateTasbeeh = ({ route }) => {
                 renderItem={showdata}
             />
             <View style={{ width: "100%", justifyContent: 'flex-end' }}>
-                <TouchableOpacity onPress={()=>{
-                    
-                    Compundtasbeehdata(); 
-             
-                    
-
+                <TouchableOpacity onPress={() => {
+                    Compundtasbeehdata();
                 }} style={styles.button}>
                     <Text style={styles.buttonText}>Submit</Text>
                 </TouchableOpacity>
@@ -379,6 +421,11 @@ const styles = StyleSheet.create({
         fontSize: 24,
         textAlign: 'center',
     },
+    logo: {
+        width: 30,
+        height: 30,
+        marginLeft: 10,
+    }
 });
 
 export default CreateTasbeeh;

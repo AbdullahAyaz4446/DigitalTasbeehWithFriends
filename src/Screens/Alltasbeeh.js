@@ -13,17 +13,16 @@ import { useNavigation } from '@react-navigation/native';
 import { colors } from '../utiles/colors';
 
 const AllTasbeehScreen = ({ route }) => {
+  {/*Varaiables*/ }
+  const { Userid } = route.params;
   const [tasbeeh, settasbeeh] = useState([]);
   const navigation = useNavigation();
-  const { Userid } = route.params;
-
-  
-
+  {/*All Tasbeeh Api Function*/ }
   const Alltasbeeh = async () => {
     try {
-     
+
       const query = `Alltasbeeh?userid=${encodeURIComponent(Userid)}`;
-      const response=await fetch(tasbeehurl+query);
+      const response = await fetch(tasbeehurl + query);
 
       if (response.ok) {
         const data = await response.json();
@@ -38,29 +37,30 @@ const AllTasbeehScreen = ({ route }) => {
       Alert.alert('Error', 'Something went wrong. Please check your network.');
     }
   };
-  const deletetasbeeh=async(ID)=>{
+  {/*Delete Tasbeeh Api Function*/ }
+  const deletetasbeeh = async (ID) => {
     try {
       const query = `Deletetasbeeh?userid=${encodeURIComponent(Userid)}&tabseehid=${encodeURIComponent(ID)}`;
-      const responce=await fetch(tasbeehurl+query);
+      const responce = await fetch(tasbeehurl + query);
       if (response.ok) {
         var tasbeehid = await response.json();
-        console.log(tasbeehid); 
-    }
-    else{
+
+      }
+      else {
         const ans = await responce.text();
         console.log(ans);
       }
     } catch (error) {
       console.log(error.message);
     }
-   
-  }
 
+  }
+  {/*Use Effect To Get All Tasbeeh In the Screen Load*/ }
   useEffect(() => {
     Alltasbeeh();
   }, [Alltasbeeh]);
-
-  const renderItem = ({ item }) => (
+  {/*Flat List To Show All Tasbeeh Function*/ }
+  const Show = ({ item }) => (
     <View style={styles.itemContainer}>
       <View style={styles.itemContent}>
         <Text style={styles.itemText}>{item.Tasbeeh_Title}</Text>
@@ -68,12 +68,11 @@ const AllTasbeehScreen = ({ route }) => {
           <Image source={require('../Assests/pencil.png')} style={styles.logo} />
         </TouchableOpacity>
       </View>
-      <TouchableOpacity onPress={()=>{deletetasbeeh(item.ID);}}>
+      <TouchableOpacity onPress={() => { deletetasbeeh(item.ID); }}>
         <Image source={require('../Assests/trash.png')} style={styles.logo} />
       </TouchableOpacity>
     </View>
   );
-
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -84,11 +83,11 @@ const AllTasbeehScreen = ({ route }) => {
       </View>
       <FlatList
         data={tasbeeh}
-        renderItem={renderItem}
+        renderItem={Show}
       />
       <TouchableOpacity
         onPress={() =>
-          navigation.navigate('CraeteTasbeeh', { "Userid":Userid })
+          navigation.navigate('CraeteTasbeeh', { "Userid": Userid })
         }
         style={styles.fab}
       >
@@ -155,7 +154,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.5,
-  },
+  }
 });
 
 export default AllTasbeehScreen;
