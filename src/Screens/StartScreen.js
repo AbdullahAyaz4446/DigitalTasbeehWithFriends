@@ -13,11 +13,11 @@ const StartScreen = () => {
   
   return (
     <View style={styles.container}>
-      <Image source={require("../Assests/makkah.png")} style={styles.Tasbeehimage} />
+      <Image source={require("../Assests/hand-drawn-flat-design-tasbih-illustration-b.png")} style={styles.Tasbeehimage} />
       
       <View style={styles.row}>
         <Text style={styles.Text}>Digital Tasbeeh</Text>
-        <Image source={require('../Assests/beads.png')} style={styles.logo} />
+        <Image source={require('../Assests/mosque_9987994.png')} style={styles.logo} />
       </View>
     
       <Text style={[styles.Description, { paddingTop: 30 }]}>Welcome to Digital Tasbeeh!</Text>

@@ -15,8 +15,12 @@ const HomeScreen = ({ route }) => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
+        <TouchableOpacity onPress={()=>navigation.navigate('UpdateProfile')}>
+          var image=Imageurl+image;
         <Image
           source={{uri:image}}style={styles.profile} />
+        </TouchableOpacity>
+      
 
         <Text style={styles.headerTitle}>Home</Text>
       </View>

@@ -8,6 +8,8 @@ import SignupScreen from './src/Screens/SignupScreen';
 import HomeScreen from './src/Screens/HomeScreen';
 import AllTasbeehScreen from './src/Screens/Alltasbeeh';
 import CreateTasbeeh from './src/Screens/CreateTasbeeh';
+import UpdateProfile from './src/Screens/UpdateProfile';
+import { Image } from 'react-native-reanimated/lib/typescript/Animated';
 
 const Stack = createNativeStackNavigator();
 
@@ -15,6 +17,7 @@ const App = () => {
   var ipadd = '192.168.225.68';
   global.url = `http://${ipadd}/DigitalTasbeehWithFriendsApi/api/user/`;
   global.tasbeehurl = `http://${ipadd}/DigitalTasbeehWithFriendsApi/api/CreateTasbeeh/`;
+  global,Imageurl = `http://${ipadd}/DigitalTasbeehWithFriendsApi/Images/`;
   return (
     <NavigationContainer >
       <Stack.Navigator
@@ -29,6 +32,7 @@ const App = () => {
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Alltasbeeh" component={AllTasbeehScreen} />
         <Stack.Screen name="CraeteTasbeeh" component={CreateTasbeeh} />
+        <Stack.Screen name="UpdateProfile" component={UpdateProfile} />
       </Stack.Navigator>
     </NavigationContainer>
   );
