@@ -14,10 +14,10 @@ import { Image } from 'react-native-reanimated/lib/typescript/Animated';
 const Stack = createNativeStackNavigator();
 
 const App = () => {
-  var ipadd = '192.168.225.68';
+  var ipadd = '192.168.236.68';
   global.url = `http://${ipadd}/DigitalTasbeehWithFriendsApi/api/user/`;
   global.tasbeehurl = `http://${ipadd}/DigitalTasbeehWithFriendsApi/api/CreateTasbeeh/`;
-  global,Imageurl = `http://${ipadd}/DigitalTasbeehWithFriendsApi/Images/`;
+  global.Imageurl = `http://${ipadd}/DigitalTasbeehWithFriendsApi/Images/`;
   return (
     <NavigationContainer >
       <Stack.Navigator

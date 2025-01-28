@@ -10,7 +10,7 @@ const LoginScreen = () => {
   const [Email, setemail] = useState('');
   const [Password, setPassword] = useState('');
 
-   {/*LogIn APi Function on the base of email and password and return user id */ }
+
   const Login=async()=>{
     try {
       const query = `Login?email=${encodeURIComponent(Email)}&password=${encodeURIComponent(Password)}`;
@@ -19,8 +19,7 @@ const LoginScreen = () => {
         var Userid=await responce.json();
         console.log(Userid); 
         navigation.navigate('Home',{
-          "Userid":Userid.ID,
-          image:Userid.Image
+          "Userdata":Userid
         }); 
       }else{
         const ans = await responce.text();

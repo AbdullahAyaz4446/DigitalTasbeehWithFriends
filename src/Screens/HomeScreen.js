@@ -1,5 +1,5 @@
 import { StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { colors } from '../utiles/colors'
 import { useNavigation } from '@react-navigation/native';
 
@@ -7,20 +7,31 @@ import { useNavigation } from '@react-navigation/native';
 const HomeScreen = ({ route }) => {
   {/* Varaible */ }
   const navigation = useNavigation();
-  const { Userid ,image} = route.params;
- useEffect(()=>{
-  console.log(image);
-  <Image source={{uri:image}}style={styles.profile} />
- },[])
+  const { Userdata } = route.params;
+  const [image, setimage] = useState(Imageurl + Userdata.Image);
+
+  useEffect(() => {
+    setimage(Imageurl + Userdata.Image);
+  }, [Userdata])
   return (
     <View style={styles.container}>
+
       <View style={styles.header}>
-        <TouchableOpacity onPress={()=>navigation.navigate('UpdateProfile')}>
-          var image=Imageurl+image;
-        <Image
-          source={{uri:image}}style={styles.profile} />
+        <TouchableOpacity onPress={() => navigation.navigate('UpdateProfile', {
+          "Userdata": Userdata
+        })}>
+          <Image
+            source={{ uri: image }}
+            style={[
+              styles.profile, {
+                borderColor: Userdata.Status == "Online" ? "rgba(6, 62, 230, 0.63)" : "white"
+              }
+            ]
+            }
+          />
+
         </TouchableOpacity>
-      
+
 
         <Text style={styles.headerTitle}>Home</Text>
       </View>
@@ -42,7 +53,7 @@ const HomeScreen = ({ route }) => {
         <View style={styles.dashboard}>
           <View>
             <TouchableOpacity onPress={() => navigation.navigate('Alltasbeeh', {
-              "Userid": Userid
+              "Userid": Userdata.ID
             })} style={styles.dashboardbutton}>
               <Image source={require('../Assests/Assigntasbeeh.png')} style={styles.logo} />
             </TouchableOpacity>
@@ -116,7 +127,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
 
-    shadowColor: '#000', // Shadow color
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.8,
     shadowRadius: 10,
@@ -144,7 +155,7 @@ const styles = StyleSheet.create({
     width: 40,
     borderRadius: 20,
     borderWidth: 2,
-    borderColor: '#ccc'
+    
   }
 });
 

@@ -41,7 +41,7 @@ const SignupScreen = () => {
         formData.append("file", myImage);
       }
       try {
-        const response = await fetch("YOUR_API_URL/Signup", {
+        const response = await fetch(url+"SignUp", {
           method: "POST",
           headers: {
             "Content-Type": "multipart/form-data",
@@ -284,6 +284,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 20,
     textAlign: "center",
+    color: "black",
   },
   optionButton: {
     backgroundColor: colors.primary,
