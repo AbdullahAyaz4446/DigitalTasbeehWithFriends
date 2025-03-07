@@ -1,0 +1,168 @@
+import React from 'react';
+import {
+    View,
+    Text,
+    TouchableOpacity,
+    StyleSheet,
+    TextInput
+} from 'react-native';
+import Ionicons from "react-native-vector-icons/Ionicons";
+import { useNavigation } from '@react-navigation/native';
+import { colors } from '../utiles/colors';
+import { SelectList } from 'react-native-dropdown-select-list';
+import CalendarPicker from 'react-native-calendar-picker';
+
+const AssignTasbeeh = () => {
+    const navigation = useNavigation();
+
+    return (
+        <View style={styles.container}>
+            <View style={{ flex: 1 }}>
+                <View style={styles.header}>
+                    <TouchableOpacity onPress={() => { navigation.goBack() }}>
+                        <Ionicons name="arrow-back-circle-sharp" size={40} color="#000" />
+                    </TouchableOpacity>
+                    <Text style={styles.headerTitle}>Assign Tasbeeh</Text>
+                </View>
+                <View>
+                    <SelectList
+                        placeholder="Select Tasbeeh"
+                        search={false}
+                        boxStyles={styles.selectListBox}
+                        inputStyles={styles.selectListInput}
+                        dropdownStyles={styles.selectListDropdown}
+                        dropdownTextStyles={styles.selectListDropdownText}
+                        save='value'
+                    />
+                </View>
+                <View>
+                    <SelectList
+                        placeholder="Select Group"
+                        search={false}
+                        boxStyles={styles.selectListBox}
+                        inputStyles={styles.selectListInput}
+                        dropdownStyles={styles.selectListDropdown}
+                        dropdownTextStyles={styles.selectListDropdownText}
+                        save='value'
+                    />
+                </View>
+                <View style={styles.calenderheader}>
+                    <Text style={styles.headertext}>Enter DeadLine Date</Text>
+                </View>
+
+                <View style={styles.calendarContainer}>
+                    <View style={styles.calendarWrapper}>
+                        <CalendarPicker
+                            onDateChange={(date) => console.log(date)}
+                            minDate={new Date()}
+                            previousComponent={null}
+                        />
+                    </View>
+                </View>
+
+                <View style={styles.inputContainer}>
+                    <Text style={styles.label}>Enter Group Title</Text>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Enter group Title"
+                        placeholderTextColor="#A9A9A9"
+                       
+                    />
+                </View>
+                <View>
+                <TouchableOpacity style={styles.button}>
+                    <Text style={styles.buttonText}>Assign</Text>
+                </TouchableOpacity>
+            </View>
+            </View>
+
+       
+        </View>
+    );
+};
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        padding: 20,
+        backgroundColor: '#fff',
+    },
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 20,
+    },
+    headerTitle: {
+        flex: 1,
+        color: 'black',
+        fontSize: 24,
+        fontWeight: 'bold',
+        textAlign: 'center',
+    },
+    selectListBox: {
+        backgroundColor: 'white',
+        borderColor: 'black',
+        borderWidth: 1,
+        borderRadius: 20,
+        marginBottom: 10,
+    },
+    selectListInput: {
+        color: 'black',
+        fontWeight: 'bold',
+    },
+    selectListDropdown: {
+        backgroundColor: 'white',
+    },
+    selectListDropdownText: {
+        color: 'black',
+        fontWeight: 'bold',
+    },
+    calendarContainer: {
+        width: '100%',
+        alignItems: 'center',
+        justifyContent: 'center',
+
+    },
+    calendarWrapper: {
+        transform: [{ scale: 0.9 }],
+    },
+   
+    button: {
+        backgroundColor: colors.primary,
+        paddingVertical: 15,
+        paddingHorizontal: '10%',
+        borderRadius: 30,
+        marginTop: 10,
+    },
+    buttonText: {
+        color: colors.white,
+        fontWeight: 'bold',
+        fontSize: 24,
+        textAlign: 'center',
+    },
+    calenderheader: {
+        alignItems: 'center',
+    },
+    headertext: {
+        fontWeight: 'bold', color: 'black', fontSize: 17
+    },
+    inputContainer: {
+        marginBottom: 20,
+    },
+    label: {
+        color: 'black',
+        fontWeight: 'bold',
+        fontSize: 20,
+        paddingLeft: 10,
+    },
+    input: {
+        height: 50,
+        borderColor: '#000',
+        borderWidth: 1,
+        padding: 10,
+        borderRadius: 100,
+        color: 'black',
+    }
+});
+
+export default AssignTasbeeh;

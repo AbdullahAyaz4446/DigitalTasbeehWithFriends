@@ -10,11 +10,14 @@ import AllTasbeehScreen from './src/Screens/Alltasbeeh';
 import CreateTasbeeh from './src/Screens/CreateTasbeeh';
 import UpdateProfile from './src/Screens/UpdateProfile';
 import { Image } from 'react-native-reanimated/lib/typescript/Animated';
+import Creategroup from './src/Screens/Creategroup';
+import CreateGroupsSingles from './src/Screens/CreateGroupsSingles';
+import AssignTasbeeh from './src/Screens/AssignTasbeeh';
 
 const Stack = createNativeStackNavigator();
 
 const App = () => {
-  var ipadd = '192.168.236.68';
+  var ipadd = '192.168.84.68';
   global.url = `http://${ipadd}/DigitalTasbeehWithFriendsApi/api/user/`;
   global.tasbeehurl = `http://${ipadd}/DigitalTasbeehWithFriendsApi/api/CreateTasbeeh/`;
   global.Imageurl = `http://${ipadd}/DigitalTasbeehWithFriendsApi/Images/`;
@@ -23,7 +26,7 @@ const App = () => {
       <Stack.Navigator
         initialRouteName="Start"
         screenOptions={{
-          headerShown: false,
+          headerShown: false, 
         }}
       >
         <Stack.Screen name="Start" component={StartScreen} />
@@ -32,10 +35,12 @@ const App = () => {
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Alltasbeeh" component={AllTasbeehScreen} />
         <Stack.Screen name="CraeteTasbeeh" component={CreateTasbeeh} />
-        <Stack.Screen name="UpdateProfile" component={UpdateProfile} />
+        <Stack.Screen name="Creategroup" component={Creategroup} />
+        <Stack.Screen name="CreateGroupSingle" component={CreateGroupsSingles} />
+        <Stack.Screen name="AssignTasbeeh" component={AssignTasbeeh} />
       </Stack.Navigator>
     </NavigationContainer>
   );
-}
+} 
 
 export default App;

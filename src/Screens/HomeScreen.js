@@ -8,16 +8,16 @@ const HomeScreen = ({ route }) => {
   {/* Varaible */ }
   const navigation = useNavigation();
   const { Userdata } = route.params;
-  const [image, setimage] = useState(Imageurl + Userdata.Image);
+  // const [image, setimage] = useState(Imageurl + Userdata.Image);
 
-  useEffect(() => {
-    setimage(Imageurl + Userdata.Image);
-  }, [Userdata])
+  // useEffect(() => {
+  //   setimage(Imageurl + Userdata.Image);
+  // }, [Userdata])
   return (
     <View style={styles.container}>
 
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.navigate('UpdateProfile', {
+        {/* <TouchableOpacity onPress={() => navigation.navigate('UpdateProfile', {
           "Userdata": Userdata
         })}>
           <Image
@@ -30,7 +30,7 @@ const HomeScreen = ({ route }) => {
             }
           />
 
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
 
         <Text style={styles.headerTitle}>Home</Text>
@@ -38,13 +38,17 @@ const HomeScreen = ({ route }) => {
       <View>
         <View style={styles.dashboard}>
           <View>
-            <TouchableOpacity style={styles.dashboardbutton}>
+            <TouchableOpacity onPress={() => navigation.navigate('Alltasbeeh', {
+              "Userid": Userdata.ID
+            })} style={styles.dashboardbutton}>
               <Image source={require('../Assests/tasbeehicon.png')} style={styles.logo} />
             </TouchableOpacity>
             <Text style={styles.dashboradtest}>Create Tasbeeh</Text>
           </View>
           <View>
-            <TouchableOpacity style={styles.dashboardbutton}>
+            <TouchableOpacity onPress={()=>navigation.navigate('Creategroup',{
+             "Userid": Userdata.ID 
+            })} style={styles.dashboardbutton}>
               <Image source={require('../Assests/group.png')} style={styles.logo} />
             </TouchableOpacity>
             <Text style={styles.dashboradtest}>Group/Single</Text>
@@ -52,9 +56,7 @@ const HomeScreen = ({ route }) => {
         </View>
         <View style={styles.dashboard}>
           <View>
-            <TouchableOpacity onPress={() => navigation.navigate('Alltasbeeh', {
-              "Userid": Userdata.ID
-            })} style={styles.dashboardbutton}>
+            <TouchableOpacity  onPress={()=>navigation.navigate('AssignTasbeeh')} style={styles.dashboardbutton}>
               <Image source={require('../Assests/Assigntasbeeh.png')} style={styles.logo} />
             </TouchableOpacity>
             <Text style={styles.dashboradtest}>Assign Tasbeeh</Text>

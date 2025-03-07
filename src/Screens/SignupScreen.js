@@ -25,63 +25,54 @@ const SignupScreen = () => {
 
   const Signupuser = async () => {
     if (Password === cpassword) {
-      const formData = new FormData();
       const User = {
         Username: Username,
         Email: Email,
         password: Password,
       };
-      formData.append("User", JSON.stringify(User));
-      if (imageURI) {
-        var myImage = {
-          uri: imageURI,
-          name: `${Username}.jpg`,
-          type: "image/jpeg",
-        };
-        formData.append("file", myImage);
-      }
+  
       try {
-        const response = await fetch(url+"SignUp", {
+        const response = await fetch(url + "SignUp", {
           method: "POST",
           headers: {
-            "Content-Type": "multipart/form-data",
+            'Content-Type': 'application/json',
           },
-          body: formData,
+          body: JSON.stringify(User),
         });
-
+  
         if (response.ok) {
           const ans = await response.text();
           console.log(ans);
-          navigation.goBack();
+          navigation.goBack(); 
         } else {
           const ans = await response.text();
           console.log(ans);
         }
       } catch (error) {
-        console.log(error.message);
+        console.log(error); 
       }
     } else {
       console.log("Passwords do not match");
     }
   };
 
-  const openCamera = () => {
-    ImagePicker.launchCamera({ mediaType: "photo" }, (response) => {
-      if (response.assets && response.assets.length > 0) {
-        setImageURI(response.assets[0].uri);
-        setShowModal(false);
-      }
-    });
-  };
+  // const openCamera = () => {
+  //   ImagePicker.launchCamera({ mediaType: "photo" }, (response) => {
+  //     if (response.assets && response.assets.length > 0) {
+  //       setImageURI(response.assets[0].uri);
+  //       setShowModal(false);
+  //     }
+  //   });
+  // };
 
-  const openGallery = () => {
-    ImagePicker.launchImageLibrary({ mediaType: "photo" }, (response) => {
-      if (response.assets && response.assets.length > 0) {
-        setImageURI(response.assets[0].uri);
-        setShowModal(false);
-      }
-    });
-  };
+  // const openGallery = () => {
+  //   ImagePicker.launchImageLibrary({ mediaType: "photo" }, (response) => {
+  //     if (response.assets && response.assets.length > 0) {
+  //       setImageURI(response.assets[0].uri);
+  //       setShowModal(false);
+  //     }
+  //   });
+  // };
 
   return (
   
@@ -95,7 +86,7 @@ const SignupScreen = () => {
           <Text style={styles.headingtext}>Started</Text>
         </View>
 
-        <View style={styles.imageContainer}>
+        {/* <View style={styles.imageContainer}>
           {imageURI ? (
             <Image source={{ uri: imageURI }} style={styles.image} />
           ) : (
@@ -109,7 +100,7 @@ const SignupScreen = () => {
           >
             <Text style={styles.addButtonText}>Add Profile Photo</Text>
           </TouchableOpacity>
-        </View>
+        </View> */}
         <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.inputcontainer}>
           <Text style={styles.label}>Username</Text>
@@ -163,7 +154,7 @@ const SignupScreen = () => {
           <Text style={styles.buttonText}>Sign Up</Text>
         </TouchableOpacity>
         </ScrollView>
-        <Modal transparent visible={showModal} animationType="slide">
+        {/* <Modal transparent visible={showModal} animationType="slide">
           <View style={styles.modalContainer}>
             <View style={styles.modal}>
               <Text style={styles.modalHeading}>Select Option</Text>
@@ -184,7 +175,7 @@ const SignupScreen = () => {
               </TouchableOpacity>
             </View>
           </View>
-        </Modal>
+        </Modal> */}
       </View>
 
   );
@@ -259,7 +250,7 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     paddingHorizontal: 60,
     borderRadius: 30,
-    marginTop: 30,
+    marginTop: 70,
   },
   buttonText: {
     color: "#fff",
