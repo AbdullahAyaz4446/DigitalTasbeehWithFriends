@@ -13,9 +13,14 @@ import { colors } from '../utiles/colors';
 import { SelectList } from 'react-native-dropdown-select-list';
 import CalendarPicker from 'react-native-calendar-picker';
 
-const AssignTasbeeh = () => {
+const AssignTasbeeh = ({ route }) => {
     const navigation = useNavigation();
+    const { Userid } = route.params;
     const [contributetype, setcontributiontyep] = useState("null");
+    const [groupdata, setgroupdata] = useState([]);
+    const[groupid,setgroupid]=useState('');
+    const[count,setcount]=useState('');
+
 
     const selectiontype = [
         { key: '1', value: 'Equally' },
@@ -28,6 +33,39 @@ const AssignTasbeeh = () => {
             navigation.navigate('Maunnallycontribution');
         }
     }, [contributetype, navigation]);
+    //Get Group Title Api Function
+    const Allgroups = async () => {
+        try {
+            const query = `GroupTitles?memberId=${encodeURIComponent(Userid)}`;
+            const response = await fetch(url + query);
+            if (response.ok) {
+                const data = await response.json();
+                console.log(data);
+            
+                const transformedData = data
+                    .filter((item) => item.Adminid == Userid) 
+                    .map((item) => ({
+                        key: item.Groupid, 
+                        value: item.Grouptitle, 
+                        groupid: item.Groupid, 
+                        Adminid: item.Adminid, 
+                    }));
+            
+                setgroupdata(transformedData); 
+                console.log(transformedData); 
+            } else {
+                const ans = await response.text();
+                console.log(ans);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
+    useEffect(() => {
+        Allgroups();
+        console.log(groupid);
+    }, [])
+
 
     return (
         <View style={styles.container}>
@@ -52,13 +90,15 @@ const AssignTasbeeh = () => {
                     </View>
                     <View>
                         <SelectList
+                            data={groupdata}
+                            setSelected={(value) => {setgroupid(value)}}
                             placeholder="Select Group"
                             search={false}
                             boxStyles={styles.selectListBox}
                             inputStyles={styles.selectListInput}
                             dropdownStyles={styles.selectListDropdown}
                             dropdownTextStyles={styles.selectListDropdownText}
-                            save='value'
+                            save='key'
                         />
                     </View>
                     <View style={styles.calenderheader}>
@@ -81,6 +121,8 @@ const AssignTasbeeh = () => {
                             style={styles.input}
                             placeholder="Enter group Title"
                             placeholderTextColor="#A9A9A9"
+                            value={count}
+                            onChangeText={(text) => setcount(text)}
                         />
                     </View>
                     <View>
@@ -101,7 +143,7 @@ const AssignTasbeeh = () => {
                 </ScrollView>
                 {contributetype === 'Equally' && (
                     <View>
-                        <TouchableOpacity style={styles.button}>
+                        <TouchableOpacity  style={styles.button}>
                             <Text style={styles.buttonText}>Assign</Text>
                         </TouchableOpacity>
                     </View>

@@ -56,7 +56,9 @@ const HomeScreen = ({ route }) => {
         </View>
         <View style={styles.dashboard}>
           <View>
-            <TouchableOpacity  onPress={()=>navigation.navigate('AssignTasbeeh')} style={styles.dashboardbutton}>
+            <TouchableOpacity  onPress={()=>navigation.navigate('AssignTasbeeh',{
+             "Userid": Userdata.ID 
+            })} style={styles.dashboardbutton}>
               <Image source={require('../Assests/Assigntasbeeh.png')} style={styles.logo} />
             </TouchableOpacity>
             <Text style={styles.dashboradtest}>Assign Tasbeeh</Text>

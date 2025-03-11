@@ -31,8 +31,6 @@ const Creategroup = ({ route }) => {
                 const ans = await responce.text();
                 console.log(ans);
             }
-
-
         } catch (error) {
             console.log(error);
         }
@@ -41,20 +39,24 @@ const Creategroup = ({ route }) => {
         Allgroups();
     }, [Allgroups]);
     const Show = ({ item }) => (
-        <TouchableOpacity onLongPress={() => {Alert.alert(
-            'Alert',
-            'Are you sure you want to delete',
-            [
-              { text: 'Cancel'},
-              { text: 'Delete',},
-            ]
-          );}}>
-  <View style={styles.itemContainer}>
-            <TouchableOpacity></TouchableOpacity>
-            <Text style={styles.itemText}>{item}</Text>
-        </View>
+        <TouchableOpacity onLongPress={() => {
+            Alert.alert(
+                'Alert',
+                'Are you sure you want to delete',
+                [
+                    { text: 'Cancel' },
+                    { text: 'Delete', },
+                ]
+            );
+        }} onPress={() => {
+            navigation.navigate('AdminGrouptasbeeh')
+        }}>
+            <View style={styles.itemContainer}>
+                <TouchableOpacity></TouchableOpacity>
+                <Text style={styles.itemText}>{item.Grouptitle}</Text>
+            </View>
         </TouchableOpacity>
-      
+
     );
     return (
         <View style={styles.container}>
