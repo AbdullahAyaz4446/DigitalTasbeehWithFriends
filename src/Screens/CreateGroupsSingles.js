@@ -6,6 +6,7 @@ import {
     StyleSheet,
     TextInput,
     FlatList,
+    Alert,
 } from 'react-native';
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useNavigation } from '@react-navigation/native';
@@ -13,8 +14,9 @@ import { colors } from '../utiles/colors';
 import { SelectList } from 'react-native-dropdown-select-list';
 import { Checkbox } from 'react-native-paper';
 
-const CreateGroupSingle = () => {
+const CreateGroupSingle = ({ route }) => {
     const navigation = useNavigation();
+    const { Userid } = route.params;
     const [grouptitle, setgrouptitle] = useState('');
     const [selectedType, setSelectedType] = useState('');
     const [members, setmembers] = useState([]);
@@ -28,7 +30,6 @@ const CreateGroupSingle = () => {
     // Get All Members Function
     const Selectmembers = async () => {
         try {
-          
             const response = await fetch(url + "Alluser");
             if (response.ok) {
                 const data = await response.json();
@@ -43,6 +44,103 @@ const CreateGroupSingle = () => {
         }
     };
 
+    // Handle Checkbox Toggle
+    const handleCheckboxToggle = (id) => {
+        setselectedmembersid((prevSelected) => {
+            if (prevSelected.includes(id)) {
+                // If already selected, remove it
+                return prevSelected.filter((memberId) => memberId !== id);
+            } else {
+                // If not selected, add it
+                return [...prevSelected, id];
+            }
+        });
+    };
+    // Create Group Function    
+    const CreateGroup = async () => {
+        try {
+            if(grouptitle===''){
+                Alert.alert(
+                    "Title Required",
+                    "Please enter group title",
+                    [
+                        {
+                            text: "OK",
+                            onPress: () => console.log("OK Pressed"),
+                            style: "default",
+                        },
+                    ],
+                    { cancelable: false }
+                );
+            }
+            if (selectedmembersid.length > 0) { 
+                const obj = {
+                    Group_Title: grouptitle,
+                    Admin_id: Userid,
+                };
+                console.log("Creating group with payload:", obj);
+
+                const response = await fetch(Group + "CreateGroup", {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(obj),
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log("Group created with ID:", data.ID);
+                    const userobj = { Group_id: data.ID, Members_id: Userid };
+                    const Compunddata = selectedmembersid.map((memberId) => ({
+                        Group_id: data.ID,
+                        Members_id: memberId
+                    }));
+                    Compunddata.push(userobj);
+                    console.log("Inserting group members with payload:", Compunddata);
+                    const responce = await fetch(Group + "GroupMembers", {
+                        method: "POST",
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(Compunddata),
+                    });
+
+                    if (responce.ok) {
+                        const ans = await responce.json();
+                        console.log("Members inserted successfully:", ans);
+                        navigation.goBack();
+                    } else {
+                        const ans = await responce.text();
+                        console.log("Error inserting members:", ans);
+                    }
+                } else {
+                    const errorText = await response.text();
+                    console.log("Error creating group:", errorText);
+                }
+            } else {
+                Alert.alert(
+                    "Selection Required",
+                    "Please select members",
+                    [
+                        {
+                            text: "OK",
+                            onPress: () => console.log("OK Pressed"),
+                            style: "default",
+                        },
+                    ],
+                    { cancelable: false }
+                );
+            }
+
+        } catch (error) {
+            console.log("An error occurred:", error);
+        }
+    };
+    // Refreshing the selected members arry
+    useEffect(() => {
+        console.log(selectedmembersid);
+    }, [selectedmembersid])
     return (
         <View style={styles.container}>
             <View style={{ flex: 1 }}>
@@ -85,17 +183,20 @@ const CreateGroupSingle = () => {
                     <View style={styles.onselectgroupdata}>
                         <Text style={styles.selectMembersTitle}>Select Members</Text>
                         <FlatList
-                            data={members}
+                            data={members.filter((member) => member.ID !== Userid)}
                             renderItem={({ item }) => (
                                 <View style={styles.memberItem}>
                                     <View style={styles.memberNameContainer}>
                                         <Text style={styles.memberName}>{item.name}</Text>
                                     </View>
                                     <View style={styles.memberStatusContainer}>
-                                        <Text style={[styles.memberStatus,  { color: item.Status === 'online' || item.Status === 'Online' ? 'green' : 'black' }]}>{item.Status}</Text>
+                                        <Text style={[styles.memberStatus, { color: item.Status === 'online' || item.Status === 'Online' ? 'green' : 'black' }]}>{item.Status}</Text>
                                     </View>
                                     <View style={styles.checkboxContainer}>
-                                        <Checkbox />
+                                        <Checkbox
+                                            status={selectedmembersid.includes(item.ID) ? 'checked' : 'unchecked'}
+                                            onPress={() => handleCheckboxToggle(item.ID)}
+                                        />
                                     </View>
                                 </View>
                             )}
@@ -106,7 +207,7 @@ const CreateGroupSingle = () => {
             </View>
 
             <View style={styles.footer}>
-                <TouchableOpacity style={styles.button}>
+                <TouchableOpacity onPress={CreateGroup} style={styles.button}>
                     <Text style={styles.buttonText}>Create</Text>
                 </TouchableOpacity>
             </View>

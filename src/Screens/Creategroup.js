@@ -17,12 +17,13 @@ const Creategroup = ({ route }) => {
     const navigation = useNavigation();
     const { Userid } = route.params;
     const [group, setgroup] = useState([]);
+    //Get All Group Function
     const Allgroups = async () => {
         try {
             const query = `GroupTitles?memberId=${encodeURIComponent(Userid)}`;
-            const responce = await fetch( url+ query);
+            const responce = await fetch(url + query);
             if (responce.ok) {
-                const data = await response.json();
+                const data = await responce.json();
                 console.log(data);
                 setgroup(data);
             }
@@ -40,12 +41,20 @@ const Creategroup = ({ route }) => {
         Allgroups();
     }, [Allgroups]);
     const Show = ({ item }) => (
-        <View style={styles.itemContainer}>
-
-            <Text style={styles.itemText}>{item.Tasbeeh_Title}</Text>
-
-
+        <TouchableOpacity onLongPress={() => {Alert.alert(
+            'Alert',
+            'Are you sure you want to delete',
+            [
+              { text: 'Cancel'},
+              { text: 'Delete',},
+            ]
+          );}}>
+  <View style={styles.itemContainer}>
+            <TouchableOpacity></TouchableOpacity>
+            <Text style={styles.itemText}>{item}</Text>
         </View>
+        </TouchableOpacity>
+      
     );
     return (
         <View style={styles.container}>
@@ -60,7 +69,9 @@ const Creategroup = ({ route }) => {
                 renderItem={Show}
             />
             <TouchableOpacity
-                onPress={()=>navigation.navigate('CreateGroupSingle')}
+                onPress={() => navigation.navigate('CreateGroupSingle', {
+                    "Userid": Userid
+                })}
                 style={styles.fab}
             >
                 <Ionicons name="add" size={40} color="white" />
