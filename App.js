@@ -22,6 +22,8 @@ const App = () => {
   global.tasbeehurl = `http://${ipadd}/DigitalTasbeehWithFriendsApi/api/CreateTasbeeh/`;
   // global.Imageurl = `http://${ipadd}/DigitalTasbeehWithFriendsApi/Images/`;
   global.Group= `http://${ipadd}/DigitalTasbeehWithFriendsApi/api/Group/`;
+  global.AssignTasbeh= `http://${ipadd}/DigitalTasbeehWithFriendsApi/api/AssignTasbeeh/`;
+
   return (
     <NavigationContainer >
       <Stack.Navigator

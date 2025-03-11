@@ -18,8 +18,11 @@ const AssignTasbeeh = ({ route }) => {
     const { Userid } = route.params;
     const [contributetype, setcontributiontyep] = useState("null");
     const [groupdata, setgroupdata] = useState([]);
-    const[groupid,setgroupid]=useState('');
-    const[count,setcount]=useState('');
+    const [groupid, setgroupid] = useState('');
+    const [count, setcount] = useState('');
+    const [deadline, setdeadline] = useState('');
+    const [tasbeeh, settasbeeh] = useState([]);
+    const [tasbeehid,settasbeehid]=useState('');
 
 
     const selectiontype = [
@@ -33,6 +36,14 @@ const AssignTasbeeh = ({ route }) => {
             navigation.navigate('Maunnallycontribution');
         }
     }, [contributetype, navigation]);
+    // for load all groups and all  tasbeeh in the screen load
+    useEffect(() => {
+        Allgroups();
+        Alltasbeeh();
+        console.log(groupid);
+        console.log("Deadline date" + deadline)
+    }, [deadline])
+
     //Get Group Title Api Function
     const Allgroups = async () => {
         try {
@@ -41,18 +52,18 @@ const AssignTasbeeh = ({ route }) => {
             if (response.ok) {
                 const data = await response.json();
                 console.log(data);
-            
+
                 const transformedData = data
-                    .filter((item) => item.Adminid == Userid) 
+                    .filter((item) => item.Adminid == Userid)
                     .map((item) => ({
-                        key: item.Groupid, 
-                        value: item.Grouptitle, 
-                        groupid: item.Groupid, 
-                        Adminid: item.Adminid, 
+                        key: item.Groupid,
+                        value: item.Grouptitle,
+                        groupid: item.Groupid,
+                        Adminid: item.Adminid,
                     }));
-            
-                setgroupdata(transformedData); 
-                console.log(transformedData); 
+
+                setgroupdata(transformedData);
+                console.log(transformedData);
             } else {
                 const ans = await response.text();
                 console.log(ans);
@@ -61,11 +72,67 @@ const AssignTasbeeh = ({ route }) => {
             console.log(error);
         }
     };
-    useEffect(() => {
-        Allgroups();
-        console.log(groupid);
-    }, [])
+    {/*All Tasbeeh Api Function*/ }
+    const Alltasbeeh = async () => {
+        try {
 
+            const query = `Alltasbeeh?userid=${encodeURIComponent(Userid)}`;
+            const response = await fetch(tasbeehurl + query);
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log(data);
+                const transformedData = data
+                    .map((item) => ({
+                        key: item.ID,
+                        value: item.Tasbeeh_Title
+                    }));
+                settasbeeh(transformedData);
+            } else {
+                console.error('Failed to fetch tasbeeh:', response.status);
+                Alert.alert('Error', 'Failed to load tasbeeh. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error fetching tasbeeh:', error);
+            Alert.alert('Error', 'Something went wrong. Please check your network.');
+        }
+    };
+const Assigntasbeeh = async () => {
+    const AssignTasbeehobj = {
+        Group_id:groupid, 
+        Tasbeeh_id:tasbeehid, 
+        Goal:count, 
+        End_date:deadline, 
+    };
+    try {
+        console.log("hello" + JSON.stringify(AssignTasbeehobj));
+        const response = await fetch(AssignTasbeh + 'AssignTasbeeh', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(AssignTasbeehobj),
+        });
+
+        if (response.ok) {
+            const ans = await response.json(); // Corrected: response.json() in lowercase
+            console.log(ans);
+        } else {
+            const ans = await response.text();
+            console.log(ans);
+        }
+    } catch (error) {
+        console.log(error.message); // Log the error message
+    }
+};
+    // handle date time
+    const handleDateChange = (date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const formattedDate = `${year}/${month}/${day}`;
+        setdeadline(formattedDate);
+    };
 
     return (
         <View style={styles.container}>
@@ -79,19 +146,21 @@ const AssignTasbeeh = ({ route }) => {
                 <ScrollView>
                     <View>
                         <SelectList
+                            data={tasbeeh}
+                            setSelected={(value) => { settasbeehid(value) }}
                             placeholder="Select Tasbeeh"
                             search={false}
                             boxStyles={styles.selectListBox}
                             inputStyles={styles.selectListInput}
                             dropdownStyles={styles.selectListDropdown}
                             dropdownTextStyles={styles.selectListDropdownText}
-                            save='value'
+                            save='key'
                         />
                     </View>
                     <View>
                         <SelectList
                             data={groupdata}
-                            setSelected={(value) => {setgroupid(value)}}
+                            setSelected={(value) => { setgroupid(value) }}
                             placeholder="Select Group"
                             search={false}
                             boxStyles={styles.selectListBox}
@@ -108,7 +177,7 @@ const AssignTasbeeh = ({ route }) => {
                     <View style={styles.calendarContainer}>
                         <View style={styles.calendarWrapper}>
                             <CalendarPicker
-                                onDateChange={(date) => console.log(date)}
+                                onDateChange={(date) => handleDateChange(date)}
                                 minDate={new Date()}
                                 previousComponent={null}
                             />
@@ -143,7 +212,7 @@ const AssignTasbeeh = ({ route }) => {
                 </ScrollView>
                 {contributetype === 'Equally' && (
                     <View>
-                        <TouchableOpacity  style={styles.button}>
+                        <TouchableOpacity onPress={Assigntasbeeh} style={styles.button}>
                             <Text style={styles.buttonText}>Assign</Text>
                         </TouchableOpacity>
                     </View>
