@@ -22,7 +22,7 @@ const AssignTasbeeh = ({ route }) => {
     const [count, setcount] = useState('');
     const [deadline, setdeadline] = useState('');
     const [tasbeeh, settasbeeh] = useState([]);
-    const [tasbeehid,settasbeehid]=useState('');
+    const [tasbeehid, settasbeehid] = useState('');
 
 
     const selectiontype = [
@@ -97,34 +97,74 @@ const AssignTasbeeh = ({ route }) => {
             Alert.alert('Error', 'Something went wrong. Please check your network.');
         }
     };
-const Assigntasbeeh = async () => {
-    const AssignTasbeehobj = {
-        Group_id:groupid, 
-        Tasbeeh_id:tasbeehid, 
-        Goal:count, 
-        End_date:deadline, 
-    };
-    try {
-        console.log("hello" + JSON.stringify(AssignTasbeehobj));
-        const response = await fetch(AssignTasbeh + 'AssignTasbeeh', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(AssignTasbeehobj),
-        });
+    const Assigntasbeeh = async () => {
 
-        if (response.ok) {
-            const ans = await response.json(); // Corrected: response.json() in lowercase
-            console.log(ans);
-        } else {
-            const ans = await response.text();
-            console.log(ans);
+        const AssignTasbeehobj = {
+            Group_id: groupid,
+            Tasbeeh_id: tasbeehid,
+            Goal: count,
+            End_date: deadline,
+        };
+        try {
+            if (contributetype === 'Equally') {
+                console.log("hello" + JSON.stringify(AssignTasbeehobj));
+                const response = await fetch(AssignTasbeh + 'AssignTasbeeh', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(AssignTasbeehobj),
+                });
+
+                if (response.ok) {
+                    const ans = await response.json();
+                    console.log(ans);
+                    DistributeTasbeehEqually();
+                    navigation.goBack();
+                } else {
+                    const ans = await response.text();
+                    console.log(ans);
+                }
+            }
+            else {
+                Alert.alert(
+                    'Alert',
+                    'Please Select Contribution Type',
+                    [
+                        { text: 'Cancel' },
+                        { text: 'Delete', },
+                    ]
+                );
+            }
+        } catch (error) {
+            console.log(error.message);
         }
-    } catch (error) {
-        console.log(error.message); // Log the error message
+    };
+    // Equally Contribution  Api Function\
+    const DistributeTasbeehEqually = async () => {
+        try {
+            const Query = `DistributeTasbeehEqually?groupid=${groupid}`;
+            const response = await fetch(SendRequest + Query,{
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({}),
+            });
+            if (response.ok) {
+                const ans = await response.json();
+                console.log(ans);
+               
+            } else {
+                const ans = await response.json();
+                console.log(ans);
+            }
+
+        } catch (error) {
+            console.log(error);
+
+        }
     }
-};
     // handle date time
     const handleDateChange = (date) => {
         const year = date.getFullYear();

@@ -12,7 +12,7 @@ import Creategroup from './src/Screens/Creategroup';
 import CreateGroupsSingles from './src/Screens/CreateGroupsSingles';
 import AssignTasbeeh from './src/Screens/AssignTasbeeh';
 import Maunnallycontribution from './src/Screens/Maunnallycontribution';
-import AdminGroupTasbeeh from './src/Screens/AdminGroupTasbeeh';
+import TasbeehGroup from './src/Screens/TasbeehGroup';
 
 const Stack = createNativeStackNavigator();
 
@@ -23,6 +23,7 @@ const App = () => {
   // global.Imageurl = `http://${ipadd}/DigitalTasbeehWithFriendsApi/Images/`;
   global.Group= `http://${ipadd}/DigitalTasbeehWithFriendsApi/api/Group/`;
   global.AssignTasbeh= `http://${ipadd}/DigitalTasbeehWithFriendsApi/api/AssignTasbeeh/`;
+  global.SendRequest= `http://${ipadd}/DigitalTasbeehWithFriendsApi/api/Request/`;
 
   return (
     <NavigationContainer >
@@ -42,7 +43,7 @@ const App = () => {
         <Stack.Screen name="CreateGroupSingle" component={CreateGroupsSingles} />
         <Stack.Screen name="AssignTasbeeh" component={AssignTasbeeh} />
         <Stack.Screen name="Maunnallycontribution" component={Maunnallycontribution} />
-        <Stack.Screen name="AdminGrouptasbeeh" component={AdminGroupTasbeeh} />
+        <Stack.Screen name="AdminGrouptasbeeh" component={TasbeehGroup} />
       </Stack.Navigator>
     </NavigationContainer>
   );
