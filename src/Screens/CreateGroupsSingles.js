@@ -51,15 +51,24 @@ const CreateGroupSingle = ({ route }) => {
                 // If already selected, remove it
                 return prevSelected.filter((memberId) => memberId !== id);
             } else {
-                // If not selected, add it
+             
                 return [...prevSelected, id];
             }
         });
     };
+    //Create Single Fuunction
+    const CreateSingle = async () => {
+        try {
+
+        } catch (error) {
+            console.log(error);
+        }
+
+    }
     // Create Group Function    
     const CreateGroup = async () => {
         try {
-            if(grouptitle===''){
+            if (grouptitle === '') {
                 Alert.alert(
                     "Title Required",
                     "Please enter group title",
@@ -73,7 +82,7 @@ const CreateGroupSingle = ({ route }) => {
                     { cancelable: false }
                 );
             }
-            if (selectedmembersid.length > 0) { 
+            if (selectedmembersid.length > 0) {
                 const obj = {
                     Group_Title: grouptitle,
                     Admin_id: Userid,

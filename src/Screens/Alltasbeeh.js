@@ -60,13 +60,13 @@ const AllTasbeehScreen = ({ route }) => {
     Alltasbeeh();
   }, [Alltasbeeh]);
   {/*Flat List To Show All Tasbeeh Function*/ }
-  const Show = ({ item }) => (
+  const Show = ({ item }) => ( 
     <View style={styles.itemContainer}>
       <View style={styles.itemContent}>
         <Text style={styles.itemText}>{item.Tasbeeh_Title}</Text>
-        <TouchableOpacity>
+        {/* <TouchableOpacity>
           <Image source={require('../Assests/pencil.png')} style={styles.logo} />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
       <TouchableOpacity onPress={() => { deletetasbeeh(item.ID); }}>
         <Image source={require('../Assests/trash.png')} style={styles.logo} />
@@ -119,9 +119,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 10,
+    padding: 20,
     marginVertical: 10,
-    borderRadius: 10,
+    borderRadius: 25,
     backgroundColor: colors.tasbeehconatiner,
   },
   itemContent: {

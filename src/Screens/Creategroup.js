@@ -12,52 +12,94 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import { colors } from '../utiles/colors';
 
-
 const Creategroup = ({ route }) => {
     const navigation = useNavigation();
     const { Userid } = route.params;
-    const [group, setgroup] = useState([]);
-    //Get All Group Function
+    const [combinedData, setCombinedData] = useState([]); // State to store combined data
+
+    // Fetch All Groups
     const Allgroups = async () => {
         try {
             const query = `GroupTitles?memberId=${encodeURIComponent(Userid)}`;
-            const responce = await fetch(url + query);
-            if (responce.ok) {
-                const data = await responce.json();
-                console.log(data);
-                setgroup(data);
-            }
-            else {
-                const ans = await responce.text();
-                console.log(ans);
+            const response = await fetch(url + query);
+            if (response.ok) {
+                const data = await response.json();
+                return data; // Return the fetched groups
+            } else {
+                const errorText = await response.text();
+                console.log(errorText);
+                return []; // Return empty array if there's an error
             }
         } catch (error) {
             console.log(error);
+            return []; // Return empty array if there's an error
         }
-    }
+    };
+
+    // Fetch All Single Tasbeeh
+    const AllSingle = async () => {
+        try {
+            const query = `GetAllSingletasbeehbyid?userid=${encodeURIComponent(Userid)}`;
+            const response = await fetch(Singletasbeeh + query);
+            if (response.ok) {
+                const data = await response.json();
+                return data; // Return the fetched single tasbeehs
+            } else {
+                const errorText = await response.text();
+                console.log(errorText);
+                return []; // Return empty array if there's an error
+            }
+        } catch (error) {
+            console.log(error);
+            return []; // Return empty array if there's an error
+        }
+    };
+
+    // Combine data from both APIs
+    const fetchAndCombineData = async () => {
+        const groups = await Allgroups();
+        const singleTasbeehs = await AllSingle();
+        const combined = [
+            ...groups.map(item => ({ ...item, type: 'group' })), 
+            ...singleTasbeehs.map(item => ({ ...item, type: 'single' })), 
+        ];
+
+        setCombinedData(combined); 
+    };
+
     useEffect(() => {
-        Allgroups();
-    }, [Allgroups]);
+        fetchAndCombineData(); 
+    }, [combinedData]);
+
+    // Render item for FlatList
     const Show = ({ item }) => (
-        <TouchableOpacity onLongPress={() => {
-            Alert.alert(
-                'Alert',
-                'Are you sure you want to delete',
-                [
-                    { text: 'Cancel' },
-                    { text: 'Delete', },
-                ]
-            );
-        }} onPress={() => {
-            navigation.navigate('AdminGrouptasbeeh')
-        }}>
+        <TouchableOpacity
+            onLongPress={() => {
+                Alert.alert(
+                    'Alert',
+                    'Are you sure you want to delete?',
+                    [
+                        { text: 'Cancel' },
+                        { text: 'Delete' },
+                    ]
+                );
+            }}
+            onPress={() => {
+                if (item.type === 'group') {
+                    navigation.navigate('AdminGrouptasbeeh', { groupId: item.id });
+                } else {
+                    navigation.navigate('SingleTasbeeh', { tasbeehId: item.id });
+                }
+            }}
+        >
             <View style={styles.itemContainer}>
-                <TouchableOpacity></TouchableOpacity>
-                <Text style={styles.itemText}>{item.Grouptitle}</Text>
+                <Text style={styles.itemText}>
+                    {item.type === 'group' ? item.Grouptitle : item.Title}
+                </Text>
             </View>
         </TouchableOpacity>
-
     );
+
     return (
         <View style={styles.container}>
             <View style={styles.header}>
@@ -66,23 +108,24 @@ const Creategroup = ({ route }) => {
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>All Groups/Single</Text>
             </View>
+
             <FlatList
-                data={group}
+                data={combinedData}
                 renderItem={Show}
+            
             />
+
             <TouchableOpacity
-                onPress={() => navigation.navigate('CreateGroupSingle', {
-                    "Userid": Userid
-                })}
+                onPress={() => navigation.navigate('CreateGroupSingle', { Userid })}
                 style={styles.fab}
             >
                 <Ionicons name="add" size={40} color="white" />
             </TouchableOpacity>
         </View>
-    )
-}
+    );
+};
 
-export default Creategroup
+export default Creategroup;
 
 const styles = StyleSheet.create({
     container: {
@@ -111,20 +154,10 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         backgroundColor: colors.tasbeehconatiner,
     },
-    itemContent: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
     itemText: {
         flex: 1,
         fontSize: 18,
         color: 'black',
-    },
-    logo: {
-        width: 24,
-        height: 24,
-        marginLeft: 10,
     },
     fab: {
         position: 'absolute',
@@ -141,5 +174,5 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.25,
         shadowRadius: 3.5,
-    }
+    },
 });

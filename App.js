@@ -24,6 +24,7 @@ const App = () => {
   global.Group= `http://${ipadd}/DigitalTasbeehWithFriendsApi/api/Group/`;
   global.AssignTasbeh= `http://${ipadd}/DigitalTasbeehWithFriendsApi/api/AssignTasbeeh/`;
   global.SendRequest= `http://${ipadd}/DigitalTasbeehWithFriendsApi/api/Request/`;
+  global.Singletasbeeh= `http://${ipadd}/DigitalTasbeehWithFriendsApi/api/Sigle/`;
 
   return (
     <NavigationContainer >
