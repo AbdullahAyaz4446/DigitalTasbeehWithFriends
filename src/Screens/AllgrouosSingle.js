@@ -12,7 +12,8 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import { colors } from '../utiles/colors';
 
-const Creategroup = ({ route }) => {
+
+const AllgrouosSingle = ({ route }) => {
     const navigation = useNavigation();
     const { Userid } = route.params;
     const [combinedData, setCombinedData] = useState([]); // State to store combined data
@@ -125,7 +126,7 @@ const Creategroup = ({ route }) => {
     );
 };
 
-export default Creategroup;
+export default AllgrouosSingle;
 
 const styles = StyleSheet.create({
     container: {

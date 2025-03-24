@@ -15,7 +15,7 @@ import { colors } from '../utiles/colors';
 const TasbeehGroup = () => {
   const navigation = useNavigation();
   const [progress, setProgress] = useState(0);
-  const [showModal, setShowModal] = useState(false);
+
 
 
   // Function to increment progress

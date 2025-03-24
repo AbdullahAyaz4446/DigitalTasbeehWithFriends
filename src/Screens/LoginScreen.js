@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { colors } from '../utiles/colors';  
 
+
 const LoginScreen = () => {
     {/*Varaiables*/ }
   const navigation = useNavigation();

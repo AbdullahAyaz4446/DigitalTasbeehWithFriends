@@ -5,7 +5,7 @@ const Craetewazifa = ({route}) => {
     const { Userid } = route.params;
   return (
     <View>
-      console.log(Userid);
+      <Text style={{color:'black'}}>Wazifa</Text>
     </View>
   )
 }

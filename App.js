@@ -8,7 +8,7 @@ import SignupScreen from './src/Screens/SignupScreen';
 import HomeScreen from './src/Screens/HomeScreen';
 import AllTasbeehScreen from './src/Screens/Alltasbeeh';
 import CreateTasbeeh from './src/Screens/CreateTasbeeh';
-import Creategroup from './src/Screens/Creategroup';
+import AllgrouosSingle from './src/Screens/AllgrouosSingle';
 import CreateGroupsSingles from './src/Screens/CreateGroupsSingles';
 import AssignTasbeeh from './src/Screens/AssignTasbeeh';
 import Maunnallycontribution from './src/Screens/Maunnallycontribution';
@@ -42,7 +42,7 @@ const App = () => {
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Alltasbeeh" component={AllTasbeehScreen} />
         <Stack.Screen name="CraeteTasbeeh" component={CreateTasbeeh} />
-        <Stack.Screen name="Creategroup" component={Creategroup} />
+        <Stack.Screen name="AllgrouosSingle" component={AllgrouosSingle} />
         <Stack.Screen name="CreateGroupSingle" component={CreateGroupsSingles} />
         <Stack.Screen name="AssignTasbeeh" component={AssignTasbeeh} />
         <Stack.Screen name="Maunnallycontribution" component={Maunnallycontribution} />

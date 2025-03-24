@@ -46,7 +46,7 @@ const HomeScreen = ({ route }) => {
             <Text style={styles.dashboradtest}>Create Tasbeeh</Text>
           </View>
           <View>
-            <TouchableOpacity onPress={()=>navigation.navigate('Creategroup',{
+            <TouchableOpacity onPress={()=>navigation.navigate('AllgrouosSingle',{
              "Userid": Userdata.ID 
             })} style={styles.dashboardbutton}>
               <Image source={require('../Assests/group.png')} style={styles.logo} />
@@ -78,7 +78,9 @@ const HomeScreen = ({ route }) => {
             <Text style={styles.dashboradtest}>Notification</Text>
           </View>
           <View>
-            <TouchableOpacity style={styles.dashboardbutton}>
+            <TouchableOpacity  onPress={()=>navigation.navigate('Friends',{
+             "Userid": Userdata.ID 
+            })} style={styles.dashboardbutton}>
               <Image source={require('../Assests/friends.png')} style={styles.logo} />
             </TouchableOpacity>
             <Text style={styles.dashboradtest}>Friends</Text>

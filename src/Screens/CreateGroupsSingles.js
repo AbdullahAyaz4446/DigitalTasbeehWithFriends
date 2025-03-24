@@ -57,18 +57,32 @@ const CreateGroupSingle = ({ route }) => {
         });
     };
     // //Create Single Fuunction
-    // const CreateSingle = async () => {
-    //     try {
-    //         const obj={
-    //             Title:grouptitle,
-    //             User_id:Userid
-    //         }
-    //         const responce=await 
-    //     } catch (error) {
-    //         console.log(error);
-    //     }
+    const CreateSingle = async () => {
+        try {
+            const obj={
+                Title:grouptitle,
+                User_id:Userid
+            }
+            const responce=await fetch(Singletasbeeh+"CreateSingletasbeeh",{
+                method:"POST",
+                headers:{
+                    'Content-Type':'application/json',
+                },
+                body:JSON.stringify(obj),
+            });
+            if(responce.ok){
+                const data=await responce.text();
+                console.log(data);
+                navigation.goBack();
+            }else{
+                const errorText=await responce.text();
+                console.log("Error creating Single:",errorText);
+            }
+        } catch (error) {
+            console.log(error);
+        }
 
-    // }
+    }
     // Create Group Function    
     const CreateGroup = async () => {
         try {
@@ -220,7 +234,7 @@ const CreateGroupSingle = ({ route }) => {
             </View>
 
             <View style={styles.footer}>
-                <TouchableOpacity onPress={CreateGroup} style={styles.button}>
+                <TouchableOpacity onPress={selectedType=='Single'?CreateSingle:CreateGroup} style={styles.button}>
                     <Text style={styles.buttonText}>Create</Text>
                 </TouchableOpacity>
             </View>
