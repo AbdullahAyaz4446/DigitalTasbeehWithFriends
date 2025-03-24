@@ -13,6 +13,8 @@ import CreateGroupsSingles from './src/Screens/CreateGroupsSingles';
 import AssignTasbeeh from './src/Screens/AssignTasbeeh';
 import Maunnallycontribution from './src/Screens/Maunnallycontribution';
 import TasbeehGroup from './src/Screens/TasbeehGroup';
+import Friends from './src/Screens/Friends';
+import Craetewazifa from './src/Screens/Craetewazifa';
 
 const Stack = createNativeStackNavigator();
 
@@ -45,6 +47,8 @@ const App = () => {
         <Stack.Screen name="AssignTasbeeh" component={AssignTasbeeh} />
         <Stack.Screen name="Maunnallycontribution" component={Maunnallycontribution} />
         <Stack.Screen name="AdminGrouptasbeeh" component={TasbeehGroup} />
+        <Stack.Screen name="Friends" component={Friends} />
+        <Stack.Screen name="Wazifa" component={Craetewazifa} />
       </Stack.Navigator>
     </NavigationContainer>
   );

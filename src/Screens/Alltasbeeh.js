@@ -7,6 +7,8 @@ import {
   FlatList,
   Image,
   Alert,
+  Modal,
+  TouchableWithoutFeedback
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
@@ -16,6 +18,7 @@ const AllTasbeehScreen = ({ route }) => {
   {/*Varaiables*/ }
   const { Userid } = route.params;
   const [tasbeeh, settasbeeh] = useState([]);
+  const [showModal, setShowModal] = useState(false);
   const navigation = useNavigation();
   {/*All Tasbeeh Api Function*/ }
   const Alltasbeeh = async () => {
@@ -60,13 +63,13 @@ const AllTasbeehScreen = ({ route }) => {
     Alltasbeeh();
   }, [Alltasbeeh]);
   {/*Flat List To Show All Tasbeeh Function*/ }
-  const Show = ({ item }) => ( 
+  const Show = ({ item }) => (
     <View style={styles.itemContainer}>
       <View style={styles.itemContent}>
         <Text style={styles.itemText}>{item.Tasbeeh_Title}</Text>
-        {/* <TouchableOpacity>
+        <TouchableOpacity>
           <Image source={require('../Assests/pencil.png')} style={styles.logo} />
-        </TouchableOpacity> */}
+        </TouchableOpacity>
       </View>
       <TouchableOpacity onPress={() => { deletetasbeeh(item.ID); }}>
         <Image source={require('../Assests/trash.png')} style={styles.logo} />
@@ -86,13 +89,37 @@ const AllTasbeehScreen = ({ route }) => {
         renderItem={Show}
       />
       <TouchableOpacity
-        onPress={() =>
-          navigation.navigate('CraeteTasbeeh', { "Userid": Userid })
-        }
+
+        onPress={() => setShowModal(true)}
         style={styles.fab}
       >
         <Ionicons name="add" size={40} color="white" />
       </TouchableOpacity>
+      <Modal transparent visible={showModal} animationType="fade">
+        <TouchableWithoutFeedback onPress={() => setShowModal(false)}>
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)', padding: 20 }}>
+            <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 20, width: '90%', height: '30%' }}>
+              <Text style={{ fontSize: 24, fontWeight: 'bold', textAlign: 'center', marginBottom: 20, color: 'black' }}>Select Option</Text>
+              <TouchableOpacity onPress={() => {
+                setShowModal(false);
+                navigation.navigate('CraeteTasbeeh', { "Userid": Userid })
+              }
+              } style={{ backgroundColor: colors.tasbeehconatiner, padding: 10, borderRadius: 10, marginBottom: 10 }}>
+                <Text style={{ fontSize: 18, color: 'black', textAlign: 'center' }}>Quran Tasbeeh</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => {
+                setShowModal(false);
+                navigation.navigate('Wazifa', { "Userid": Userid })
+              }} style={{ backgroundColor: colors.tasbeehconatiner, padding: 10, borderRadius: 10, marginBottom: 10 }}>
+                <Text style={{ fontSize: 18, color: 'black', textAlign: 'center' }}>Wazifa Tasbeeh</Text>
+              </TouchableOpacity>
+            </View>
+
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+
+
     </View>
   );
 };

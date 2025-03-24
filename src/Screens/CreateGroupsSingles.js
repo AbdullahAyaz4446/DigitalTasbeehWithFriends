@@ -56,15 +56,19 @@ const CreateGroupSingle = ({ route }) => {
             }
         });
     };
-    //Create Single Fuunction
-    const CreateSingle = async () => {
-        try {
+    // //Create Single Fuunction
+    // const CreateSingle = async () => {
+    //     try {
+    //         const obj={
+    //             Title:grouptitle,
+    //             User_id:Userid
+    //         }
+    //         const responce=await 
+    //     } catch (error) {
+    //         console.log(error);
+    //     }
 
-        } catch (error) {
-            console.log(error);
-        }
-
-    }
+    // }
     // Create Group Function    
     const CreateGroup = async () => {
         try {

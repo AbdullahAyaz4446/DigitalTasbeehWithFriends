@@ -242,6 +242,7 @@ const CreateTasbeeh = ({ route }) => {
                         <Text style={styles.formLabel}>Ayah From</Text>
                         <Text style={styles.formLabel}>Ayah To</Text>
                         <Text style={styles.formLabel}>Count</Text>
+                        <Text style={styles.formLabel}>Tasbeeh no</Text>
                     </View>
 
                     <View style={styles.tasbeehFormInputs}>
@@ -314,6 +315,14 @@ const CreateTasbeeh = ({ route }) => {
                         <TextInput
                             style={styles.smallInput}
                             placeholder="Enter Count"
+                            placeholderTextColor="#A9A9A9"
+                            keyboardType="numeric"
+                            value={count}
+                            onChangeText={setCount}
+                        />
+                          <TextInput
+                            style={styles.smallInput}
+                            placeholder="Enter Sequence number"
                             placeholderTextColor="#A9A9A9"
                             keyboardType="numeric"
                             value={count}
