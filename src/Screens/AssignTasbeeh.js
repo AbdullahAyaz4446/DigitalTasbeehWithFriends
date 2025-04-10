@@ -33,7 +33,11 @@ const AssignTasbeeh = ({ route }) => {
     // Use useEffect to handle navigation when contributetype changes
     useEffect(() => {
         if (contributetype === 'Mannully') {
-            navigation.navigate('Maunnallycontribution');
+            navigation.navigate('Maunnallycontribution', {
+                "groupid": groupid,
+                "Userid": Userid
+            });
+            
         }
     }, [contributetype, navigation]);
     // for load all groups and all  tasbeeh in the screen load

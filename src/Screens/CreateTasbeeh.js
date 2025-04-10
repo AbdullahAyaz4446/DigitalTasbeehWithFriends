@@ -12,6 +12,7 @@ import { useNavigation } from '@react-navigation/native';
 import { colors } from '../utiles/colors';
 import { SelectList } from 'react-native-dropdown-select-list';
 
+
 const CreateTasbeeh = ({ route }) => {
     {/*Varaiables*/ }
     const { Userid } = route.params;
@@ -186,10 +187,16 @@ const CreateTasbeeh = ({ route }) => {
     const showdata = ({ item }) => (
         <View style={{ marginVertical: 10, backgroundColor: colors.tasbeehconatiner, borderRadius: 20 }}>
             <View style={{ margin: 20 }}>
-                <Text style={{ color: 'black', fontSize: 16 }}>ID:{item.ID}</Text>
-                <Text style={{ color: 'black', fontSize: 16 }}>Surah Name:{item.Sura_name}</Text>
-                <Text style={{ color: 'black', fontSize: 14 }}>Text:{item.Ayah_text}</Text>
+                {/* <Text style={{ color: 'black', fontSize: 16 }}>ID:{item.ID}</Text> */}
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                <Text style={{ color: 'black', fontSize: 16,fontWeight:'bold' }}>{item.Sura_name}</Text>
+                <Text style={{ color: 'black', fontSize: 16,fontWeight:'bold' }}>{item.Ayah_number_from}      To     {item.Ayah_number_to}</Text>
+                <Text style={{ color: 'black', fontSize: 16,fontWeight:'bold' }}>Count:{item.Count}</Text>
+                
+                </View>
+                <Text style={{ color: 'black', fontSize: 14 ,fontWeight:'bold'}}>{item.Ayah_text}</Text>
             </View>
+            <View style={{flexDirection:'row',justifyContent:'space-between'}}>
             <View style={{ alignItems: 'center', marginVertical: 20 }}>
                 <TouchableOpacity onPress={() => {
                     deletequrantasbeeh(item.ID);
@@ -197,6 +204,16 @@ const CreateTasbeeh = ({ route }) => {
                     <Image source={require('../Assests/trash.png')} style={styles.logo} />
                 </TouchableOpacity>
             </View>
+            <View style={{ alignItems: 'center', marginVertical: 20 }}>
+                <TouchableOpacity onPress={() => {
+                    deletequrantasbeeh(item.ID);
+                }}>
+                  <Ionicons name="caret-up-circle" size={40} color="#000" />
+                </TouchableOpacity>
+            </View>
+
+            </View>
+          
 
         </View>
     );
@@ -242,7 +259,6 @@ const CreateTasbeeh = ({ route }) => {
                         <Text style={styles.formLabel}>Ayah From</Text>
                         <Text style={styles.formLabel}>Ayah To</Text>
                         <Text style={styles.formLabel}>Count</Text>
-                        <Text style={styles.formLabel}>Tasbeeh no</Text>
                     </View>
 
                     <View style={styles.tasbeehFormInputs}>
@@ -320,14 +336,7 @@ const CreateTasbeeh = ({ route }) => {
                             value={count}
                             onChangeText={setCount}
                         />
-                          <TextInput
-                            style={styles.smallInput}
-                            placeholder="Enter Sequence number"
-                            placeholderTextColor="#A9A9A9"
-                            keyboardType="numeric"
-                            value={count}
-                            onChangeText={setCount}
-                        />
+                          
                     </View>
                 </View>
                 <View style={{ width: "40%" }}>
@@ -340,7 +349,7 @@ const CreateTasbeeh = ({ route }) => {
                 data={qurantasbeehdata}
                 renderItem={showdata}
             />
-            <View style={{ width: "100%", justifyContent: 'flex-end' }}>
+            <View style={{ width: "100%", justifyContent: 'flex-end'}}>
                 <TouchableOpacity onPress={() => {
                     Compundtasbeehdata();
                 }} style={styles.button}>

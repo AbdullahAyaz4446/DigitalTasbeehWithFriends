@@ -8,15 +8,17 @@ import { colors } from '../utiles/colors';
 const LoginScreen = () => {
     {/*Varaiables*/ }
   const navigation = useNavigation();
-  const [Email, setemail] = useState('');
-  const [Password, setPassword] = useState('');
+  const [email, setemail] = useState('');
+  const [password, setPassword] = useState('');
 
 
   const Login=async()=>{
     try {
-      const query = `Login?email=${encodeURIComponent(Email)}&password=${encodeURIComponent(Password)}`;
+      console.log("pressed");
+      const query = `Login?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
       const responce=await fetch(url+query);
       if(responce.ok){
+        console.log("Hello");
         var Userid=await responce.json();
         console.log(Userid); 
         navigation.navigate('Home',{
@@ -29,8 +31,6 @@ const LoginScreen = () => {
     } catch (error) {
       console.log(error.message);
     }
-   
-
   }
 
    {/*Move Screen Sign Up */ }
@@ -57,7 +57,7 @@ const LoginScreen = () => {
           style={[styles.input, { color: 'black' }]}
           placeholder="Enter your email"
           placeholderTextColor="#A9A9A9"
-          value={Email}
+          value={email}
           onChangeText={setemail}
           autoCapitalize="none"
         />
@@ -69,7 +69,7 @@ const LoginScreen = () => {
           style={[styles.input, { color: 'black' }]}
           placeholder="Enter your Password"
           placeholderTextColor="#A9A9A9"
-          value={Password}
+          value={password}
           onChangeText={setPassword}
           keyboardType="default"
           secureTextEntry

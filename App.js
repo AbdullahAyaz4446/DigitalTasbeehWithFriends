@@ -17,9 +17,8 @@ import Friends from './src/Screens/Friends';
 import Craetewazifa from './src/Screens/Craetewazifa';
 
 const Stack = createNativeStackNavigator();
-
 const App = () => {
-  var ipadd = '192.168.100.224';
+  var ipadd = '192.168.100.225';
   global.url = `http://${ipadd}/DigitalTasbeehWithFriendsApi/api/user/`;
   global.tasbeehurl = `http://${ipadd}/DigitalTasbeehWithFriendsApi/api/CreateTasbeeh/`;
   // global.Imageurl = `http://${ipadd}/DigitalTasbeehWithFriendsApi/Images/`;
@@ -27,7 +26,6 @@ const App = () => {
   global.AssignTasbeh= `http://${ipadd}/DigitalTasbeehWithFriendsApi/api/AssignTasbeeh/`;
   global.SendRequest= `http://${ipadd}/DigitalTasbeehWithFriendsApi/api/Request/`;
   global.Singletasbeeh= `http://${ipadd}/DigitalTasbeehWithFriendsApi/api/Sigle/`;
-
   return (
     <NavigationContainer >
       <Stack.Navigator
@@ -46,7 +44,7 @@ const App = () => {
         <Stack.Screen name="CreateGroupSingle" component={CreateGroupsSingles} />
         <Stack.Screen name="AssignTasbeeh" component={AssignTasbeeh} />
         <Stack.Screen name="Maunnallycontribution" component={Maunnallycontribution} />
-        <Stack.Screen name="AdminGrouptasbeeh" component={TasbeehGroup} />
+        <Stack.Screen name="TasbeehGroup" component={TasbeehGroup} />
         <Stack.Screen name="Friends" component={Friends} />
         <Stack.Screen name="Wazifa" component={Craetewazifa} />
       </Stack.Navigator>

@@ -49,6 +49,15 @@ const TasbeehGroup = () => {
           <View style={[styles.progress, { width: `${progress}%` }]} />
         </View>
       </View>
+      <View style={{padding:20}}>
+      <Text style={{fontSize:20,color:'black',fontWeight:'bold'}}>DeadLine :</Text>
+      </View>
+      <View style={{padding:20,backgroundColor:colors.tasbeehconatiner,borderRadius:30}}>
+    <View style={{backgroundColor:'pink',alignSelf:'center'}}>
+      <Text style={{color:'black',fontWeight:'bold',fontSize:20}}>Tasbeeh Name</Text>
+    </View>
+      </View>
+ 
 
    
       <View style={styles.fabContainer}>
@@ -93,6 +102,7 @@ const styles = StyleSheet.create({
   },
   progressText: {
     fontSize: 16,
+    color:'black'
   },
   progressBar: {
     height: 30,

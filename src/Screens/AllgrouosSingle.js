@@ -87,7 +87,7 @@ const AllgrouosSingle = ({ route }) => {
             }}
             onPress={() => {
                 if (item.type === 'group') {
-                    navigation.navigate('AdminGrouptasbeeh', { groupId: item.id });
+                    navigation.navigate('TasbeehGroup', { groupId: item.id });
                 } else {
                     navigation.navigate('SingleTasbeeh', { tasbeehId: item.id });
                 }

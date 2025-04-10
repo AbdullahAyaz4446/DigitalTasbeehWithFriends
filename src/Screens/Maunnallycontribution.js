@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     View,
     Text,
@@ -11,13 +11,37 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { useNavigation } from '@react-navigation/native';
 import { colors } from '../utiles/colors';
 
-const Maunnallycontribution = () => {
+const Maunnallycontribution = ({ route }) => {
     const navigation = useNavigation();
-    const data = [
-        { name: 'Abdullah Ayaz' },
-        { name: 'Tuheed Ayaz' }
-    ];
+    const { groupid, Userid } = route.params;
+    const [data, setdata] = useState([]);
+    const [grouptitle, setgrouptitle] = useState();
 
+    // Get All Group Members 
+    const getallGroupMembers = async () => {
+        try {
+            const query = `ShowGroupmembers?groupid=${groupid}`;
+            const responce = await fetch(SendRequest + query);
+            if (responce.ok) {
+                const data = await responce.json();
+                setdata(data);
+                setgrouptitle(data[0].GroupTitle);
+
+                console.log(data);
+
+            }
+            else {
+                console.log("Not fetch data");
+            }
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+    useEffect(() => {
+        console.log("Group ID: ", groupid);
+        getallGroupMembers();
+    }, []);
     return (
         <View style={styles.container}>
             <View style={{ flex: 1 }}>
@@ -25,21 +49,28 @@ const Maunnallycontribution = () => {
                     <TouchableOpacity onPress={() => { navigation.goBack() }}>
                         <Ionicons name="arrow-back-circle-sharp" size={40} color="#000" />
                     </TouchableOpacity>
-                    <Text style={styles.headerTitle}>Roommates</Text>
+                    <Text style={styles.headerTitle}>{grouptitle}</Text>
                 </View>
                 <View>
-                    <Text style={[styles.headerTitle, { flex: 0 }]}>Group Members:</Text>
+                    <Text style={[styles.headerTitle, { flex: 0 }]}>Group Members:{data.length}</Text>
                 </View>
                 <View style={{ marginTop: 20 }}>
                     <Text style={[styles.headerTitle, { flex: 0 }]}>Group Members Details</Text>
                 </View>
 
                 <FlatList
-                    data={data}
-
+                    data={data.sort((a, b) => a.Memmber.localeCompare(b.Memmber))}
                     renderItem={({ item }) => (
                         <View style={styles.itemContainer}>
-                            <Text style={styles.itemText}>{item.name}</Text>
+                            {Userid == item.Memberid ?
+                                <View style={{ flexDirection: 'row', alignItems: 'center',justifyContent:"space-between" }}>
+                                    <Text style={styles.itemText}>{item.Memmber}</Text>
+                                    <Text style={[styles.itemText, { color: 'green', paddingRight:20}]}>Admin</Text>
+                                </View>
+                                :
+                                <Text style={styles.itemText}>{item.Memmber}</Text>
+                            }
+
                             <View style={styles.inputButtonContainer}>
                                 <TextInput
                                     style={styles.input}
