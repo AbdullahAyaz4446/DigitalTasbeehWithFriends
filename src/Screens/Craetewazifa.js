@@ -16,20 +16,74 @@ import { SelectList } from 'react-native-dropdown-select-list';
 const Craetewazifa = ({ route }) => {
     {/*Varaiables*/ }
     const { Userid } = route.params;
-    const [wazifatitle,setwazifatitle]=useState('');
-    const [wazifatext,setwazifatext]=useState('');
-    const [Count,setcount]=useState('');
+    const [wazifatitle, setwazifatitle] = useState('');
+    const [wazifatext, setwazifatext] = useState('');
+    const [Count, setcount] = useState('');
     const navigation = useNavigation();
 
- 
+    //Add Wazifa Title Api Function
+    const addwazifatitle = async () => {
+        try {
+            const obj = {
+                "Wazifa_Title": wazifatitle,
+                "User_id": Userid
+            };
+            const responce = await fetch(Wazifa + "Createwazifa", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(obj),
+            });
+            if (responce.ok) {
+                const ans = await responce.json();
+                console.log(ans);
+            }
+            else {
+                const ans = await responce.json();
+                console.log(ans);
+            }
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+    //  Add wazifa text Api Function
+    const addwazifatext = async () => {
+        try {
+            const obj={
+                "text":wazifatext,
+                "count":Count,
+            };
+            const responce= await fetch(Wazifa+"Addwazifatext",{
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(obj),
+            });
+            if(responce.ok){
+                const ans= await responce.json();
+                console.log(ans);
+            }
+            else{
+                const ans= await responce.json();
+                console.log(ans);
+            }
+
+
+        } catch (error) {
+            console.log(error);
+        }
+
+    }
+
 
     {/*Flate List Function To Show The Data Of Quran Tasbeeh Added */ }
     const showdata = ({ item }) => (
         <View style={{ marginVertical: 10, backgroundColor: colors.tasbeehconatiner, borderRadius: 20 }}>
             <View style={{ margin: 20 }}>
-                <Text style={{ color: 'black', fontSize: 16 }}>ID:{item.ID}</Text>
-                <Text style={{ color: 'black', fontSize: 16 }}>Surah Name:{item.Sura_name}</Text>
-                <Text style={{ color: 'black', fontSize: 14 }}>Text:{item.Ayah_text}</Text>
+
             </View>
             <View style={{ alignItems: 'center', marginVertical: 20 }}>
                 <TouchableOpacity onPress={() => {
@@ -38,7 +92,6 @@ const Craetewazifa = ({ route }) => {
                     <Image source={require('../Assests/trash.png')} style={styles.logo} />
                 </TouchableOpacity>
             </View>
-
         </View>
     );
     return (
@@ -73,11 +126,11 @@ const Craetewazifa = ({ route }) => {
                             style={styles.smallInput}
                             placeholder="Enter Wazifa Text"
                             placeholderTextColor="#A9A9A9"
-                              keyboardType="default"
+                            keyboardType="default"
                             value={wazifatext}
                             onChangeText={setwazifatext}
                         />
-                          <TextInput
+                        <TextInput
                             style={styles.smallInput}
                             placeholder="Enter Count"
                             placeholderTextColor="#A9A9A9"
@@ -88,7 +141,7 @@ const Craetewazifa = ({ route }) => {
                     </View>
                 </View>
                 <View style={{ width: "40%" }}>
-                    <TouchableOpacity style={styles.button}>
+                    <TouchableOpacity onPress={()=>addwazifatext()} style={styles.button}>
                         <Text style={styles.buttonText}>ADD</Text>
                     </TouchableOpacity>
                 </View>
@@ -97,10 +150,8 @@ const Craetewazifa = ({ route }) => {
                 // data={qurantasbeehdata}
                 renderItem={showdata}
             />
-            <View style={{ width: "100%" ,justifyContent:'flex-end'}}>
-                <TouchableOpacity onPress={() => {
-                    Compundtasbeehdata();
-                }} style={styles.button}>
+            <View style={{ width: "100%", justifyContent: 'flex-end' }}>
+                <TouchableOpacity onPress={() => { addwazifatitle() }} style={styles.button}>
                     <Text style={styles.buttonText}>Submit</Text>
                 </TouchableOpacity>
             </View>

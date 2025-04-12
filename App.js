@@ -26,6 +26,7 @@ const App = () => {
   global.AssignTasbeh= `http://${ipadd}/DigitalTasbeehWithFriendsApi/api/AssignTasbeeh/`;
   global.SendRequest= `http://${ipadd}/DigitalTasbeehWithFriendsApi/api/Request/`;
   global.Singletasbeeh= `http://${ipadd}/DigitalTasbeehWithFriendsApi/api/Sigle/`;
+  global.Wazifa= `http://${ipadd}/DigitalTasbeehWithFriendsApi/api/Wazifa/`;
   return (
     <NavigationContainer >
       <Stack.Navigator
