@@ -11,15 +11,35 @@ import {
   TouchableWithoutFeedback
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { colors } from '../utiles/colors';
 
 const AllTasbeehScreen = ({ route }) => {
   {/*Varaiables*/ }
   const { Userid } = route.params;
   const [tasbeeh, settasbeeh] = useState([]);
+  const [wazifa, setwazifa] = useState([]);
+  const [compund, setcompund] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const navigation = useNavigation();
+  // All Wazifa Api Function
+  const Allwazifa = async () => {
+    try {
+      const query = `Allwazifa?id=${encodeURIComponent(Userid)}`;
+      const responce = await fetch(url + query);
+      if (responce.ok) {
+        const data = await responce.json();
+        console.log(data);
+        setwazifa(data);
+      }
+      else {
+        const ans = await responce.text();
+        console.log(ans);
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
   {/*All Tasbeeh Api Function*/ }
   const Alltasbeeh = async () => {
     try {
@@ -31,13 +51,13 @@ const AllTasbeehScreen = ({ route }) => {
         const data = await response.json();
         console.log(data);
         settasbeeh(data);
+
       } else {
-        console.error('Failed to fetch tasbeeh:', response.status);
-        Alert.alert('Error', 'Failed to load tasbeeh. Please try again.');
+        const ans = await response.text();
+        console.log(ans);
       }
     } catch (error) {
-      console.error('Error fetching tasbeeh:', error);
-      Alert.alert('Error', 'Something went wrong. Please check your network.');
+      console.log(error.message);
     }
   };
   {/*Delete Tasbeeh Api Function*/ }
@@ -45,9 +65,8 @@ const AllTasbeehScreen = ({ route }) => {
     try {
       const query = `Deletetasbeeh?userid=${encodeURIComponent(Userid)}&tabseehid=${encodeURIComponent(ID)}`;
       const responce = await fetch(tasbeehurl + query);
-      if (response.ok) {
-        var tasbeehid = await response.json();
-
+      if (responce.ok) {
+        var tasbeehid = await responce.json();
       }
       else {
         const ans = await responce.text();
@@ -56,17 +75,39 @@ const AllTasbeehScreen = ({ route }) => {
     } catch (error) {
       console.log(error.message);
     }
-
   }
+  {/*Use Effect To Get All tasbeeh and wazifa and compund*/ }
+
+  useEffect(() => {
+    const combine = [
+      ...tasbeeh.map(item => ({ ...item, type: 'Tasbeeh' })),
+      ...wazifa.map(item => ({ ...item, type: 'Wazifa' }))
+    ];
+    setcompund(combine);
+
+  }, [tasbeeh, wazifa]);
+
   {/*Use Effect To Get All Tasbeeh In the Screen Load*/ }
   useEffect(() => {
+    Allwazifa();
     Alltasbeeh();
-  }, [Alltasbeeh]);
+  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      Allwazifa();
+      Alltasbeeh();
+    }, [])
+  );
+
   {/*Flat List To Show All Tasbeeh Function*/ }
   const Show = ({ item }) => (
     <View style={styles.itemContainer}>
       <View style={styles.itemContent}>
-        <Text style={styles.itemText}>{item.Tasbeeh_Title}</Text>
+        {item.type === 'Tasbeeh' ?
+          <Text style={styles.itemText}>{item.Tasbeeh_Title}</Text>
+          :
+          <Text style={styles.itemText}>{item.Wazifa_Title}</Text>
+        }
         <TouchableOpacity>
           <Image source={require('../Assests/pencil.png')} style={styles.logo} />
         </TouchableOpacity>
@@ -85,7 +126,7 @@ const AllTasbeehScreen = ({ route }) => {
         <Text style={styles.headerTitle}>All Tasbeeh</Text>
       </View>
       <FlatList
-        data={tasbeeh}
+        data={compund}
         renderItem={Show}
       />
       <TouchableOpacity

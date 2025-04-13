@@ -122,9 +122,10 @@ const CreateTasbeeh = ({ route }) => {
                     const ans = await response.text();
                     console.log(ans);
                     Compundtasbeeh = [];
-                    navigation.navigate('Alltasbeeh', {
-                        "Userid": Userid
-                    })
+                    // navigation.navigate('Alltasbeeh', {
+                    //     "Userid": Userid
+                    // })
+                    navigation.goBack();
                 } else {
                     const ans = await response.text();
                     console.log("Error:", ans);

@@ -5,7 +5,7 @@ import {
     TouchableOpacity,
     StyleSheet,
     TextInput,
-    FlatList, Image
+    FlatList, Image,Alert
 } from 'react-native';
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useNavigation } from '@react-navigation/native';
@@ -19,11 +19,15 @@ const Craetewazifa = ({ route }) => {
     const [wazifatitle, setwazifatitle] = useState('');
     const [wazifatext, setwazifatext] = useState('');
     const [Count, setcount] = useState('');
+    const [compund, setcompund] = useState([]);
+    const [data, setdata] = useState([]);
     const navigation = useNavigation();
 
     //Add Wazifa Title Api Function
     const addwazifatitle = async () => {
+     
         try {
+            if(wazifatitle){
             const obj = {
                 "Wazifa_Title": wazifatitle,
                 "User_id": Userid
@@ -37,13 +41,18 @@ const Craetewazifa = ({ route }) => {
             });
             if (responce.ok) {
                 const ans = await responce.json();
-                console.log(ans);
+                console.log("Api responce", ans);
+                setwazifatitle('');
+                return ans;
             }
             else {
                 const ans = await responce.json();
                 console.log(ans);
             }
-
+            }
+            else{
+                Alert.alert("Please Enter Wazifa Title");
+            }
         } catch (error) {
             console.log(error);
         }
@@ -51,47 +60,118 @@ const Craetewazifa = ({ route }) => {
     //  Add wazifa text Api Function
     const addwazifatext = async () => {
         try {
-            const obj={
-                "text":wazifatext,
-                "count":Count,
+            if(wazifatext && Count){
+            const obj = {
+                "text": wazifatext,
+                "count": Count,
             };
-            const responce= await fetch(Wazifa+"Addwazifatext",{
+            const responce = await fetch(Wazifa + "Addwazifatext", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(obj),
             });
-            if(responce.ok){
-                const ans= await responce.json();
+            if (responce.ok) {
+                const ans = await responce.json();
+                console.log(ans);
+                setdata([...data, ans]);
+                setcompund(prev => [...prev, { "wazifa_text_id": ans.id }]);
+                setwazifatext('');
+                setcount('');
+            }
+            else {
+                const ans = await responce.json();
                 console.log(ans);
             }
-            else{
-                const ans= await responce.json();
-                console.log(ans);
-            }
-
-
+        }
+        else{
+           Alert.alert("Please Enter Wazifa Text and Count");
+        }
         } catch (error) {
             console.log(error);
         }
 
     }
+    // Compund wazifa Api function
+    const CompundWazifadata = async () => {
+        const id = await addwazifatitle();
+        if (id) {
+            try {
+                const updatedCompund = compund.map((element) => ({
+                    ...element,
+                    Wazifa_id: id,
+                }));
 
+                const response = await fetch(Wazifa + "Createcompundwazifa", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(updatedCompund),
+                });
+
+                if (response.ok) {
+                    const ans = await response.json();
+                    console.log(ans);
+                    navigation.goBack();
+                } else {
+                    const ans = await response.text();
+                    console.log("Error:", ans);
+                }
+            } catch (error) {
+                console.log(error.message);
+            }
+        }
+    };
+
+    // useEffect(() => {
+    //     console.log("Current compound state:", compund);
+    // }, [compund]);
 
     {/*Flate List Function To Show The Data Of Quran Tasbeeh Added */ }
+    // const showdata = ({ item }) => (
+    //     <View style={{ marginVertical: 10, backgroundColor: colors.tasbeehconatiner, borderRadius: 20 }}>
+    //         <View style={{ margin: 20 ,backgroundColor:'pink',flexDirection:'row',justifyContent:'space-between'}}>
+    //             <Text style={{ fontSize: 20, color: 'black', fontWeight: 'bold' }}>{item.text}</Text>
+    //             <Text style={{ fontSize: 20, color: 'black', fontWeight: 'bold' }}>{item.count}</Text>
+    //         </View>
+    //         <View style={{ alignItems: 'center', marginVertical: 0 }}>
+    //             <TouchableOpacity onPress={() => {
+    //                 deletequrantasbeeh(item.ID);
+    //             }}>
+    //                 <Image source={require('../Assests/trash.png')} style={styles.logo} />
+    //             </TouchableOpacity>
+    //         </View>
+    //     </View>
+    // );
     const showdata = ({ item }) => (
         <View style={{ marginVertical: 10, backgroundColor: colors.tasbeehconatiner, borderRadius: 20 }}>
             <View style={{ margin: 20 }}>
+                {/* <Text style={{ color: 'black', fontSize: 16 }}>ID:{item.ID}</Text> */}
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                    <Text style={{ fontSize: 20, color: 'black', fontWeight: 'bold' }}>Arabic:{item.text}</Text>
+                    <Text style={{ fontSize: 20, color: 'black', fontWeight: 'bold' }}>Count:{item.count}</Text>
+                </View>
 
             </View>
-            <View style={{ alignItems: 'center', marginVertical: 20 }}>
-                <TouchableOpacity onPress={() => {
-                    deletequrantasbeeh(item.ID);
-                }}>
-                    <Image source={require('../Assests/trash.png')} style={styles.logo} />
-                </TouchableOpacity>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                <View style={{ alignItems: 'center', marginVertical: 20 }}>
+                    <TouchableOpacity onPress={() => {
+                        deletequrantasbeeh(item.ID);
+                    }}>
+                        <Image source={require('../Assests/trash.png')} style={styles.logo} />
+                    </TouchableOpacity>
+                </View>
+                <View style={{ alignItems: 'center', marginVertical: 20 }}>
+                    <TouchableOpacity >
+                        <Ionicons name="caret-up-circle" size={40} color="#000" />
+                    </TouchableOpacity>
+                </View>
+
             </View>
+
+
         </View>
     );
     return (
@@ -141,17 +221,17 @@ const Craetewazifa = ({ route }) => {
                     </View>
                 </View>
                 <View style={{ width: "40%" }}>
-                    <TouchableOpacity onPress={()=>addwazifatext()} style={styles.button}>
+                    <TouchableOpacity onPress={() => addwazifatext()} style={styles.button}>
                         <Text style={styles.buttonText}>ADD</Text>
                     </TouchableOpacity>
                 </View>
             </View>
             <FlatList
-                // data={qurantasbeehdata}
+                data={data}
                 renderItem={showdata}
             />
             <View style={{ width: "100%", justifyContent: 'flex-end' }}>
-                <TouchableOpacity onPress={() => { addwazifatitle() }} style={styles.button}>
+                <TouchableOpacity onPress={() => { CompundWazifadata() }} style={styles.button}>
                     <Text style={styles.buttonText}>Submit</Text>
                 </TouchableOpacity>
             </View>
