@@ -91,7 +91,22 @@ const Craetewazifa = ({ route }) => {
         } catch (error) {
             console.log(error);
         }
-
+    }
+    // Delete wazifatext api function
+    const Deletewazifatext=async(ID)=>{
+        try {
+            const query=`Deletewazifatext?id=${encodeURIComponent(ID)}`;
+            const responce=await fetch(Wazifa+query);
+            if(responce.ok){
+                const ans=await responce.text();
+            }
+            else{
+                const ans=await responce.text();
+                console.log(ans);   
+            }
+        } catch (error) {
+            console.log(error);
+        }
     }
     // Compund wazifa Api function
     const CompundWazifadata = async () => {
@@ -158,7 +173,7 @@ const Craetewazifa = ({ route }) => {
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                 <View style={{ alignItems: 'center', marginVertical: 20 }}>
                     <TouchableOpacity onPress={() => {
-                        deletequrantasbeeh(item.ID);
+                        Deletewazifatext(item.ID);
                     }}>
                         <Image source={require('../Assests/trash.png')} style={styles.logo} />
                     </TouchableOpacity>
