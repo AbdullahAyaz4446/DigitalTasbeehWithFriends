@@ -76,6 +76,7 @@ const Craetewazifa = ({ route }) => {
                 const ans = await responce.json();
                 console.log(ans);
                 setdata([...data, ans]);
+                console.log("Data", data);
                 setcompund(prev => [...prev, { "wazifa_text_id": ans.id }]);
                 setwazifatext('');
                 setcount('');
@@ -93,11 +94,13 @@ const Craetewazifa = ({ route }) => {
         }
     }
     // Delete wazifatext api function
-    const Deletewazifatext=async(ID)=>{
+    const Deletewazifatext=async(id)=>{
         try {
-            const query=`Deletewazifatext?id=${encodeURIComponent(ID)}`;
+            const query=`Deletwazifatext?id=${encodeURIComponent(id)}`;
             const responce=await fetch(Wazifa+query);
             if(responce.ok){
+                setcompund(compund.filter((item) => item.wazifa_text_id !== id));
+                setdata(data.filter((item) => item.id !== id)); // Update FlatList data
                 const ans=await responce.text();
             }
             else{
@@ -110,8 +113,9 @@ const Craetewazifa = ({ route }) => {
     }
     // Compund wazifa Api function
     const CompundWazifadata = async () => {
-        const id = await addwazifatitle();
-        if (id) {
+       
+        if (compund.length > 0) {
+            const id = await addwazifatitle();
             try {
                 const updatedCompund = compund.map((element) => ({
                     ...element,
@@ -140,9 +144,9 @@ const Craetewazifa = ({ route }) => {
         }
     };
 
-    // useEffect(() => {
-    //     console.log("Current compound state:", compund);
-    // }, [compund]);
+    useEffect(() => {
+        console.log("Current compound state:", compund);
+    }, [compund]);
 
     {/*Flate List Function To Show The Data Of Quran Tasbeeh Added */ }
     // const showdata = ({ item }) => (
@@ -163,7 +167,7 @@ const Craetewazifa = ({ route }) => {
     const showdata = ({ item }) => (
         <View style={{ marginVertical: 10, backgroundColor: colors.tasbeehconatiner, borderRadius: 20 }}>
             <View style={{ margin: 20 }}>
-                {/* <Text style={{ color: 'black', fontSize: 16 }}>ID:{item.ID}</Text> */}
+                <Text style={{ color: 'black', fontSize: 16 }}>ID:{item.id}</Text>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                     <Text style={{ fontSize: 20, color: 'black', fontWeight: 'bold' }}>Arabic:{item.text}</Text>
                     <Text style={{ fontSize: 20, color: 'black', fontWeight: 'bold' }}>Count:{item.count}</Text>
@@ -173,7 +177,7 @@ const Craetewazifa = ({ route }) => {
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                 <View style={{ alignItems: 'center', marginVertical: 20 }}>
                     <TouchableOpacity onPress={() => {
-                        Deletewazifatext(item.ID);
+                        Deletewazifatext(item.id);
                     }}>
                         <Image source={require('../Assests/trash.png')} style={styles.logo} />
                     </TouchableOpacity>
