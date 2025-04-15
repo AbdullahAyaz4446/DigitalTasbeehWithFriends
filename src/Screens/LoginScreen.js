@@ -41,9 +41,9 @@ const LoginScreen = () => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={() => navigation.goBack()}>
+      {/* <TouchableOpacity onPress={() => navigation.goBack()}>
         <Ionicons name="arrow-back-circle-sharp" size={40} color="#000" />
-      </TouchableOpacity>
+      </TouchableOpacity> */}
       
       <View style={styles.textcontainer}>
         <Text style={styles.headingtext}>Hey,</Text>

@@ -62,10 +62,12 @@ const AllTasbeehScreen = ({ route }) => {
   };
   {/*Delete Tasbeeh Api Function*/ }
   const deletetasbeeh = async (ID) => {
+    console.log("delete tasbeeh is calling");
     try {
       const query = `Deletetasbeeh?userid=${encodeURIComponent(Userid)}&tabseehid=${encodeURIComponent(ID)}`;
       const responce = await fetch(tasbeehurl + query);
       if (responce.ok) {
+        Alltasbeeh();
         var tasbeehid = await responce.json();
       }
       else {
@@ -76,6 +78,21 @@ const AllTasbeehScreen = ({ route }) => {
       console.log(error.message);
     }
   }
+  {/*Delete Tasbeeh Api Function*/ }
+  const Deletewazifa = async (id) => {
+    console.log("calling delete");
+    try {
+      const query=`Deletecompletewazifa?id=${encodeURIComponent(id)}&userid=${encodeURIComponent(Userid)}`;
+      const responce =await fetch(Wazifa+query);
+      if(responce.ok){
+        Allwazifa();
+        console.log("calling delete");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   {/*Use Effect To Get All tasbeeh and wazifa and compund*/ }
 
   useEffect(() => {
@@ -84,7 +101,6 @@ const AllTasbeehScreen = ({ route }) => {
       ...wazifa.map(item => ({ ...item, type: 'Wazifa' }))
     ];
     setcompund(combine);
-
   }, [tasbeeh, wazifa]);
 
   {/*Use Effect To Get All Tasbeeh In the Screen Load*/ }
@@ -112,7 +128,7 @@ const AllTasbeehScreen = ({ route }) => {
           <Image source={require('../Assests/pencil.png')} style={styles.logo} />
         </TouchableOpacity>
       </View>
-      <TouchableOpacity onPress={() => { deletetasbeeh(item.ID); }}>
+      <TouchableOpacity onPress={() => { item.type === "Tasbeeh" ? deletetasbeeh(item.ID) :Deletewazifa(item.id)}}>
         <Image source={require('../Assests/trash.png')} style={styles.logo} />
       </TouchableOpacity>
     </View>

@@ -8,7 +8,7 @@ const StartScreen = () => {
 
   const handleLogin = () => {
     console.log('Button Pressed!'); 
-    navigation.navigate('Login'); 
+    navigation.replace('Login');
   };
   
   return (

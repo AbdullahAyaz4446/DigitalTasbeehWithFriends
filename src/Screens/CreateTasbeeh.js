@@ -158,6 +158,28 @@ const CreateTasbeeh = ({ route }) => {
             console.log("Error:", error.message);
         }
     };
+    // Swaping the qureen text
+    const Swapdata=(ID)=>{
+        setqurantasbeehdata(predata=>{
+            const currentindex=predata.findIndex((item)=>item.ID===ID);
+            const copydata=[...predata];
+            [copydata[currentindex],copydata[currentindex-1]]=
+            [copydata[currentindex-1],copydata[currentindex]];
+            return copydata;
+        });
+    
+
+        setcompund(prevCompund => {
+            const currentIndex = prevCompund.findIndex(item => item.Quran_Tasbeeh_id == ID);
+            if (currentIndex === -1 || currentIndex === 0) return prevCompund;
+            
+            const newCompund = [...prevCompund];
+            [newCompund[currentIndex], newCompund[currentIndex - 1]] = 
+              [newCompund[currentIndex - 1], newCompund[currentIndex]];
+            
+            return newCompund;
+          });
+    }
 
     {/*Handle Surah From the drop down function*/ }
     const handleSurahChange = (surahKey) => {
@@ -185,39 +207,35 @@ const CreateTasbeeh = ({ route }) => {
         setSelectedAyahTo(null);
     };
     {/*Flate List Function To Show The Data Of Quran Tasbeeh Added */ }
-    const showdata = ({ item }) => (
+    const showdata = ({ item, index }) => (
         <View style={{ marginVertical: 10, backgroundColor: colors.tasbeehconatiner, borderRadius: 20 }}>
             <View style={{ margin: 20 }}>
-                {/* <Text style={{ color: 'black', fontSize: 16 }}>ID:{item.ID}</Text> */}
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                <Text style={{ color: 'black', fontSize: 16,fontWeight:'bold' }}>{item.Sura_name}</Text>
-                <Text style={{ color: 'black', fontSize: 16,fontWeight:'bold' }}>{item.Ayah_number_from}      To     {item.Ayah_number_to}</Text>
-                <Text style={{ color: 'black', fontSize: 16,fontWeight:'bold' }}>Count:{item.Count}</Text>
-                
+                    <Text style={{ color: 'black', fontSize: 16, fontWeight: 'bold' }}>{item.Sura_name}</Text>
+                    <Text style={{ color: 'black', fontSize: 16, fontWeight: 'bold' }}>{item.Ayah_number_from}      To     {item.Ayah_number_to}</Text>
+                    <Text style={{ color: 'black', fontSize: 16, fontWeight: 'bold' }}>Count: {item.Count}</Text>
                 </View>
-                <Text style={{ color: 'black', fontSize: 14 ,fontWeight:'bold'}}>{item.Ayah_text}</Text>
+                <Text style={{ color: 'black', fontSize: 14, fontWeight: 'bold' }}>{item.Ayah_text}</Text>
             </View>
-            <View style={{flexDirection:'row',justifyContent:'space-between'}}>
-            <View style={{ alignItems: 'center', marginVertical: 20 }}>
-                <TouchableOpacity onPress={() => {
-                    deletequrantasbeeh(item.ID);
-                }}>
-                    <Image source={require('../Assests/trash.png')} style={styles.logo} />
-                </TouchableOpacity>
+    
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                <View style={{ alignItems: 'center', marginVertical: 20 }}>
+                    <TouchableOpacity onPress={() => deletequrantasbeeh(item.ID)}>
+                        <Image source={require('../Assests/trash.png')} style={styles.logo} />
+                    </TouchableOpacity>
+                </View>
+    
+                {qurantasbeehdata.length > 1 && index !== 0 && (
+                    <View style={{ alignItems: 'center', marginVertical: 20 }}>
+                        <TouchableOpacity onPress={() => {Swapdata(item.ID)}}>
+                            <Ionicons name="caret-up-circle" size={40} color="#000" />
+                        </TouchableOpacity>
+                    </View>
+                )}
             </View>
-            <View style={{ alignItems: 'center', marginVertical: 20 }}>
-                <TouchableOpacity onPress={() => {
-                    deletequrantasbeeh(item.ID);
-                }}>
-                  <Ionicons name="caret-up-circle" size={40} color="#000" />
-                </TouchableOpacity>
-            </View>
-
-            </View>
-          
-
         </View>
     );
+    
     {/*Use Effect For Add Quran Id in the Compund Arry To Store The each Id of Quran tasbeeh */ }
     useEffect(() => {
         if (quranid) {
@@ -348,7 +366,7 @@ const CreateTasbeeh = ({ route }) => {
             </View>
             <FlatList
                 data={qurantasbeehdata}
-                renderItem={showdata}
+                renderItem={({ item, index }) => showdata({ item, index })}
             />
             <View style={{ width: "100%", justifyContent: 'flex-end'}}>
                 <TouchableOpacity onPress={() => {
