@@ -13,22 +13,77 @@ import { colors } from '../utiles/colors';
 
 const Maunnallycontribution = ({ route }) => {
     const navigation = useNavigation();
-    const { groupid, Userid } = route.params;
+    const { groupid, Userid, Tasbeeh_id, Goal, End_date } = route.params;
     const [data, setdata] = useState([]);
     const [grouptitle, setgrouptitle] = useState();
+    const [groupmembersid, setgroupmembersid] = useState({});
+    const [count, setcount] = useState([]);
+
+    //Assign  Tasbeeh api function
+    const Assigntasbeeh = async () => {
+
+        const AssignTasbeehobj = {
+            Group_id: groupid,
+            Tasbeeh_id: Tasbeeh_id,
+            Goal: Goal,
+            End_date: End_date,
+        };
+        try {
+
+            console.log("hello" + JSON.stringify(AssignTasbeehobj));
+            const response = await fetch(AssignTasbeh + 'AssignTasbeeh', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(AssignTasbeehobj),
+            });
+
+            if (response.ok) {
+                const ans = await response.json();
+                const query=`groupmembersid?groupid=${encodeURIComponent(groupid)}&id=${groupmembersid}&count=${count}`;
+                const distributionResponse = await fetch(SendRequest+query,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    }
+                );
+        
+                if (distributionResponse.ok) {
+                    Alert.alert("Success", "Tasbeeh distributed successfully");
+                    navigation.goBack();
+                } else {
+                    const errorData = await distributionResponse.json();
+                    throw new Error(errorData.message || "Failed to distribute tasbeeh");
+                }
+                
+
+                
+                navigation.goBack();
+            } else {
+                const ans = await response.text();
+                console.log(ans);
+            }
+
+
+        } catch (error) {
+            console.log(error.message);
+        }
+    };
 
     // Get All Group Members 
     const getallGroupMembers = async () => {
         try {
-            const query = `ShowGroupmembers?groupid=${groupid}`;
+            const query = `ShowGroupm?groupid=${groupid}`;
             const responce = await fetch(SendRequest + query);
             if (responce.ok) {
                 const data = await responce.json();
                 setdata(data);
                 setgrouptitle(data[0].GroupTitle);
-
+                setgroupmembersid(data.map(item => item.Memberid));
                 console.log(data);
-
             }
             else {
                 console.log("Not fetch data");
@@ -41,7 +96,9 @@ const Maunnallycontribution = ({ route }) => {
     useEffect(() => {
         console.log("Group ID: ", groupid);
         getallGroupMembers();
-    }, []);
+        console.log("COunt", count);
+        console.log("Ids", groupmembersid);
+    }, [count]);
     return (
         <View style={styles.container}>
             <View style={{ flex: 1 }}>
@@ -60,12 +117,14 @@ const Maunnallycontribution = ({ route }) => {
 
                 <FlatList
                     data={data.sort((a, b) => a.Memmber.localeCompare(b.Memmber))}
-                    renderItem={({ item }) => (
+                    // data={data.sort((a, b) => b.Memberid - a.Memberid)}
+
+                    renderItem={({ item, index }) => (
                         <View style={styles.itemContainer}>
                             {Userid == item.Memberid ?
-                                <View style={{ flexDirection: 'row', alignItems: 'center',justifyContent:"space-between" }}>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: "space-between" }}>
                                     <Text style={styles.itemText}>{item.Memmber}</Text>
-                                    <Text style={[styles.itemText, { color: 'green', paddingRight:20}]}>Admin</Text>
+                                    <Text style={[styles.itemText, { color: 'green', paddingRight: 20 }]}>Admin</Text>
                                 </View>
                                 :
                                 <Text style={styles.itemText}>{item.Memmber}</Text>
@@ -76,27 +135,22 @@ const Maunnallycontribution = ({ route }) => {
                                     style={styles.input}
                                     placeholder="Enter Count"
                                     placeholderTextColor="#A9A9A9"
+                                    keyboardType="numeric"
+                                    value={count[index] || ''}
+                                    onChangeText={(value) => {
+                                        const newCount = [...count];
+                                        newCount[index] = value;
+                                        setcount(newCount);  
+                                    }}
                                 />
-                                {/* <TouchableOpacity style={{
-                                    backgroundColor: 'red',
-                                    paddingVertical: 15,
-                                    paddingHorizontal: 20,
-                                    borderRadius: 30,
-                                }}>
-                                    <Text style={{
-                                        color: colors.white,
-                                        fontWeight: 'bold',
-                                        fontSize: 14,
-                                        textAlign: 'center',
-                                    }}>Assign</Text>
-                                </TouchableOpacity> */}
                             </View>
                         </View>
                     )}
                 />
+
             </View>
             <View>
-                <TouchableOpacity style={styles.button}>
+                <TouchableOpacity onPress={()=>Assigntasbeeh()} style={styles.button}>
                     <Text style={styles.buttonText}>Assign</Text>
                 </TouchableOpacity>
             </View>

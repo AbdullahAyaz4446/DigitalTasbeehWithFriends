@@ -35,7 +35,10 @@ const AssignTasbeeh = ({ route }) => {
         if (contributetype === 'Mannully') {
             navigation.navigate('Maunnallycontribution', {
                 "groupid": groupid,
-                "Userid": Userid
+                "Userid": Userid,
+                "Tasbeeh_id": tasbeehid,
+                "Goal": count,
+                "End_date": deadline
             });
             
         }
@@ -44,9 +47,31 @@ const AssignTasbeeh = ({ route }) => {
     useEffect(() => {
         Allgroups();
         Alltasbeeh();
+        Allwazifa();
         console.log(groupid);
         console.log("Deadline date" + deadline)
     }, [deadline])
+    // Get All Wazifa Api Function
+    const Allwazifa = async () => {
+        try {
+            const query = `Allwazifa?id=${encodeURIComponent(Userid)}`;
+            const response = await fetch(url + query);
+    
+            if (response.ok) {
+                const data = await response.json();
+                const transformedData = data.map((item) => ({
+                    key: item.id,
+                    value: item.Wazifa_Title,
+                }));
+                settasbeeh(prev => [...prev, ...transformedData]);
+             
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
+    
+    
 
     //Get Group Title Api Function
     const Allgroups = async () => {
