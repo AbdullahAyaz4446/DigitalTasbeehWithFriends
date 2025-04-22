@@ -16,12 +16,12 @@ const Maunnallycontribution = ({ route }) => {
     const { groupid, Userid, Tasbeeh_id, Goal, End_date } = route.params;
     const [data, setdata] = useState([]);
     const [grouptitle, setgrouptitle] = useState();
-    const [groupmembersid, setgroupmembersid] = useState({});
+    const [groupmembersid, setgroupmembersid] = useState([]);
     const [count, setcount] = useState([]);
 
     //Assign  Tasbeeh api function
     const Assigntasbeeh = async () => {
-
+        console.log("Function is calling");
         const AssignTasbeehobj = {
             Group_id: groupid,
             Tasbeeh_id: Tasbeeh_id,
@@ -29,7 +29,6 @@ const Maunnallycontribution = ({ route }) => {
             End_date: End_date,
         };
         try {
-
             console.log("hello" + JSON.stringify(AssignTasbeehobj));
             const response = await fetch(AssignTasbeh + 'AssignTasbeeh', {
                 method: 'POST',
@@ -41,27 +40,8 @@ const Maunnallycontribution = ({ route }) => {
 
             if (response.ok) {
                 const ans = await response.json();
-                const query=`groupmembersid?groupid=${encodeURIComponent(groupid)}&id=${groupmembersid}&count=${count}`;
-                const distributionResponse = await fetch(SendRequest+query,
-                    {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                    }
-                );
-        
-                if (distributionResponse.ok) {
-                    Alert.alert("Success", "Tasbeeh distributed successfully");
-                    navigation.goBack();
-                } else {
-                    const errorData = await distributionResponse.json();
-                    throw new Error(errorData.message || "Failed to distribute tasbeeh");
-                }
-                
-
-                
-                navigation.goBack();
+                console.log("hello muannly calling")
+                Distributemunally();
             } else {
                 const ans = await response.text();
                 console.log(ans);
@@ -72,6 +52,27 @@ const Maunnallycontribution = ({ route }) => {
             console.log(error.message);
         }
     };
+    //Distrbute Tasbeeh Manually
+    const Distributemunally = async () => {
+        try {
+            const ids = groupmembersid.map(id => `id=${id}`).join('&');
+            const counts = count.map(c => `count=${c}`).join('&');
+            const query = `DistributeTasbeehManually?groupid=${groupid}&${ids}&${counts}`;
+            
+            const distributionResponse = await fetch(SendRequest + query);
+    
+            if (distributionResponse.ok) {
+                Alert.alert("Success", "Tasbeeh distributed successfully");
+                navigation.goBack();
+            } else {
+                const errorData = await distributionResponse.json();
+                throw new Error(errorData.message || "Failed to distribute tasbeeh");
+            }
+          
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
     // Get All Group Members 
     const getallGroupMembers = async () => {
@@ -140,7 +141,7 @@ const Maunnallycontribution = ({ route }) => {
                                     onChangeText={(value) => {
                                         const newCount = [...count];
                                         newCount[index] = value;
-                                        setcount(newCount);  
+                                        setcount(newCount);
                                     }}
                                 />
                             </View>
@@ -150,7 +151,7 @@ const Maunnallycontribution = ({ route }) => {
 
             </View>
             <View>
-                <TouchableOpacity onPress={()=>Assigntasbeeh()} style={styles.button}>
+                <TouchableOpacity onPress={() => Assigntasbeeh()} style={styles.button}>
                     <Text style={styles.buttonText}>Assign</Text>
                 </TouchableOpacity>
             </View>

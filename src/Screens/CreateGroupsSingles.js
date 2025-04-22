@@ -48,7 +48,7 @@ const CreateGroupSingle = ({ route }) => {
     const handleCheckboxToggle = (id) => {
         setselectedmembersid((prevSelected) => {
             if (prevSelected.includes(id)) {
-                // If already selected, remove it
+              
                 return prevSelected.filter((memberId) => memberId !== id);
             } else {
              

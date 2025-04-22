@@ -35,7 +35,7 @@ const TasbeehGroup = () => {
           <Ionicons name="arrow-back-circle-sharp" size={40} color="#000" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Tasbeeh Group</Text>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity onPress={() => navigation.navigate("Deatilesgrouptasbeeh")}>
           <Ionicons name="options" size={30} color="#000" />
         </TouchableOpacity>
       </View>
