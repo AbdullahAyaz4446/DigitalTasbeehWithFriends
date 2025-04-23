@@ -89,7 +89,7 @@ const AllgrouosSingle = ({ route }) => {
                 if (item.type === 'group') {
                     navigation.navigate('TasbeehGroup', { groupId: item.id });
                 } else {
-                    navigation.navigate('Singletasbeeh', { tasbeehId: item.id });
+                    navigation.navigate('SingleTasbeeh', { tasbeehId: item.id });
                 }
             }}
         >
@@ -147,18 +147,18 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     itemContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
         alignItems: 'center',
-        padding: 10,
+        padding: 25,
         marginVertical: 10,
         borderRadius: 10,
         backgroundColor: colors.tasbeehconatiner,
     },
     itemText: {
-        flex: 1,
         fontSize: 18,
         color: 'black',
+        fontWeight:'bold',
+        paddingLeft: 10,
+        
     },
     fab: {
         position: 'absolute',

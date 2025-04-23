@@ -5,7 +5,8 @@ import {
     TouchableOpacity,
     StyleSheet,
     TextInput,
-    FlatList
+    FlatList,
+    Alert
 } from 'react-native';
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useNavigation } from '@react-navigation/native';
@@ -21,6 +22,16 @@ const Maunnallycontribution = ({ route }) => {
 
     //Assign  Tasbeeh api function
     const Assigntasbeeh = async () => {
+        const numericCount = count.map(val => parseInt(val) || 0);
+        const overLimit = numericCount.some(val => val > Goal);
+        if (overLimit) {
+            Alert.alert("Error", "One or more users have a count greater than the goal. Please adjust the values.");
+            return;
+        }
+
+        const sum = numericCount.reduce((total, item) => total + item, 0);
+
+
         console.log("Function is calling");
         const AssignTasbeehobj = {
             Group_id: groupid,
@@ -28,51 +39,62 @@ const Maunnallycontribution = ({ route }) => {
             Goal: Goal,
             End_date: End_date,
         };
+
         try {
-            console.log("hello" + JSON.stringify(AssignTasbeehobj));
-            const response = await fetch(AssignTasbeh + 'AssignTasbeeh', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(AssignTasbeehobj),
-            });
+            if (sum < Goal||sum==Goal||sum<Goal) {
+                console.log("hello" + JSON.stringify(AssignTasbeehobj));
+                const response = await fetch(AssignTasbeh + 'AssignTasbeeh', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(AssignTasbeehobj),
+                });
 
-            if (response.ok) {
-                const ans = await response.json();
-                console.log("hello muannly calling")
-                Distributemunally();
+                if (response.ok) {
+                    const ans = await response.json();
+                    console.log("hello muannly calling")
+                    Distributemunally();
+                } else {
+                    const ans = await response.text();
+                    console.log(ans);
+                }
+
             } else {
-                const ans = await response.text();
-                console.log(ans);
+                Alert.alert("Error", "The total assigned count are not full fill the requiremnts");
             }
-
-
         } catch (error) {
             console.log(error.message);
         }
+
     };
+
     //Distrbute Tasbeeh Manually
     const Distributemunally = async () => {
         try {
-            const ids = groupmembersid.map(id => `id=${id}`).join('&');
-            const counts = count.map(c => `count=${c}`).join('&');
-            const query = `DistributeTasbeehManually?groupid=${groupid}&${ids}&${counts}`;
-            
-            const distributionResponse = await fetch(SendRequest + query);
-    
+            const formData = new FormData();
+            formData.append("groupid", groupid.toString());
+
+            formData.append("id", JSON.stringify(groupmembersid));
+            formData.append("count", JSON.stringify(count));
+
+            const distributionResponse = await fetch(SendRequest + 'DistributeTasbeehManually', {
+                method: 'POST',
+                body: formData,
+            });
+
             if (distributionResponse.ok) {
-                Alert.alert("Success", "Tasbeeh distributed successfully");
+                navigation.goBack();
                 navigation.goBack();
             } else {
                 const errorData = await distributionResponse.json();
                 throw new Error(errorData.message || "Failed to distribute tasbeeh");
             }
-          
+
         } catch (error) {
-            console.log(error);
+            console.error("Error distributing tasbeeh:", error);
         }
-    }
+    };
 
     // Get All Group Members 
     const getallGroupMembers = async () => {
@@ -94,12 +116,14 @@ const Maunnallycontribution = ({ route }) => {
             console.log(error);
         }
     }
+
     useEffect(() => {
         console.log("Group ID: ", groupid);
         getallGroupMembers();
         console.log("COunt", count);
         console.log("Ids", groupmembersid);
     }, [count]);
+
     return (
         <View style={styles.container}>
             <View style={{ flex: 1 }}>

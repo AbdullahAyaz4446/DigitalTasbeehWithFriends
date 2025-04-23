@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
     View,
     Text,
@@ -8,7 +8,7 @@ import {
     ScrollView
 } from 'react-native';
 import Ionicons from "react-native-vector-icons/Ionicons";
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { colors } from '../utiles/colors';
 import { SelectList } from 'react-native-dropdown-select-list';
 import CalendarPicker from 'react-native-calendar-picker';
@@ -30,6 +30,7 @@ const AssignTasbeeh = ({ route }) => {
         { key: '2', value: 'Mannully' },
     ];
 
+
     // Use useEffect to handle navigation when contributetype changes
     useEffect(() => {
         if (contributetype === 'Mannully') {
@@ -40,38 +41,42 @@ const AssignTasbeeh = ({ route }) => {
                 "Goal": count,
                 "End_date": deadline
             });
-            
+
         }
     }, [contributetype, navigation]);
+
+
     // for load all groups and all  tasbeeh in the screen load
     useEffect(() => {
-        Allgroups();
+        settasbeeh([]); // clear existing before loading new
         Alltasbeeh();
         Allwazifa();
-        console.log(groupid);
-        console.log("Deadline date" + deadline)
+        Allgroups();
     }, [deadline])
+
+
     // Get All Wazifa Api Function
     const Allwazifa = async () => {
         try {
             const query = `Allwazifa?id=${encodeURIComponent(Userid)}`;
             const response = await fetch(url + query);
-    
+
             if (response.ok) {
                 const data = await response.json();
                 const transformedData = data.map((item) => ({
-                    key: item.id,
-                    value: item.Wazifa_Title,
+                    key: `w-${item.id}`, // Add prefix to avoid key clash
+                    value: item.Wazifa_Title + " (Wazifa)",
                 }));
+
                 settasbeeh(prev => [...prev, ...transformedData]);
-             
             }
         } catch (error) {
             console.log(error);
         }
     };
-    
-    
+
+
+
 
     //Get Group Title Api Function
     const Allgroups = async () => {
@@ -101,22 +106,22 @@ const AssignTasbeeh = ({ route }) => {
             console.log(error);
         }
     };
+
+
     {/*All Tasbeeh Api Function*/ }
     const Alltasbeeh = async () => {
         try {
-
             const query = `Alltasbeeh?userid=${encodeURIComponent(Userid)}`;
             const response = await fetch(tasbeehurl + query);
 
             if (response.ok) {
                 const data = await response.json();
-                console.log(data);
-                const transformedData = data
-                    .map((item) => ({
-                        key: item.ID,
-                        value: item.Tasbeeh_Title
-                    }));
-                settasbeeh(transformedData);
+                const transformedData = data.map((item) => ({
+                    key: `t-${item.ID}`,
+                    value: item.Tasbeeh_Title + " (Tasbeeh)",
+                }));
+
+                settasbeeh(prev => [...prev, ...transformedData]);
             } else {
                 console.error('Failed to fetch tasbeeh:', response.status);
                 Alert.alert('Error', 'Failed to load tasbeeh. Please try again.');
@@ -126,6 +131,7 @@ const AssignTasbeeh = ({ route }) => {
             Alert.alert('Error', 'Something went wrong. Please check your network.');
         }
     };
+
     const Assigntasbeeh = async () => {
 
         const AssignTasbeehobj = {
@@ -169,11 +175,12 @@ const AssignTasbeeh = ({ route }) => {
             console.log(error.message);
         }
     };
+
     // Equally Contribution  Api Function\
     const DistributeTasbeehEqually = async () => {
         try {
             const Query = `DistributeTasbeehEqually?groupid=${groupid}`;
-            const response = await fetch(SendRequest + Query,{
+            const response = await fetch(SendRequest + Query, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -183,7 +190,7 @@ const AssignTasbeeh = ({ route }) => {
             if (response.ok) {
                 const ans = await response.json();
                 console.log(ans);
-               
+
             } else {
                 const ans = await response.json();
                 console.log(ans);
@@ -194,6 +201,7 @@ const AssignTasbeeh = ({ route }) => {
 
         }
     }
+    
     // handle date time
     const handleDateChange = (date) => {
         const year = date.getFullYear();
@@ -260,6 +268,7 @@ const AssignTasbeeh = ({ route }) => {
                             placeholder="Enter group Title"
                             placeholderTextColor="#A9A9A9"
                             value={count}
+                            keyboardType='numeric'
                             onChangeText={(text) => setcount(text)}
                         />
                     </View>
@@ -276,6 +285,7 @@ const AssignTasbeeh = ({ route }) => {
                             dropdownStyles={styles.selectListDropdown}
                             dropdownTextStyles={styles.selectListDropdownText}
                             save='value'
+
                         />
                     </View>
                 </ScrollView>

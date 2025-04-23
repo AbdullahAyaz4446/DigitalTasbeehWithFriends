@@ -48,10 +48,10 @@ const CreateGroupSingle = ({ route }) => {
     const handleCheckboxToggle = (id) => {
         setselectedmembersid((prevSelected) => {
             if (prevSelected.includes(id)) {
-              
+
                 return prevSelected.filter((memberId) => memberId !== id);
             } else {
-             
+
                 return [...prevSelected, id];
             }
         });
@@ -59,24 +59,24 @@ const CreateGroupSingle = ({ route }) => {
     // //Create Single Fuunction
     const CreateSingle = async () => {
         try {
-            const obj={
-                Title:grouptitle,
-                User_id:Userid
+            const obj = {
+                Title: grouptitle,
+                User_id: Userid
             }
-            const responce=await fetch(Singletasbeeh+"CreateSingletasbeeh",{
-                method:"POST",
-                headers:{
-                    'Content-Type':'application/json',
+            const responce = await fetch(Singletasbeeh + "CreateSingletasbeeh", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
                 },
-                body:JSON.stringify(obj),
+                body: JSON.stringify(obj),
             });
-            if(responce.ok){
-                const data=await responce.text();
+            if (responce.ok) {
+                const data = await responce.text();
                 console.log(data);
                 navigation.goBack();
-            }else{
-                const errorText=await responce.text();
-                console.log("Error creating Single:",errorText);
+            } else {
+                const errorText = await responce.text();
+                console.log("Error creating Single:", errorText);
             }
         } catch (error) {
             console.log(error);
@@ -212,29 +212,27 @@ const CreateGroupSingle = ({ route }) => {
                         <FlatList
                             data={members.filter((member) => member.ID !== Userid)}
                             renderItem={({ item }) => (
-                                <View style={styles.memberItem}>
-                                    <View style={styles.memberNameContainer}>
-                                        <Text style={styles.memberName}>{item.name}</Text>
-                                    </View>
-                                    <View style={styles.memberStatusContainer}>
-                                        <Text style={[styles.memberStatus, { color: item.Status === 'online' || item.Status === 'Online' ? 'green' : 'black' }]}>{item.Status}</Text>
-                                    </View>
-                                    <View style={styles.checkboxContainer}>
-                                        <Checkbox
-                                            status={selectedmembersid.includes(item.ID) ? 'checked' : 'unchecked'}
-                                            onPress={() => handleCheckboxToggle(item.ID)}
-                                        />
-                                    </View>
+                                <View style={styles.rowContainer}>
+                                    <Text style={styles.itemText}>{item.name}</Text>
+                                    <Text style={[styles.itemText, { color: item.Status?.toLowerCase() === 'online' ? 'green' : 'black' }]}>
+                                        {item.Status}
+                                    </Text>
+                                    <Checkbox
+                                        status={selectedmembersid.includes(item.ID) ? 'checked' : 'unchecked'}
+                                        onPress={() => handleCheckboxToggle(item.ID)}
+                                        color="black"
+                                    />
                                 </View>
                             )}
                             keyExtractor={(item) => item.ID}
                         />
+
                     </View>
                 )}
             </View>
 
             <View style={styles.footer}>
-                <TouchableOpacity onPress={selectedType=='Single'?CreateSingle:CreateGroup} style={styles.button}>
+                <TouchableOpacity onPress={selectedType == 'Single' ? CreateSingle : CreateGroup} style={styles.button}>
                     <Text style={styles.buttonText}>Create</Text>
                 </TouchableOpacity>
             </View>
@@ -307,29 +305,7 @@ const styles = StyleSheet.create({
         padding: 10,
         borderRadius: 20,
     },
-    memberItem: {
-        flex: 1,
-        flexDirection: 'row',
-        marginVertical: 10,
-    },
-    memberNameContainer: {
-        justifyContent: 'center',
-        flex: 1,
-    },
-    memberName: {
-        color: 'black',
-        fontWeight: 'bold',
-    },
-    memberStatusContainer: {
-        flex: 1,
-        justifyContent: 'center',
-    },
-    memberStatus: {
-        color: 'black',
-    },
-    checkboxContainer: {
-        justifyContent: 'center',
-    },
+
     footer: {
         width: '100%',
         justifyContent: 'flex-end',
@@ -347,6 +323,23 @@ const styles = StyleSheet.create({
         fontSize: 24,
         textAlign: 'center',
     },
+    rowContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        backgroundColor: '#f0f0f0',
+        padding: 10,
+        borderRadius: 10,
+        marginVertical: 5,
+     
+    },
+    
+    itemText: {
+        color: 'black',
+        fontSize: 16,
+        flex: 1,
+    },
+    
 });
 
 export default CreateGroupSingle;
