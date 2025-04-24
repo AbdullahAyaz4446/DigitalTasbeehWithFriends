@@ -7,8 +7,9 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import { shadow } from 'react-native-paper';
 
 
-const Deatilesgrouptasbeeh = () => {
+const Deatilesgrouptasbeeh = ({ route }) => {
     const navigation = useNavigation();
+    const { groupid, Userid, Adminid } = route.params;
     const [showprogress, setshowprogress] = useState(true);
     const [showlog, setshowlog] = useState(false);
 
@@ -51,8 +52,14 @@ const Deatilesgrouptasbeeh = () => {
                 </TouchableOpacity>
             </View>
             <View>
-                {showprogress && <Progress />}
-                {showlog && <Logs />}
+                {showprogress && (
+                    <Progress
+                        groupid={groupid}
+                        Userid={Userid}
+
+                    />
+                )}
+                {showlog && <Logs groupid={groupid} />}
             </View>
         </View>
     )
@@ -113,6 +120,7 @@ const styles = StyleSheet.create({
         height: '100%',
         backgroundColor: colors.primary,
         borderRadius: 10,
+        width: '0%',
     },
     progresscomheader: {
         alignItems: 'center', marginTop: 20
@@ -145,20 +153,51 @@ const styles = StyleSheet.create({
 
 });
 
-const Progress = () => {
-    const members = [
-        { id: '1', name: 'Abdullah', status: 'online', goal: '20/30' },
-        { id: '2', name: 'Amna Ejaz', status: 'offline', goal: '15/30' },
-        { id: '3', name: 'Huzifa', status: 'online', goal: '30/30' },
-        { id: '4', name: 'Ramish Wazir', status: 'ofline', goal: '10/30' },
-        { id: '5', name: 'AbdulQadoos Ch', status: 'online', goal: '25/30' },
-    ];
+const Progress = ({ groupid, Userid }) => {
+    const [groupprogress, setgroupprogress] = useState([]);
+    const [progress, setprogress] = useState(0);
+    const [Achived, setAchived] = useState(0);
+    const [goal, setgoal] = useState(0);
+    // APi Function to get the group progress
+    const Getmembersprogress = async () => {
+        try {
+
+            const query = `TasbeehProgressAndMembersProgress?groupid=${encodeURIComponent(groupid)}`;
+            const responce = await fetch(Group + query);
+            if (responce.ok) {
+                const result = await responce.json();
+                setgroupprogress(result);
+                const percentage = (result[0].Achieved / result[0].TasbeehGoal) * 100;
+                setprogress(percentage);
+                setAchived(result[0].Achieved);
+                setgoal(result[0].TasbeehGoal);
+
+            }
+            else {
+                const result = await responce.text();
+                console.log(result);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+    useEffect(() => {
+        Getmembersprogress();
+        console.log(progress);
+    }, []);
+
+
 
     const show = ({ item }) => (
         <View style={styles.rowContainer}>
-            <Text style={styles.itemText}>{item.name}</Text>
-            <Text style={[styles.itemText, { color: item.status?.toLowerCase() === 'online' ? 'green' : 'black' }]}>{item.status}</Text>
-            <Text style={styles.itemText}>{item.goal}</Text>
+            <Text style={styles.itemText}>{item.Username}</Text>{
+                item.Adminid == Userid ?
+                    <Text style={[styles.itemText, { color: item.Status?.toLowerCase() === 'online' ? 'green' : 'black' }]}>Admin</Text>
+                    :
+                    <Text style={[styles.itemText, { color: item.Status?.toLowerCase() === 'online' ? 'green' : 'black' }]}>{item.Status}</Text>
+            }
+
+            <Text style={styles.itemText}>{item.AssignCount}/{item.CurrentCount}</Text>
         </View>
     );
 
@@ -172,10 +211,13 @@ const Progress = () => {
             </View>
             <View style={styles.progressContainer}>
                 <View style={styles.progressTextContainer}>
-                    <Text style={styles.progressText}>20/30</Text>
+                    <Text style={styles.progressText}>{Achived}/{goal}</Text>
                 </View>
                 <View style={styles.progressBar}>
-                    <View style={[styles.progress, { width: "50%" }]} />
+                    <View style={[
+                        styles.progress,
+                        { width: `${progress}%` }
+                    ]} />
                 </View>
             </View>
             <View style={styles.progresscomheader}>
@@ -184,57 +226,79 @@ const Progress = () => {
                 </Text>
             </View>
             <FlatList
-                data={members}
+                data={groupprogress}
                 renderItem={show} />
         </View>
     )
 }
-const Logs = () => {
-    const logdata = [
-        {
-            id: "1",
-            title: "Dua of success",
-            Goal: "100",
-            remaning: "50",
-            Achived: 50,
-            deadline: "2025-04-25"
-        },
-        {
-            id: "2",
-            title: "Forgiveness Tasbeeh",
-            Goal: "200",
-            remaning: "120",
-            Achived: 80,
-            deadline: "2025-04-30"
-        },
-        {
-            id: "3",
-            title: "Peace and Patience",
-            Goal: "150",
-            remaning: "50",
-            Achived: 100,
-            deadline: "2025-05-10"
+const Logs = ({ groupid }) => {
+    const [logdata, setlogdata] = useState([]);
+
+    // Tasbeeh Logs ApiFunction
+    const Tasbeehlogs = async () => {
+        try {
+            const query = `Tasbeehlogs?groupid=${encodeURIComponent(groupid)}`;
+            const responce = await fetch(Group + query);
+            if (responce.ok) {
+                const result = await responce.json();
+                console.log(result);
+                setlogdata(result);
+            }
+            else {
+                const result = await responce.text();
+                console.log(result);
+            }
+        } catch (error) {
+            console.log(error);
         }
-    ];
+
+    }
+    useEffect(() => {
+        Tasbeehlogs();
+        console.log(logdata);
+    }, [logdata]);
+
     const show = ({ item }) => (
         <View style={styles.logcontainer}>
             <Text style={styles.logtext}>Title:          {item.title}</Text>
             <Text style={styles.logtext}>Goal:          {item.Goal}</Text>
-            <Text style={styles.logtext}>Achived:    {item.remaning}</Text>
-            <Text style={styles.logtext}>Remaning: {item.Achived}</Text>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                <Text style={styles.logtext}>DeadLine:  {item.deadline}</Text>
-                <TouchableOpacity>
-                    <View style={{ backgroundColor:colors.primary,padding:5,borderRadius:15 }}>
-                        <Text style={[styles.logtext,{color:"white"}]}>Resume</Text>
-                    </View>
-                </TouchableOpacity>
-
+            <Text style={styles.logtext}>Achieved:   {item.Achieved} </Text>
+            <Text style={styles.logtext}>Remaning: {item.Goal - item.Achieved}</Text>
+            <View style={{ flexDirection: 'row', justifyContent: item.deadline == null ? 'flex-end' : 'space-between' }}>
+                {item.deadline != null && (
+                    <Text style={styles.logtext}>DeadLine:  {item.deadline?.split('T')[0] || 'Not set'}</Text>
+                )
+                }
+                {item.status == "Unactive" && (
+                    <TouchableOpacity onPress={async () => {
+                        const query = `ActiveTasbeeh?id=${encodeURIComponent(item.id)}`;
+                        const responce = await fetch(AssignTasbeh + query);
+                        if (responce.ok) {
+                            const result = await responce.json();
+                            console.log(result);
+                            Tasbeehlogs();
+                        }
+                        else {
+                            const result = await responce.text();
+                            console.log(result);
+                        }
+                    }}>
+                        <View style={{ backgroundColor: colors.primary, padding: 5, borderRadius: 15 }}>
+                            <Text style={[styles.logtext, { color: "white" }]}>Resume</Text>
+                        </View>
+                    </TouchableOpacity>
+                )
+                }
             </View>
 
         </View>
     )
-
+    // Sort the data before rendering
+    // const sortedLogData = [...logdata].sort((a, b) => {
+    //     if (a.status === "Active" && b.status !== "Active") return -1;
+    //     if (a.status !== "Active" && b.status === "Active") return 1;
+    //     return 0;
+    // });
     return (
         <View style={{ marginTop: 20 }}>
             <FlatList

@@ -22,7 +22,7 @@ const AssignTasbeeh = ({ route }) => {
     const [count, setcount] = useState('');
     const [deadline, setdeadline] = useState('');
     const [tasbeeh, settasbeeh] = useState([]);
-    const [tasbeehid, settasbeehid] = useState('');
+    const [tasbeehid, settasbeehid] = useState();
 
 
     const selectiontype = [
@@ -41,9 +41,9 @@ const AssignTasbeeh = ({ route }) => {
                 "Goal": count,
                 "End_date": deadline
             });
-
+            
         }
-    }, [contributetype, navigation]);
+    }, [contributetype, navigation]); 
 
 
     // for load all groups and all  tasbeeh in the screen load
@@ -131,15 +131,21 @@ const AssignTasbeeh = ({ route }) => {
             Alert.alert('Error', 'Something went wrong. Please check your network.');
         }
     };
-
     const Assigntasbeeh = async () => {
+        const cleanTasbeehId = tasbeehid.startsWith('t-') 
+        ? tasbeehid.substring(2) 
+        : tasbeehid.startsWith('w-')
+        ? tasbeehid.substring(2)
+        : tasbeehid;
 
-        const AssignTasbeehobj = {
-            Group_id: groupid,
-            Tasbeeh_id: tasbeehid,
-            Goal: count,
-            End_date: deadline,
-        };
+    const AssignTasbeehobj = {
+        Group_id: groupid,
+        Tasbeeh_id: cleanTasbeehId,
+        Goal: parseInt(count, 10),  // Convert to number
+        End_date: deadline,
+    };
+    
+    console.log("Final API Payload:", AssignTasbeehobj);
         try {
             if (contributetype === 'Equally') {
                 console.log("hello" + JSON.stringify(AssignTasbeehobj));
@@ -201,7 +207,7 @@ const AssignTasbeeh = ({ route }) => {
 
         }
     }
-    
+
     // handle date time
     const handleDateChange = (date) => {
         const year = date.getFullYear();

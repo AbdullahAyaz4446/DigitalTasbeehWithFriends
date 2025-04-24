@@ -66,10 +66,7 @@ const Friends = ({ route }) => {
             <FlatList
                 data={data}
                 renderItem={Show}
-            
             />
-
-          
         </View>
     );
 };
@@ -95,18 +92,20 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     itemContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
+  
+  
         alignItems: 'center',
         padding: 10,
         marginVertical: 10,
         borderRadius: 10,
         backgroundColor: colors.tasbeehconatiner,
+        padding: 20
     },
     itemText: {
         flex: 1,
         fontSize: 18,
         color: 'black',
+        fontWeight: 'bold'
     },
     fab: {
         position: 'absolute',

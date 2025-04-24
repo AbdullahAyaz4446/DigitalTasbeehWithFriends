@@ -25,15 +25,15 @@ const AllgrouosSingle = ({ route }) => {
             const response = await fetch(url + query);
             if (response.ok) {
                 const data = await response.json();
-                return data; // Return the fetched groups
+                return data; 
             } else {
                 const errorText = await response.text();
                 console.log(errorText);
-                return []; // Return empty array if there's an error
+                return []; 
             }
         } catch (error) {
             console.log(error);
-            return []; // Return empty array if there's an error
+            return []; 
         }
     };
 
@@ -44,11 +44,11 @@ const AllgrouosSingle = ({ route }) => {
             const response = await fetch(Singletasbeeh + query);
             if (response.ok) {
                 const data = await response.json();
-                return data; // Return the fetched single tasbeehs
+                return data; 
             } else {
                 const errorText = await response.text();
                 console.log(errorText);
-                return []; // Return empty array if there's an error
+                return []; 
             }
         } catch (error) {
             console.log(error);
@@ -66,6 +66,7 @@ const AllgrouosSingle = ({ route }) => {
         ];
 
         setCombinedData(combined); 
+        
     };
 
     useEffect(() => {
@@ -87,9 +88,9 @@ const AllgrouosSingle = ({ route }) => {
             }}
             onPress={() => {
                 if (item.type === 'group') {
-                    navigation.navigate('TasbeehGroup', { groupId: item.id });
+                    navigation.navigate('TasbeehGroup', {"groupid":item.Groupid,"Userid":Userid,"Adminid":item.Adminid});
                 } else {
-                    navigation.navigate('SingleTasbeeh', { tasbeehId: item.id });
+                    navigation.navigate('SingleTasbeeh', { "tasbeehId": item.id });
                 }
             }}
         >
@@ -97,6 +98,7 @@ const AllgrouosSingle = ({ route }) => {
                 <Text style={styles.itemText}>
                     {item.type === 'group' ? item.Grouptitle : item.Title}
                 </Text>
+                {/* <Text style={{color:'black'}}>{item.Groupid}</Text> */}
             </View>
         </TouchableOpacity>
     );
