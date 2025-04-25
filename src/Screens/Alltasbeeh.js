@@ -238,7 +238,17 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.5,
-  }
+  },
+  selectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 10,
+  },
+  selectedCount: {
+    fontSize: 16,
+    color: colors.primary,
+  },
 });
 
 export default AllTasbeehScreen;

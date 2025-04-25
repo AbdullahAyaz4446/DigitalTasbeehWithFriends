@@ -72,9 +72,11 @@ const HomeScreen = ({ route }) => {
         </View>
         <View style={styles.dashboard}>
           <View>
-            <TouchableOpacity style={styles.dashboardbutton}>
+            <TouchableOpacity  onPress={()=>navigation.navigate('Notification',{
+             "Userid": Userdata.ID 
+            })} style={styles.dashboardbutton}>
               <Image source={require('../Assests/notification.png')} style={styles.logo} />
-            </TouchableOpacity>
+            </TouchableOpacity >
             <Text style={styles.dashboradtest}>Notification</Text>
           </View>
           <View>

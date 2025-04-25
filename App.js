@@ -17,6 +17,7 @@ import Friends from './src/Screens/Friends';
 import Craetewazifa from './src/Screens/Craetewazifa';
 import Singletasbeeh from './src/Screens/Singletasbeeh';
 import Deatilesgrouptasbeeh from './src/Screens/Deatilesgrouptasbeeh';
+import Notification from './src/Screens/Notification';
 
 const Stack = createNativeStackNavigator();
 const App = () => {
@@ -52,6 +53,7 @@ const App = () => {
         <Stack.Screen name="Wazifa" component={Craetewazifa} />
         <Stack.Screen name="Singletasbeeh" component={Singletasbeeh}/>
         <Stack.Screen name="Deatilesgrouptasbeeh" component={Deatilesgrouptasbeeh}/>
+        <Stack.Screen name="Notification" component={Notification}/>
       </Stack.Navigator>
     </NavigationContainer>
   );

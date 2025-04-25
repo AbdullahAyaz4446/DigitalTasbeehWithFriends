@@ -12,6 +12,7 @@ const Deatilesgrouptasbeeh = ({ route }) => {
     const { groupid, Userid, Adminid } = route.params;
     const [showprogress, setshowprogress] = useState(true);
     const [showlog, setshowlog] = useState(false);
+    const [adminid, setAdminid] = useState(0); // Add this state
 
     const handleprogress = () => {
         setshowprogress(true);
@@ -30,16 +31,20 @@ const Deatilesgrouptasbeeh = ({ route }) => {
                 <Text style={styles.headerTitle}>Tasbeeh Group</Text>
             </View>
             <View style={styles.headerbar} >
-                <TouchableOpacity>
-                    <View style={styles.headeritems}>
-                        <AntDesign name="delete" size={40} color="#000" />
-                    </View>
-                </TouchableOpacity>
-                <TouchableOpacity>
-                    <View style={styles.headeritems}>
-                        <AntDesign name="adduser" size={40} color="#000" />
-                    </View>
-                </TouchableOpacity>
+            {Userid == adminid && (
+                    <>
+                        <TouchableOpacity>
+                            <View style={styles.headeritems}>
+                                <AntDesign name="delete" size={40} color="#000" />
+                            </View>
+                        </TouchableOpacity>
+                        <TouchableOpacity>
+                            <View style={styles.headeritems}>
+                                <AntDesign name="adduser" size={40} color="#000" />
+                            </View>
+                        </TouchableOpacity>
+                    </>
+                )}
                 <TouchableOpacity onPress={() => handleprogress()}>
                     <View style={styles.headeritems}>
                         <Image source={require('../Assests/Progress.png')} />
@@ -56,10 +61,16 @@ const Deatilesgrouptasbeeh = ({ route }) => {
                     <Progress
                         groupid={groupid}
                         Userid={Userid}
-
+                        setAdminid={setAdminid} // Pass setter function
                     />
                 )}
-                {showlog && <Logs groupid={groupid} />}
+                {showlog && (
+                    <Logs 
+                        groupid={groupid}
+                        Userid={Userid}
+                        adminid={adminid} // Pass the adminid
+                    />
+                )}
             </View>
         </View>
     )
@@ -153,11 +164,12 @@ const styles = StyleSheet.create({
 
 });
 
-const Progress = ({ groupid, Userid }) => {
+const Progress = ({ groupid, Userid, setAdminid  }) => {
     const [groupprogress, setgroupprogress] = useState([]);
     const [progress, setprogress] = useState(0);
     const [Achived, setAchived] = useState(0);
     const [goal, setgoal] = useState(0);
+    // const [adminid,setadminid] = useState(0);
     // APi Function to get the group progress
     const Getmembersprogress = async () => {
         try {
@@ -171,6 +183,7 @@ const Progress = ({ groupid, Userid }) => {
                 setprogress(percentage);
                 setAchived(result[0].Achieved);
                 setgoal(result[0].TasbeehGoal);
+                setAdminid(result[0].Adminid);
 
             }
             else {
@@ -183,15 +196,13 @@ const Progress = ({ groupid, Userid }) => {
     }
     useEffect(() => {
         Getmembersprogress();
-        console.log(progress);
     }, []);
-
-
 
     const show = ({ item }) => (
         <View style={styles.rowContainer}>
-            <Text style={styles.itemText}>{item.Username}</Text>{
-                item.Adminid == Userid ?
+            <Text style={styles.itemText}>{item.Username}</Text>
+            {
+                item.Adminid==item.userid?
                     <Text style={[styles.itemText, { color: item.Status?.toLowerCase() === 'online' ? 'green' : 'black' }]}>Admin</Text>
                     :
                     <Text style={[styles.itemText, { color: item.Status?.toLowerCase() === 'online' ? 'green' : 'black' }]}>{item.Status}</Text>
@@ -200,8 +211,6 @@ const Progress = ({ groupid, Userid }) => {
             <Text style={styles.itemText}>{item.AssignCount}/{item.CurrentCount}</Text>
         </View>
     );
-
-
     return (
         <View>
             <View style={styles.progresscomheader}>
@@ -231,7 +240,9 @@ const Progress = ({ groupid, Userid }) => {
         </View>
     )
 }
-const Logs = ({ groupid }) => {
+
+// Show log component
+const Logs = ({ groupid,Userid ,adminid}) => {
     const [logdata, setlogdata] = useState([]);
 
     // Tasbeeh Logs ApiFunction
@@ -269,7 +280,7 @@ const Logs = ({ groupid }) => {
                     <Text style={styles.logtext}>DeadLine:  {item.deadline?.split('T')[0] || 'Not set'}</Text>
                 )
                 }
-                {item.status == "Unactive" && (
+                {item.status == "Unactive" &&Userid==adminid&& (
                     <TouchableOpacity onPress={async () => {
                         const query = `ActiveTasbeeh?id=${encodeURIComponent(item.id)}`;
                         const responce = await fetch(AssignTasbeh + query);
@@ -293,7 +304,7 @@ const Logs = ({ groupid }) => {
 
         </View>
     )
-    // Sort the data before rendering
+    // Sort the data  function
     // const sortedLogData = [...logdata].sort((a, b) => {
     //     if (a.status === "Active" && b.status !== "Active") return -1;
     //     if (a.status !== "Active" && b.status === "Active") return 1;
