@@ -18,6 +18,7 @@ import Craetewazifa from './src/Screens/Craetewazifa';
 import Singletasbeeh from './src/Screens/Singletasbeeh';
 import Deatilesgrouptasbeeh from './src/Screens/Deatilesgrouptasbeeh';
 import Notification from './src/Screens/Notification';
+import Singletasbeehdeatiles from './src/Screens/Singletasbeehdeatiles';
 
 const Stack = createNativeStackNavigator();
 const App = () => {
@@ -38,13 +39,13 @@ const App = () => {
           headerShown: false, 
         }}
       >
-        <Stack.Screen name="Start" component={StartScreen} />
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="SignUp" component={SignupScreen} />
-        <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="Alltasbeeh" component={AllTasbeehScreen} />
-        <Stack.Screen name="CraeteTasbeeh" component={CreateTasbeeh} />
-        <Stack.Screen name="AllgrouosSingle" component={AllgrouosSingle} />
+        <Stack.Screen name="Start" component={StartScreen}/>
+        <Stack.Screen name="Login" component={LoginScreen}/>
+        <Stack.Screen name="SignUp" component={SignupScreen}/>
+        <Stack.Screen name="Home" component={HomeScreen}/>
+        <Stack.Screen name="Alltasbeeh" component={AllTasbeehScreen}/>
+        <Stack.Screen name="CraeteTasbeeh" component={CreateTasbeeh}/>
+        <Stack.Screen name="AllgrouosSingle" component={AllgrouosSingle}/>
         <Stack.Screen name="CreateGroupSingle" component={CreateGroupsSingles} />
         <Stack.Screen name="AssignTasbeeh" component={AssignTasbeeh} />
         <Stack.Screen name="Maunnallycontribution" component={Maunnallycontribution} />
@@ -54,6 +55,9 @@ const App = () => {
         <Stack.Screen name="Singletasbeeh" component={Singletasbeeh}/>
         <Stack.Screen name="Deatilesgrouptasbeeh" component={Deatilesgrouptasbeeh}/>
         <Stack.Screen name="Notification" component={Notification}/>
+        <Stack.Screen name="Singletasbeehdeatiles" component={Singletasbeehdeatiles}/>
+ 
+        
       </Stack.Navigator>
     </NavigationContainer>
   );

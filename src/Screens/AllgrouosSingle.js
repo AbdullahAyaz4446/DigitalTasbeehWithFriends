@@ -90,7 +90,7 @@ const AllgrouosSingle = ({ route }) => {
                 if (item.type === 'group') {
                     navigation.navigate('TasbeehGroup', {"groupid":item.Groupid,"Userid":Userid,"Adminid":item.Adminid});
                 } else {
-                    navigation.navigate('SingleTasbeeh', { "tasbeehId": item.id });
+                    navigation.navigate('Singletasbeeh', { "tasbeehId": item.id });
                 }
             }}
         >

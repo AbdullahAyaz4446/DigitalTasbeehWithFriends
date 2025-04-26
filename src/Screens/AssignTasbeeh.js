@@ -17,12 +17,15 @@ const AssignTasbeeh = ({ route }) => {
     const navigation = useNavigation();
     const { Userid } = route.params;
     const [contributetype, setcontributiontyep] = useState("null");
-    const [groupdata, setgroupdata] = useState([]);
     const [groupid, setgroupid] = useState('');
     const [count, setcount] = useState('');
     const [deadline, setdeadline] = useState('');
     const [tasbeeh, settasbeeh] = useState([]);
     const [tasbeehid, settasbeehid] = useState();
+    const [selectedtype, setSelectedType] = useState();
+    const [groups, setGroups] = useState([]); // Only for groups
+    const [single, setsingle] = useState([]); // Only for single tasbeeh
+    const [combinedData, setCombinedData] = useState([]); // Combined when needed
 
 
     const selectiontype = [
@@ -41,19 +44,24 @@ const AssignTasbeeh = ({ route }) => {
                 "Goal": count,
                 "End_date": deadline
             });
-            
+
         }
-    }, [contributetype, navigation]); 
+    }, [contributetype, navigation]);
 
 
     // for load all groups and all  tasbeeh in the screen load
     useEffect(() => {
+        Allgroups();
+        AllSingle();
         settasbeeh([]); // clear existing before loading new
         Alltasbeeh();
         Allwazifa();
-        Allgroups();
-    }, [deadline])
 
+    }, [deadline]);
+    useEffect(() => {
+        const combined = [...groups, ...single];
+        setCombinedData(combined);
+    }, [groups, single]);
 
     // Get All Wazifa Api Function
     const Allwazifa = async () => {
@@ -76,7 +84,32 @@ const AssignTasbeeh = ({ route }) => {
     };
 
 
+    // Get All Single Tasbeeh Api Function
+    const AllSingle = async () => {
+        try {
+            const query = `GetAllSingletasbeehbyid?userid=${encodeURIComponent(Userid)}`;
+            const response = await fetch(Singletasbeeh + query);
+            if (response.ok) {
+                const data = await response.json();
+                const transformedData = data
+                    .map((item) => ({
+                        key: item.ID,
+                        value: item.Title,
+                        groupid: item.ID,
+                        Adminid: item.User_id,
+                        type: 'Single'
+                    }));
+                setsingle(transformedData);
 
+            }
+            else {
+                const ans = await response.text();
+                console.log(ans);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
 
     //Get Group Title Api Function
     const Allgroups = async () => {
@@ -94,9 +127,10 @@ const AssignTasbeeh = ({ route }) => {
                         value: item.Grouptitle,
                         groupid: item.Groupid,
                         Adminid: item.Adminid,
+                        type: 'group'
                     }));
-
-                setgroupdata(transformedData);
+                setGroups(transformedData);
+               
                 console.log(transformedData);
             } else {
                 const ans = await response.text();
@@ -120,7 +154,6 @@ const AssignTasbeeh = ({ route }) => {
                     key: `t-${item.ID}`,
                     value: item.Tasbeeh_Title + " (Tasbeeh)",
                 }));
-
                 settasbeeh(prev => [...prev, ...transformedData]);
             } else {
                 console.error('Failed to fetch tasbeeh:', response.status);
@@ -131,55 +164,93 @@ const AssignTasbeeh = ({ route }) => {
             Alert.alert('Error', 'Something went wrong. Please check your network.');
         }
     };
+    // Assign Tasbeeh Api Function
     const Assigntasbeeh = async () => {
-        const cleanTasbeehId = tasbeehid.startsWith('t-') 
-        ? tasbeehid.substring(2) 
-        : tasbeehid.startsWith('w-')
+        const cleanTasbeehId = tasbeehid.startsWith('t-')
         ? tasbeehid.substring(2)
-        : tasbeehid;
-
-    const AssignTasbeehobj = {
-        Group_id: groupid,
-        Tasbeeh_id: cleanTasbeehId,
-        Goal: parseInt(count, 10),  // Convert to number
-        End_date: deadline,
-    };
-    
-    console.log("Final API Payload:", AssignTasbeehobj);
-        try {
-            if (contributetype === 'Equally') {
-                console.log("hello" + JSON.stringify(AssignTasbeehobj));
-                const response = await fetch(AssignTasbeh + 'AssignTasbeeh', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(AssignTasbeehobj),
-                });
-
-                if (response.ok) {
-                    const ans = await response.json();
-                    console.log(ans);
-                    DistributeTasbeehEqually();
-                    navigation.goBack();
-                } else {
-                    const ans = await response.text();
-                    console.log(ans);
-                }
+        : tasbeehid.startsWith('w-')
+            ? tasbeehid.substring(2)
+            : tasbeehid;
+        if (selectedtype === "Single") {
+           try {
+           
+            const tasbeehobject={
+                SingleTasbeeh_id:groupid,
+                Tasbeeh_id: cleanTasbeehId,
+                Goal: parseInt(count, 10),  // Convert to number
+                End_date: deadline,
+            }
+            console.log("Final API Payload:", tasbeehobject);
+            const responce=await fetch(Wazifa + 'Assigntosingletasbeeh', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(tasbeehobject),
+            });
+            if (responce.ok) {
+                const ans = await responce.json();
+                console.log(ans);
+                navigation.goBack();
+            
             }
             else {
-                Alert.alert(
-                    'Alert',
-                    'Please Select Contribution Type',
-                    [
-                        { text: 'Cancel' },
-                        { text: 'Delete', },
-                    ]
-                );
+                const ans = await responce.text();
+                console.log(ans);
             }
-        } catch (error) {
-            console.log(error.message);
+          
+           } catch (error) {
+            console.log(error); 
+           }
         }
+        else {
+          
+
+            const AssignTasbeehobj = {
+                Group_id: groupid,
+                Tasbeeh_id: cleanTasbeehId,
+                Goal: parseInt(count, 10),  // Convert to number
+                End_date: deadline,
+            };
+
+            console.log("Final API Payload:", AssignTasbeehobj);
+            try {
+                if (contributetype === 'Equally') {
+                    console.log("hello" + JSON.stringify(AssignTasbeehobj));
+                    const response = await fetch(AssignTasbeh + 'AssignTasbeeh', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(AssignTasbeehobj),
+                    });
+
+                    if (response.ok) {
+                        const ans = await response.json();
+                        console.log(ans);
+                        DistributeTasbeehEqually();
+                        navigation.goBack();
+                    } else {
+                        const ans = await response.text();
+                        console.log(ans);
+                    }
+                }
+                else {
+                    Alert.alert(
+                        'Alert',
+                        'Please Select Contribution Type',
+                        [
+                            { text: 'Cancel' },
+                            { text: 'Delete', },
+                        ]
+                    );
+                }
+
+            } catch (error) {
+                console.log(error.message);
+            }
+        }
+
     };
 
     // Equally Contribution  Api Function\
@@ -242,9 +313,13 @@ const AssignTasbeeh = ({ route }) => {
                     </View>
                     <View>
                         <SelectList
-                            data={groupdata}
-                            setSelected={(value) => { setgroupid(value) }}
-                            placeholder="Select Group"
+                            data={combinedData}
+                            setSelected={(value) => {
+                                setgroupid(value);
+                                const selected = combinedData.find(item => item.key === value);
+                                setSelectedType(selected.type);
+                            }}
+                            placeholder="Select Group/Single"
                             search={false}
                             boxStyles={styles.selectListBox}
                             inputStyles={styles.selectListInput}
@@ -278,24 +353,31 @@ const AssignTasbeeh = ({ route }) => {
                             onChangeText={(text) => setcount(text)}
                         />
                     </View>
-                    <View>
-                        <SelectList
-                            placeholder="Distribution Type"
-                            data={selectiontype}
-                            setSelected={(value) => {
-                                setcontributiontyep(value);
-                            }}
-                            search={false}
-                            boxStyles={styles.selectListBox}
-                            inputStyles={styles.selectListInput}
-                            dropdownStyles={styles.selectListDropdown}
-                            dropdownTextStyles={styles.selectListDropdownText}
-                            save='value'
+                    {selectedtype === 'group' &&
+                        <View>
+                            <SelectList
+                                placeholder="Distribution Type"
+                                data={selectiontype}
+                                setSelected={(value) => {
+                                    setcontributiontyep(value);
+                                }}
+                                search={false}
+                                boxStyles={styles.selectListBox}
+                                inputStyles={styles.selectListInput}
+                                dropdownStyles={styles.selectListDropdown}
+                                dropdownTextStyles={styles.selectListDropdownText}
+                                save='value'
 
-                        />
-                    </View>
+                            />
+                        </View>
+                    }
                 </ScrollView>
-                {contributetype === 'Equally' && (
+
+                {contributetype == 'Equally'? <View>
+                        <TouchableOpacity onPress={Assigntasbeeh} style={styles.button}>
+                            <Text style={styles.buttonText}>Assign</Text>
+                        </TouchableOpacity>
+                    </View>:selectedtype=="Single"&&(
                     <View>
                         <TouchableOpacity onPress={Assigntasbeeh} style={styles.button}>
                             <Text style={styles.buttonText}>Assign</Text>

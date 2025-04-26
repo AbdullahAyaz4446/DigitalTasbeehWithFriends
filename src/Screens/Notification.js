@@ -12,6 +12,7 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import { colors } from '../utiles/colors';
+import NewNotificationPopup from './NewNotificationPopup';
 
 const Notification = ({ route }) => {
     const navigation = useNavigation();
@@ -19,6 +20,7 @@ const Notification = ({ route }) => {
     const [Showmodel, setmodel] = useState(false);
     const [notifications, setNotifications] = useState([]);
     const [tasbeehdeatiles, settasbeehdeatiles] = useState([]);
+    
     // All Request Api Function 
     const Allrequest = async () => {
         try {
@@ -28,7 +30,6 @@ const Notification = ({ route }) => {
                 const data = await response.json();
                 console.log(data);
                 setNotifications(data);
-
             }
             else {
                 const ans = await response.text();
@@ -284,7 +285,7 @@ const styles = StyleSheet.create({
         color: colors.textSecondary,
     },
     notificationContainer: {
-        backgroundColor: colors.notification,
+        backgroundColor: colors.tasbeehconatiner,
         padding: 15,
         marginVertical: 8,
         borderRadius: 15,
@@ -318,7 +319,7 @@ const styles = StyleSheet.create({
     },
     buttonsContainer: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        justifyContent:'space-around',
         marginTop: 5,
     },
     button: {
