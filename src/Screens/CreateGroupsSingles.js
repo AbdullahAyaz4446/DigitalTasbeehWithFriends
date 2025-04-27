@@ -58,6 +58,7 @@ const CreateGroupSingle = ({ route }) => {
     };
     // //Create Single Fuunction
     const CreateSingle = async () => {
+        console.log("calling create single");
         try {
             const obj = {
                 Title: grouptitle,
@@ -85,6 +86,7 @@ const CreateGroupSingle = ({ route }) => {
     }
     // Create Group Function    
     const CreateGroup = async () => {
+        console.log("calling create group ");
         try {
             if (grouptitle === '') {
                 Alert.alert(

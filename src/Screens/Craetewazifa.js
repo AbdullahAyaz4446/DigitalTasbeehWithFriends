@@ -29,10 +29,11 @@ const Craetewazifa = ({ route }) => {
         try {
             if (wazifatitle) {
                 const obj = {
-                    "Wazifa_Title": wazifatitle,
-                    "User_id": Userid
+                    "Tasbeeh_Title": wazifatitle,
+                    "User_id": Userid,
+                    "Type": "Wazifa",
                 };
-                const responce = await fetch(Wazifa + "Createwazifa", {
+                const responce = await fetch(tasbeehurl + "createtasbeehtitle", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

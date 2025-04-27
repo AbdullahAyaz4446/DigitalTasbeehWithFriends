@@ -18,6 +18,16 @@ const AllgrouosSingle = ({ route }) => {
     const { Userid } = route.params;
     const [combinedData, setCombinedData] = useState([]); // State to store combined data
 
+
+
+    useEffect(() => {
+        fetchAndCombineData(); 
+    }, [combinedData]);
+    useEffect(() => {
+        fetchAndCombineData(); 
+    }, []);
+
+
     // Fetch All Groups
     const Allgroups = async () => {
         try {
@@ -64,14 +74,50 @@ const AllgrouosSingle = ({ route }) => {
             ...groups.map(item => ({ ...item, type: 'group' })), 
             ...singleTasbeehs.map(item => ({ ...item, type: 'single' })), 
         ];
-
         setCombinedData(combined); 
-        
     };
 
-    useEffect(() => {
-        fetchAndCombineData(); 
-    }, [combinedData]);
+    // Delete Group Api Function
+    const Deletegroup=async(id)=>{
+        try {
+            const query=`Deletegroup?id=${encodeURIComponent(id)}`;
+            const response=await fetch(Group+query);
+            if(response.ok){
+                const res = await response.text();
+                console.log(res);
+            
+            }
+            else{
+                const res = await response.text();
+                console.log(res);
+            }
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    // Delete Single Api Function
+    const DeleteSingle=async(id)=>{
+        try {
+            const query=`deletesingle?id=${encodeURIComponent(id)}`;
+            const response=await fetch(Singletasbeeh+query);
+            if(response.ok){
+                const res = await response.text();
+                console.log(res);
+               
+            }
+            else{
+                const res = await response.text();
+                console.log(res);
+            }
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+   
 
     // Render item for FlatList
     const Show = ({ item }) => (
@@ -82,7 +128,14 @@ const AllgrouosSingle = ({ route }) => {
                     'Are you sure you want to delete?',
                     [
                         { text: 'Cancel' },
-                        { text: 'Delete' },
+                        { text: 'Delete' ,onPress: () => {  
+                            if(item.type === 'group'){
+                                Deletegroup(item.Groupid);
+                            }
+                            else{
+                                DeleteSingle(item.id);
+                            }
+                        } ,style: 'destructive'},
                     ]
                 );
             }}

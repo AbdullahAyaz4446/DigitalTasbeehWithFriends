@@ -51,37 +51,36 @@ const AssignTasbeeh = ({ route }) => {
 
     // for load all groups and all  tasbeeh in the screen load
     useEffect(() => {
+        settasbeeh([]);
+        Alltasbeeh();
         Allgroups();
         AllSingle();
-        settasbeeh([]); // clear existing before loading new
-        Alltasbeeh();
-        Allwazifa();
-
     }, [deadline]);
+  // Combile the data from groups and single
     useEffect(() => {
         const combined = [...groups, ...single];
         setCombinedData(combined);
     }, [groups, single]);
 
-    // Get All Wazifa Api Function
-    const Allwazifa = async () => {
-        try {
-            const query = `Allwazifa?id=${encodeURIComponent(Userid)}`;
-            const response = await fetch(url + query);
+    // Get All Wazifa Api Function unwanted code
+    // const Allwazifa = async () => {
+    //     try {
+    //         const query = `Allwazifa?id=${encodeURIComponent(Userid)}`;
+    //         const response = await fetch(url + query);
 
-            if (response.ok) {
-                const data = await response.json();
-                const transformedData = data.map((item) => ({
-                    key: `w-${item.id}`, // Add prefix to avoid key clash
-                    value: item.Wazifa_Title + " (Wazifa)",
-                }));
+    //         if (response.ok) {
+    //             const data = await response.json();
+    //             const transformedData = data.map((item) => ({
+    //                 key: `w-${item.id}`, // Add prefix to avoid key clash
+    //                 value: item.Wazifa_Title + " (Wazifa)",
+    //             }));
 
-                settasbeeh(prev => [...prev, ...transformedData]);
-            }
-        } catch (error) {
-            console.log(error);
-        }
-    };
+    //             settasbeeh(prev => [...prev, ...transformedData]);
+    //         }
+    //     } catch (error) {
+    //         console.log(error);
+    //     }
+    // };
 
 
     // Get All Single Tasbeeh Api Function
@@ -152,9 +151,10 @@ const AssignTasbeeh = ({ route }) => {
                 const data = await response.json();
                 const transformedData = data.map((item) => ({
                     key: `t-${item.ID}`,
-                    value: item.Tasbeeh_Title + " (Tasbeeh)",
+                    value: `${item.Tasbeeh_Title} (${item.Type})`,
                 }));
-                settasbeeh(prev => [...prev, ...transformedData]);
+                settasbeeh(transformedData);
+                console.log(data);
             } else {
                 console.error('Failed to fetch tasbeeh:', response.status);
                 Alert.alert('Error', 'Failed to load tasbeeh. Please try again.');
@@ -166,18 +166,14 @@ const AssignTasbeeh = ({ route }) => {
     };
     // Assign Tasbeeh Api Function
     const Assigntasbeeh = async () => {
-        const cleanTasbeehId = tasbeehid.startsWith('t-')
-        ? tasbeehid.substring(2)
-        : tasbeehid.startsWith('w-')
-            ? tasbeehid.substring(2)
-            : tasbeehid;
+    
         if (selectedtype === "Single") {
            try {
            
             const tasbeehobject={
                 SingleTasbeeh_id:groupid,
-                Tasbeeh_id: cleanTasbeehId,
-                Goal: parseInt(count, 10),  // Convert to number
+                Tasbeeh_id: tasbeehid.substring(2),
+                Goal: parseInt(count, 10), 
                 End_date: deadline,
             }
             console.log("Final API Payload:", tasbeehobject);
@@ -204,11 +200,9 @@ const AssignTasbeeh = ({ route }) => {
            }
         }
         else {
-          
-
             const AssignTasbeehobj = {
                 Group_id: groupid,
-                Tasbeeh_id: cleanTasbeehId,
+                Tasbeeh_id: tasbeehid.substring(2),
                 Goal: parseInt(count, 10),  // Convert to number
                 End_date: deadline,
             };

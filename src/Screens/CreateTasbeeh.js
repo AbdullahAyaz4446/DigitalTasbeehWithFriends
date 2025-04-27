@@ -39,7 +39,8 @@ const CreateTasbeeh = ({ route }) => {
         try {
             const Tasbeeh = {
                 "Tasbeeh_Title": tasbeehTitle,
-                "User_id": Userid
+                "User_id": Userid,
+                "Type": "Quran",
             };
             const response = await fetch(tasbeehurl + "createtasbeehtitle", {
                 method: 'POST',
@@ -167,8 +168,6 @@ const CreateTasbeeh = ({ route }) => {
             [copydata[currentindex-1],copydata[currentindex]];
             return copydata;
         });
-    
-
         setcompund(prevCompund => {
             const currentIndex = prevCompund.findIndex(item => item.Quran_Tasbeeh_id == ID);
             if (currentIndex === -1 || currentIndex === 0) return prevCompund;
@@ -251,6 +250,8 @@ const CreateTasbeeh = ({ route }) => {
     useEffect(() => {
         console.log("Refreshing");
     }, [compund]);
+
+
     return (
         <View style={styles.container}>
             <View style={styles.header}>

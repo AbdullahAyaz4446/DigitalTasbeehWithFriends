@@ -22,7 +22,7 @@ import Singletasbeehdeatiles from './src/Screens/Singletasbeehdeatiles';
 
 const Stack = createNativeStackNavigator();
 const App = () => {
-  var ipadd = '192.168.100.225';
+  var ipadd ='192.168.100.225';
   global.url = `http://${ipadd}/DigitalTasbeehWithFriendsApi/api/user/`;
   global.tasbeehurl = `http://${ipadd}/DigitalTasbeehWithFriendsApi/api/CreateTasbeeh/`;
   // global.Imageurl = `http://${ipadd}/DigitalTasbeehWithFriendsApi/Images/`;
