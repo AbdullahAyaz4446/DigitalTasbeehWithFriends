@@ -145,7 +145,7 @@ const Craetewazifa = ({ route }) => {
             }
         }
     };
-    // Function to swap data
+  
     // Function to swap data
     const Swapdata = (id) => {
         setdata(prevData => {
@@ -167,7 +167,6 @@ const Craetewazifa = ({ route }) => {
         setcompund(prevCompund => {
             const currentIndex = prevCompund.findIndex(item => item.wazifa_text_id === id);
             const newCompund = [...prevCompund];
-            
             [newCompund[currentIndex], newCompund[currentIndex - 1]] =
                 [newCompund[currentIndex - 1], newCompund[currentIndex]];
             return newCompund;

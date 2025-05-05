@@ -9,6 +9,53 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { colors } from '../utiles/colors';
+import Svg, { Circle } from 'react-native-svg'; 
+
+// Add the CircularProgress component before your main component
+const CircularProgress = ({ progress, size = 150, strokeWidth = 10 }) => {
+  const radius = (size - strokeWidth) / 2;
+  const circumference = radius * 2 * Math.PI;
+  const strokeDashoffset = circumference - (progress / 100) * circumference;
+
+  return (
+    <View style={{ alignItems: 'center' }}>
+      <Svg width={size} height={size}>
+        {/* Background circle */}
+        <Circle
+          stroke="#e0e0e0"
+          fill="none"
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          strokeWidth={strokeWidth}
+        />
+        {/* Progress circle */}
+        <Circle
+          stroke={colors.primary}
+          fill="none"
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          strokeWidth={strokeWidth}
+          strokeDasharray={`${circumference} ${circumference}`}
+          strokeDashoffset={strokeDashoffset}
+          strokeLinecap="round"
+          transform={`rotate(-90 ${size / 2} ${size / 2})`}
+        />
+      </Svg>
+      <Text style={{ 
+        position: 'absolute', 
+        textAlign: 'center',
+        lineHeight: size,
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: 'black'
+      }}>
+        {progress}%
+      </Text>
+    </View>
+  );
+};
 
 const TasbeehGroup = ({ route }) => {
   const navigation = useNavigation();
@@ -18,6 +65,7 @@ const TasbeehGroup = ({ route }) => {
   const [Achived, setachived] = useState(0);
   const [goal, setgoal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [filledDots, setFilledDots] = useState(0);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -32,6 +80,26 @@ const TasbeehGroup = ({ route }) => {
     }
   }, [logmemberdata]);
 
+  const renderProgressShapes = () => {
+    const totalShapes = 10; 
+  
+    return (
+      <View style={styles.shapesContainer}>
+        {[...Array(totalShapes)].map((_, index) => (
+          <View
+            key={index}
+            style={[
+              styles.shape,
+              {
+                backgroundColor: index < filledDots ? colors.primary : '#e0e0e0',
+              },
+            ]}
+          />
+        ))}
+      </View>
+    );
+  };
+  
   const Tasbeehdeatileslogedmember = async () => {
     setLoading(true);
     try {
@@ -59,12 +127,16 @@ const TasbeehGroup = ({ route }) => {
       const response = await fetch(url + query);
       if (response.ok) {
         await Tasbeehdeatileslogedmember();
+        // Dot logic
+        setFilledDots(prev => {
+          if (prev >= 9) return 0; 
+          return prev + 1;
+        });
       }
     } catch (error) {
       console.log('Error incrementing progress:', error);
     }
   };
-
 
   if (!logmemberdata || Object.keys(logmemberdata).length === 0) {
     return (
@@ -85,7 +157,6 @@ const TasbeehGroup = ({ route }) => {
               </TouchableOpacity>
             )
           }
-       
         </View>
         
         <View style={styles.noTasbeehContainer}>
@@ -117,16 +188,18 @@ const TasbeehGroup = ({ route }) => {
         </TouchableOpacity>
       </View>
 
+      {/* Updated Progress Display */}
       <View style={styles.progressContainer}>
+        <CircularProgress progress={progress} />
         <View style={styles.progressTextContainer}>
-          <Text style={styles.progressText}>Your Progress: {Achived}/{goal}</Text>
-        </View>
-        <View style={styles.progressBar}>
-          <View style={[styles.progress, { width: `${progress}%` }]} />
+          <Text style={styles.progressText}>
+            {Achived} / {goal}
+          </Text>
+          {renderProgressShapes()}
         </View>
       </View>
       
-      <View style={{ padding: 20 }}>
+      <View style={{ padding: 0 }}>
         <Text style={{ fontSize: 20, color: 'black', fontWeight: 'bold' }}>
           {logmemberdata?.deadline && (
             <Text style={{ fontSize: 20, color: 'black', fontWeight: 'bold' }}>
@@ -137,9 +210,15 @@ const TasbeehGroup = ({ route }) => {
       </View>
       
       <View style={{ padding: 20, backgroundColor: colors.tasbeehconatiner, borderRadius: 30 }}>
-        <View style={{ backgroundColor: 'pink', alignSelf: 'center' }}>
+        <View style={{ alignSelf: 'center' }}>
           <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 20 }}>
-            {logmemberdata.TasbeehTitle || 'Tasbeeh Name'}
+            {logmemberdata.TasbeehTitle || ''}
+          </Text>
+          <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 20 }}>
+            {logmemberdata.TasbeehTitle || 'سُبْحَانَ ٱللَّٰهِ'+"         Count:20/50"}
+          </Text>
+          <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 20 }}>
+            {logmemberdata.TasbeehTitle || 'ٱلْحَمْدُ لِلَّٰهِ'+"            Count:00/50"}
           </Text>
         </View>
       </View>
@@ -152,18 +231,20 @@ const TasbeehGroup = ({ route }) => {
 
       <View style={styles.fabContainer}>
         <TouchableOpacity style={styles.fab} onPress={incrementProgress}>
-          <Ionicons name="add" size={40} color="white" />
+          {/* <Text style={{fontSize:40,color:'white'}}>{Achived}/{goal}</Text> */}
+          <Text style={{fontSize:40,fontWeight:'bold',color:'white'}}>Count</Text>
         </TouchableOpacity>
       </View>
     </View>
   );
-};
+}; 
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    paddingHorizontal:20,
     backgroundColor: '#fff',
+    paddingTop: 20,
   },
   loadingContainer: {
     flex: 1,
@@ -195,44 +276,36 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   progressContainer: {
-    width: '100%',
-    marginTop: 20,
     flexDirection: 'row',
+    justifyContent: 'space-around',
     alignItems: 'center',
+    marginVertical: 20,
   },
   progressTextContainer: {
-    width: '50%',
-    justifyContent: 'center',
     alignItems: 'center',
   },
   progressText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: 'black',
+  },
+  progressLabel: {
     fontSize: 16,
-    color: 'black'
-  },
-  progressBar: {
-    height: 30,
-    width: '50%',
-    backgroundColor: '#e0e0e0',
-    borderRadius: 40,
-    overflow: 'hidden',
-  },
-  progress: {
-    height: '100%',
-    backgroundColor: colors.primary,
-    borderRadius: 10,
+    color: 'gray',
+    marginTop: 5,
   },
   fabContainer: {
     position: 'absolute',
-    bottom: 20,
+    bottom:0,
     left: 0,
     right: 0,
     alignItems: 'center',
   },
   fab: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#1e3a8a',
+    width: "100%",
+    height: 300,
+    borderRadius: 0,
+    backgroundColor:colors.tasbeehconatiner,
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 5,
@@ -240,6 +313,8 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.5,
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
   },
   leaveButton: {
     position: 'absolute',
@@ -254,7 +329,22 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     fontSize: 16,
-  }
+  },
+  shapesContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
+    marginBottom: 10,
+  },
+  shape: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    marginHorizontal: 5,
+    borderWidth: 1,
+    borderColor: '#ccc',
+  },
 });
 
 export default TasbeehGroup;

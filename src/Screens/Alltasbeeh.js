@@ -14,6 +14,7 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { colors } from '../utiles/colors';
+import { AntDesign } from 'react-native-vector-icons/AntDesign';
 
 const AllTasbeehScreen = ({ route }) => {
   {/*Varaiables*/ }
@@ -95,6 +96,75 @@ const AllTasbeehScreen = ({ route }) => {
       console.log(error);
     }
   }
+  {/*Create Chain Tasbeeh api function*/ }
+  //Add Wazifa Title Api Function
+  const Createexistingtasbeehchian = async () => {
+
+    try {
+      if (editTitle) {
+        const obj = {
+          "Tasbeeh_Title": editTitle,
+          "User_id": Userid,
+          "Type": "Compund",
+        };
+        const responce = await fetch(tasbeehurl + "createtasbeehtitle", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(obj),
+        });
+        if (responce.ok) {
+          const ans = await responce.json();
+          console.log("Api responce", ans);
+          CompundChaindata(ans.id);
+        }
+        else {
+          const ans = await responce.json();
+          console.log(ans);
+        }
+      }
+      else {
+        Alert.alert("Please Enter Title");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  {/*Create Chain Tasbeeh compund data api function*/ }
+
+  const CompundChaindata = async (id) => {
+    try {
+
+      const updatedCompound = existtasbeeh.map((element) => ({
+        Existing_Tasbeehid: element.Existing_Tasbeehid,
+        Tasbeeh_id: id
+      }));
+      console.log("Updated Compound", updatedCompound);
+      const query = `chaintasbeeh`;
+      const responce = await fetch(tasbeehurl + query, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(updatedCompound)
+      });
+      if (responce.ok) {
+        const ans = await responce.json();
+        console.log("Api responce", ans);
+
+        setexisttasbeeh([]);
+        setEditingItem(null);
+      }
+      else {
+        const ans = await responce.json();
+        console.log("Api responce", ans);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
 
   {/*Use Effect To Get All tasbeeh and wazifa and compund unwanted code  */ }
 
@@ -148,14 +218,14 @@ const AllTasbeehScreen = ({ route }) => {
       <View style={styles.itemContainer}>
         <View style={styles.itemContent}>
           <Text style={styles.itemText}>{item.Tasbeeh_Title}</Text>
-          {!editingItem &&
+          {/* {!editingItem &&
             (<TouchableOpacity>
               <Image source={require('../Assests/pencil.png')} style={styles.logo} />
             </TouchableOpacity>)
-          }
+          } */}
 
         </View>
-        {!editingItem && (<TouchableOpacity onPress={() => { item.type === "Quran" ? deletetasbeeh(item.ID) : Deletewazifa(item.ID) }}>
+        {!editingItem && (<TouchableOpacity onPress={() => { item.type === "Quran" || "Compund" ? deletetasbeeh(item.ID) : Deletewazifa(item.ID) }}>
           <Image source={require('../Assests/trash.png')} style={styles.logo} />
         </TouchableOpacity>)}
       </View>
@@ -210,7 +280,7 @@ const AllTasbeehScreen = ({ route }) => {
                 placeholderTextColor="#999"
               />
             </View>
-            <TouchableOpacity onPress={() => { setexisttasbeeh([]), setEditingItem(null) }} >
+            <TouchableOpacity onPress={() => { Createexistingtasbeehchian() }} >
               <Ionicons name="checkmark-circle-sharp" size={40} color="green" />
             </TouchableOpacity>
           </>
@@ -242,12 +312,12 @@ const AllTasbeehScreen = ({ route }) => {
             }}>  Existing Tasbeeh Chain
             </Text>
           </View>
-          <FlatList
-            data={existtasbeeh}
-            renderItem={Showexistingtasbeehdata}
-            keyExtractor={(item) => item.ID.toString()}
-            contentContainerStyle={{ paddingBottom: 20 }}
-          />
+          <View style={{ maxHeight: 300 }}>
+            <FlatList
+              data={existtasbeeh}
+              renderItem={Showexistingtasbeehdata}
+            />
+          </View>
         </View>
       )}
 
@@ -315,6 +385,7 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     borderRadius: 25,
     backgroundColor: colors.tasbeehconatiner,
+
   },
   itemContent: {
     flex: 1,

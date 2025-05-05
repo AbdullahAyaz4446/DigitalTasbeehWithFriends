@@ -12,9 +12,11 @@ const LoginScreen = () => {
   const [password, setPassword] = useState('');
 
 
+  
   const Login=async()=>{
     try {
       console.log("pressed");
+    console.log(ipadd);
       const query = `Login?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
       const responce=await fetch(url+query);
       if(responce.ok){

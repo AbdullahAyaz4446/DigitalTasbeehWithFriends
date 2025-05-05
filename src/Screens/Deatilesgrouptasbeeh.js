@@ -4,7 +4,6 @@ import { colors } from '../utiles/colors'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import { shadow } from 'react-native-paper';
 
 
 const Deatilesgrouptasbeeh = ({ route }) => {
@@ -12,7 +11,7 @@ const Deatilesgrouptasbeeh = ({ route }) => {
     const { groupid, Userid, Adminid } = route.params;
     const [showprogress, setshowprogress] = useState(true);
     const [showlog, setshowlog] = useState(false);
-    const [adminid, setAdminid] = useState(0); // Add this state
+    const [adminid, setAdminid] = useState(0);
 
     const handleprogress = () => {
         setshowprogress(true);
@@ -31,16 +30,16 @@ const Deatilesgrouptasbeeh = ({ route }) => {
                 <Text style={styles.headerTitle}>Tasbeeh Group</Text>
             </View>
             <View style={styles.headerbar} >
-            {Userid == adminid && (
+                {Userid == adminid && (
                     <>
                         <TouchableOpacity>
                             <View style={styles.headeritems}>
-                                <AntDesign name="delete" size={40} color="#000" />
+                                <AntDesign name="delete" size={40} color="#fff" />
                             </View>
                         </TouchableOpacity>
                         <TouchableOpacity>
                             <View style={styles.headeritems}>
-                                <AntDesign name="adduser" size={40} color="#000" />
+                                <AntDesign name="adduser" size={40} color="#fff" />
                             </View>
                         </TouchableOpacity>
                     </>
@@ -65,7 +64,7 @@ const Deatilesgrouptasbeeh = ({ route }) => {
                     />
                 )}
                 {showlog && (
-                    <Logs 
+                    <Logs
                         groupid={groupid}
                         Userid={Userid}
                         adminid={adminid} // Pass the adminid
@@ -164,7 +163,7 @@ const styles = StyleSheet.create({
 
 });
 
-const Progress = ({ groupid, Userid, setAdminid  }) => {
+const Progress = ({ groupid, Userid, setAdminid }) => {
     const [groupprogress, setgroupprogress] = useState([]);
     const [progress, setprogress] = useState(0);
     const [Achived, setAchived] = useState(0);
@@ -200,15 +199,31 @@ const Progress = ({ groupid, Userid, setAdminid  }) => {
 
     const show = ({ item }) => (
         <View style={styles.rowContainer}>
-            <Text style={styles.itemText}>{item.Username}</Text>
             {
-                item.Adminid==item.userid?
-                    <Text style={[styles.itemText, { color: item.Status?.toLowerCase() === 'online' ? 'green' : 'black' }]}>Admin</Text>
-                    :
-                    <Text style={[styles.itemText, { color: item.Status?.toLowerCase() === 'online' ? 'green' : 'black' }]}>{item.Status}</Text>
+                item.Status?.toLowerCase() === 'online' ? (
+                    <View
+                        style={{
+                            width: 10,
+                            height: 10,
+                            borderRadius: 5,
+                            backgroundColor: 'green',
+                        }}
+                    />
+                ) : (
+                    <Text style={[styles.itemText, { color: 'black' }]}>Admin</Text>
+                )
             }
 
-            <Text style={styles.itemText}>{item.AssignCount}/{item.CurrentCount}</Text>
+            <Text style={styles.itemText}>{item.Username}</Text>
+
+
+            <Text style={styles.itemText}>{item.CurrentCount}/{item.AssignCount}</Text>
+            {
+                item.Adminid == item.userid ?
+                    <Text style={[styles.itemText, { color: 'green' }]}>Admin</Text>
+                    :
+                    <Text style={[styles.itemText, { color: 'black' }]}>Member </Text>
+            }
         </View>
     );
     return (
@@ -242,7 +257,7 @@ const Progress = ({ groupid, Userid, setAdminid  }) => {
 }
 
 // Show log component
-const Logs = ({ groupid,Userid ,adminid}) => {
+const Logs = ({ groupid, Userid, adminid }) => {
     const [logdata, setlogdata] = useState([]);
 
     // Tasbeeh Logs ApiFunction
@@ -280,7 +295,7 @@ const Logs = ({ groupid,Userid ,adminid}) => {
                     <Text style={styles.logtext}>DeadLine:  {item.deadline?.split('T')[0] || 'Not set'}</Text>
                 )
                 }
-                {item.status == "Unactive" &&Userid==adminid&& (
+                {item.status == "Unactive" && Userid == adminid && (
                     <TouchableOpacity onPress={async () => {
                         const query = `ActiveTasbeeh?id=${encodeURIComponent(item.id)}`;
                         const responce = await fetch(AssignTasbeh + query);

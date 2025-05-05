@@ -20,10 +20,11 @@ import Deatilesgrouptasbeeh from './src/Screens/Deatilesgrouptasbeeh';
 import Notification from './src/Screens/Notification';
 import Singletasbeehdeatiles from './src/Screens/Singletasbeehdeatiles';
 
+
 const Stack = createNativeStackNavigator();
 const App = () => {
-  var ipadd ='192.168.100.225';
-  global.url = `http://${ipadd}/DigitalTasbeehWithFriendsApi/api/user/`;
+  global.ipadd =`192.168.100.233`;
+  global.url = `http://${ipadd}/DigitalTasbeehWithFriendsApi/api/user/`;  
   global.tasbeehurl = `http://${ipadd}/DigitalTasbeehWithFriendsApi/api/CreateTasbeeh/`;
   // global.Imageurl = `http://${ipadd}/DigitalTasbeehWithFriendsApi/Images/`;
   global.Group= `http://${ipadd}/DigitalTasbeehWithFriendsApi/api/Group/`;
@@ -56,8 +57,6 @@ const App = () => {
         <Stack.Screen name="Deatilesgrouptasbeeh" component={Deatilesgrouptasbeeh}/>
         <Stack.Screen name="Notification" component={Notification}/>
         <Stack.Screen name="Singletasbeehdeatiles" component={Singletasbeehdeatiles}/>
- 
-        
       </Stack.Navigator>
     </NavigationContainer>
   );
