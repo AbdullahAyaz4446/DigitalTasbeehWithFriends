@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState,useContext } from 'react';
 import {
     View,
     Text,
@@ -13,6 +13,7 @@ import { useNavigation } from '@react-navigation/native';
 import { colors } from '../utiles/colors';
 import { SelectList } from 'react-native-dropdown-select-list';
 import { Checkbox } from 'react-native-paper';
+import { OnlineContext } from './OnlineContext';
 
 const CreateGroupSingle = ({ route }) => {
     const navigation = useNavigation();
@@ -21,6 +22,8 @@ const CreateGroupSingle = ({ route }) => {
     const [selectedType, setSelectedType] = useState('');
     const [members, setmembers] = useState([]);
     const [selectedmembersid, setselectedmembersid] = useState([]);
+     const { online } = useContext(OnlineContext);
+
 
     const selectiontype = [
         { key: '1', value: 'Single' },
@@ -216,8 +219,8 @@ const CreateGroupSingle = ({ route }) => {
                             renderItem={({ item }) => (
                                 <View style={styles.rowContainer}>
                                     <Text style={styles.itemText}>{item.name}</Text>
-                                    <Text style={[styles.itemText, { color: item.Status?.toLowerCase() === 'online' ? 'green' : 'black' }]}>
-                                        {item.Status}
+                                    <Text style={[styles.itemText, { color: item.Status?.toLowerCase() === 'avalible' ? 'green' : 'black' }]}>
+                                    {online} 
                                     </Text>
                                     <Checkbox
                                         status={selectedmembersid.includes(item.ID) ? 'checked' : 'unchecked'}

@@ -1,10 +1,10 @@
 import { StyleSheet, Text, View, TouchableOpacity, Image, FlatList } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import { colors } from '../utiles/colors'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-
+import { OnlineContext } from './OnlineContext';
 
 const Deatilesgrouptasbeeh = ({ route }) => {
     const navigation = useNavigation();
@@ -12,6 +12,7 @@ const Deatilesgrouptasbeeh = ({ route }) => {
     const [showprogress, setshowprogress] = useState(true);
     const [showlog, setshowlog] = useState(false);
     const [adminid, setAdminid] = useState(0);
+  
 
     const handleprogress = () => {
         setshowprogress(true);
@@ -168,6 +169,7 @@ const Progress = ({ groupid, Userid, setAdminid }) => {
     const [progress, setprogress] = useState(0);
     const [Achived, setAchived] = useState(0);
     const [goal, setgoal] = useState(0);
+    const { online } = useContext(OnlineContext);
     // const [adminid,setadminid] = useState(0);
     // APi Function to get the group progress
     const Getmembersprogress = async () => {
@@ -200,7 +202,7 @@ const Progress = ({ groupid, Userid, setAdminid }) => {
     const show = ({ item }) => (
         <View style={styles.rowContainer}>
             {
-                item.Status?.toLowerCase() === 'online' ? (
+                online == "online" ? (
                     <View
                         style={{
                             width: 10,
@@ -210,7 +212,14 @@ const Progress = ({ groupid, Userid, setAdminid }) => {
                         }}
                     />
                 ) : (
-                    <Text style={[styles.itemText, { color: 'black' }]}>Admin</Text>
+                    <View
+                        style={{
+                            width: 10,
+                            height: 10,
+                            borderRadius: 5,
+                            backgroundColor: 'gry',
+                        }}
+                    />
                 )
             }
 

@@ -24,8 +24,10 @@ const LoginScreen = () => {
         var Userid=await responce.json();
         console.log(Userid); 
         navigation.navigate('Home',{
-          "Userdata":Userid
+          "Userdata":Userid,
+          // userId: Userid.ID
         }); 
+        
       }else{
         const ans = await responce.text();
         console.log(ans);

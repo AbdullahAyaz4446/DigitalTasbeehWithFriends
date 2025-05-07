@@ -11,7 +11,6 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { colors } from '../utiles/colors';
 import Svg, { Circle } from 'react-native-svg'; 
 
-// Add the CircularProgress component before your main component
 const CircularProgress = ({ progress, size = 150, strokeWidth = 10 }) => {
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
@@ -64,8 +63,8 @@ const TasbeehGroup = ({ route }) => {
   const [progress, setProgress] = useState(0);
   const [Achived, setachived] = useState(0);
   const [goal, setgoal] = useState(0);
-  const [loading, setLoading] = useState(true);
   const [filledDots, setFilledDots] = useState(0);
+  const [isComplete, setIsComplete] = useState(false);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -77,11 +76,12 @@ const TasbeehGroup = ({ route }) => {
     if (logmemberdata?.Current && logmemberdata?.Goal) {
       const progressPercentage = Math.round((logmemberdata.Current / logmemberdata.Goal) * 100);
       setProgress(progressPercentage);
+      setIsComplete(progressPercentage >= 100);
     }
   }, [logmemberdata]);
 
   const renderProgressShapes = () => {
-    const totalShapes = 10; 
+    const totalShapes = 7; 
   
     return (
       <View style={styles.shapesContainer}>
@@ -101,7 +101,7 @@ const TasbeehGroup = ({ route }) => {
   };
   
   const Tasbeehdeatileslogedmember = async () => {
-    setLoading(true);
+
     try {
       const query = `TasbeehProgressLogedMember?userid=${encodeURIComponent(Userid)}&groupid=${encodeURIComponent(groupid)}`;
       const response = await fetch(url + query);
@@ -117,19 +117,20 @@ const TasbeehGroup = ({ route }) => {
       console.log(error);
       setlogmemberdata(null);
     } finally {
-      setLoading(false);
+      
     }
   };
 
   const incrementProgress = async () => {
+    if (isComplete) return;
+    
     try {
       const query = `ReadTasbehandnotificationsend?userid=${encodeURIComponent(Userid)}&groupid=${encodeURIComponent(groupid)}`;
       const response = await fetch(url + query);
       if (response.ok) {
         await Tasbeehdeatileslogedmember();
-        // Dot logic
         setFilledDots(prev => {
-          if (prev >= 9) return 0; 
+          if (prev >= 7) return 0; 
           return prev + 1;
         });
       }
@@ -188,7 +189,13 @@ const TasbeehGroup = ({ route }) => {
         </TouchableOpacity>
       </View>
 
-      {/* Updated Progress Display */}
+      {/* Completion Message */}
+      {isComplete && (
+        <View style={styles.completionContainer}>
+          <Text style={styles.completionText}>Tasbeeh Goal Completed!</Text>
+        </View>
+      )}
+
       <View style={styles.progressContainer}>
         <CircularProgress progress={progress} />
         <View style={styles.progressTextContainer}>
@@ -230,14 +237,19 @@ const TasbeehGroup = ({ route }) => {
       )}
 
       <View style={styles.fabContainer}>
-        <TouchableOpacity style={styles.fab} onPress={incrementProgress}>
-          {/* <Text style={{fontSize:40,color:'white'}}>{Achived}/{goal}</Text> */}
-          <Text style={{fontSize:40,fontWeight:'bold',color:'white'}}>Count</Text>
+        <TouchableOpacity 
+          style={[styles.fab, isComplete && styles.disabledFab]} 
+          onPress={incrementProgress}
+          disabled={isComplete}
+        >
+          <Text style={{fontSize:40,fontWeight:'bold',color:'white'}}>
+            {isComplete ? 'Completed!' : 'Count'}
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
   );
-}; 
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -305,7 +317,7 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 300,
     borderRadius: 0,
-    backgroundColor:colors.tasbeehconatiner,
+    backgroundColor: colors.tasbeehconatiner,
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 5,
@@ -315,6 +327,9 @@ const styles = StyleSheet.create({
     shadowRadius: 3.5,
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
+  },
+  disabledFab: {
+    backgroundColor: '#cccccc',
   },
   leaveButton: {
     position: 'absolute',
@@ -344,6 +359,18 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
     borderWidth: 1,
     borderColor: '#ccc',
+  },
+  completionContainer: {
+    padding: 10,
+    backgroundColor: colors.primary,
+    borderRadius: 20,
+    marginVertical: 10,
+    alignItems: 'center',
+  },
+  completionText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 18,
   },
 });
 
