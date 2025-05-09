@@ -2,33 +2,33 @@ import { StyleSheet, View, TouchableOpacity, Text, TextInput, Alert } from 'reac
 import React, { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from "react-native-vector-icons/Ionicons";
-import { colors } from '../utiles/colors';  
+import { colors } from '../utiles/colors';
 
 
 const LoginScreen = () => {
-    {/*Varaiables*/ }
+  {/*Varaiables*/ }
   const navigation = useNavigation();
   const [email, setemail] = useState('');
   const [password, setPassword] = useState('');
 
 
-  
-  const Login=async()=>{
+
+  const Login = async () => {
     try {
       console.log("pressed");
-    console.log(ipadd);
+      console.log(ipadd);
       const query = `Login?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
-      const responce=await fetch(url+query);
-      if(responce.ok){
+      const responce = await fetch(url + query);
+      if (responce.ok) {
         console.log("Hello");
-        var Userid=await responce.json();
-        console.log(Userid); 
-        navigation.navigate('Home',{
-          "Userdata":Userid,
-          // userId: Userid.ID
-        }); 
-        
-      }else{
+        var Userid = await responce.json();
+        console.log(Userid);
+        navigation.navigate('Home', {
+          "Userdata": Userid,
+          userId: Userid.ID
+        });
+
+      } else {
         const ans = await responce.text();
         console.log(ans);
       }
@@ -37,10 +37,10 @@ const LoginScreen = () => {
     }
   }
 
-   {/*Move Screen Sign Up */ }
+  {/*Move Screen Sign Up */ }
   const handleSignup = () => {
-    console.log('Button Pressed!'); 
-    navigation.navigate('SignUp'); 
+    console.log('Button Pressed!');
+    navigation.navigate('SignUp');
   };
 
   return (
@@ -48,13 +48,13 @@ const LoginScreen = () => {
       {/* <TouchableOpacity onPress={() => navigation.goBack()}>
         <Ionicons name="arrow-back-circle-sharp" size={40} color="#000" />
       </TouchableOpacity> */}
-      
+
       <View style={styles.textcontainer}>
         <Text style={styles.headingtext}>Hey,</Text>
         <Text style={styles.headingtext}>Welcome</Text>
         <Text style={styles.headingtext}>Back</Text>
       </View>
-      
+
       <View style={styles.textcontainer}>
         <Text style={styles.label}>Email</Text>
         <TextInput
@@ -66,7 +66,7 @@ const LoginScreen = () => {
           autoCapitalize="none"
         />
       </View>
-      
+
       <View style={styles.textcontainer}>
         <Text style={styles.label}>Password</Text>
         <TextInput
@@ -79,11 +79,11 @@ const LoginScreen = () => {
           secureTextEntry
         />
       </View>
-      
+
       <TouchableOpacity style={styles.button} onPress={Login}>
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
-      
+
       <TouchableOpacity style={styles.button} onPress={handleSignup}>
         <Text style={styles.buttonText}>Create Account</Text>
       </TouchableOpacity>
@@ -120,15 +120,15 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 100,
   },
-  button: {         
-    backgroundColor: colors.primary, 
+  button: {
+    backgroundColor: colors.primary,
     paddingVertical: 15,
     paddingHorizontal: 60,
     borderRadius: 30,
     marginTop: 50,
   },
   buttonText: {
-    color: colors.white, 
+    color: colors.white,
     fontWeight: 'bold',
     fontSize: 24,
     textAlign: 'center',

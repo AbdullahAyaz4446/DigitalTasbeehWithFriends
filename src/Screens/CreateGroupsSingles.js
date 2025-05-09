@@ -1,4 +1,4 @@
-import React, { useEffect, useState,useContext } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import {
     View,
     Text,
@@ -22,7 +22,7 @@ const CreateGroupSingle = ({ route }) => {
     const [selectedType, setSelectedType] = useState('');
     const [members, setmembers] = useState([]);
     const [selectedmembersid, setselectedmembersid] = useState([]);
-     const { online } = useContext(OnlineContext);
+
 
 
     const selectiontype = [
@@ -219,8 +219,8 @@ const CreateGroupSingle = ({ route }) => {
                             renderItem={({ item }) => (
                                 <View style={styles.rowContainer}>
                                     <Text style={styles.itemText}>{item.name}</Text>
-                                    <Text style={[styles.itemText, { color: item.Status?.toLowerCase() === 'avalible' ? 'green' : 'black' }]}>
-                                    {online} 
+                                    <Text style={[styles.itemText, { color: item.Members_id == Userid ? 'green' : 'gray' }]}>
+                                        {item.Members_id == Userid ? 'Online' : 'Offline'}
                                     </Text>
                                     <Checkbox
                                         status={selectedmembersid.includes(item.ID) ? 'checked' : 'unchecked'}
@@ -336,15 +336,15 @@ const styles = StyleSheet.create({
         padding: 10,
         borderRadius: 10,
         marginVertical: 5,
-     
+
     },
-    
+
     itemText: {
         color: 'black',
         fontSize: 16,
         flex: 1,
     },
-    
+
 });
 
 export default CreateGroupSingle;

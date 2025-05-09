@@ -15,6 +15,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { colors } from '../utiles/colors';
 import { AntDesign } from 'react-native-vector-icons/AntDesign';
+import { black } from 'react-native-paper/lib/typescript/styles/themes/v2/colors';
 
 const AllTasbeehScreen = ({ route }) => {
   {/*Varaiables*/ }
@@ -117,7 +118,7 @@ const AllTasbeehScreen = ({ route }) => {
         if (responce.ok) {
           const ans = await responce.json();
           console.log("Api responce", ans);
-          CompundChaindata(ans.id);
+          return ans;
         }
         else {
           const ans = await responce.json();
@@ -133,12 +134,13 @@ const AllTasbeehScreen = ({ route }) => {
   }
   {/*Create Chain Tasbeeh compund data api function*/ }
 
-  const CompundChaindata = async (id) => {
+  const CompundChaindata = async () => {
     try {
-
+    
+      const id=await Createexistingtasbeehchian();
       const updatedCompound = existtasbeeh.map((element) => ({
-        Existing_Tasbeehid: element.Existing_Tasbeehid,
-        Tasbeeh_id: id
+        Tasbeeh_id: id,
+        Existing_Tasbeehid: element.ID
       }));
       console.log("Updated Compound", updatedCompound);
       const query = `chaintasbeeh`;
@@ -211,6 +213,7 @@ const AllTasbeehScreen = ({ route }) => {
         if (editingItem) {
           settasbeeh(tasbeeh.filter(t => t.ID !== item.ID));
           setexisttasbeeh(prev => [...(prev || []), item]);
+          console.log(existtasbeeh);
         }
       }}
 
@@ -231,30 +234,71 @@ const AllTasbeehScreen = ({ route }) => {
       </View>
     </TouchableOpacity>
   );
+
+  
   {/*Flat List To Show Existing Tasbeeh  data*/ }
   const Showexistingtasbeehdata = ({ item, index }) => (
-    <View style={{ marginVertical: 10, backgroundColor: colors.tasbeehconatiner, borderRadius: 20 }}>
-      <View style={{ marginHorizontal: 20, marginTop: 10 }}>
-
-      </View>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', margin: 20 }}>
-        <View>
-          <Text style={{ fontSize: 20, color: 'black', fontWeight: 'bold' }}>{item.Tasbeeh_Title}</Text>
-        </View>
-        <View >
-          <TouchableOpacity onPress={() => {
-            setexisttasbeeh(existtasbeeh.filter(t => t.ID !== item.ID));
-            settasbeeh(prev => [...(prev || []), item]);
-
+    <View style={{ 
+      marginVertical: 10, 
+      backgroundColor: colors.tasbeehconatiner, 
+      borderRadius: 20,
+      padding: 10
+    }}>
+      <View style={{ 
+        flexDirection: 'row', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        width: '100%'
+      }}>
+ 
+        <View style={{
+          width: '33%',
+          justifyContent: 'center',
+          paddingHorizontal: 5
+        }}>
+          <Text style={{ 
+            fontSize: 16, 
+            color: 'black', 
+            fontWeight: 'bold',
+            textAlign: 'left'
           }}>
-            <Image source={require('../Assests/trash.png')} style={styles.logo} />
+            {item.Tasbeeh_Title}
+          </Text>
+        </View>
+  
+      
+        <View style={{
+          width: '33%',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <TouchableOpacity 
+            onPress={() => {
+              setexisttasbeeh(existtasbeeh.filter(t => t.ID !== item.ID));
+              settasbeeh(prev => [...(prev || []), item]);
+            }}
+            style={{ padding: 8 }}
+          >
+            <Image 
+              source={require('../Assests/trash.png')} 
+              style={{ width: 24, height: 24 }} 
+            />
           </TouchableOpacity>
         </View>
-
+  
+        {/* Move Up Button Column - 33% width (conditionally shown) */}
         {existtasbeeh.length > 1 && index !== 0 && (
-          <View >
-            <TouchableOpacity onPress={() => Swapdata(item.ID)}>
-              <Ionicons name="caret-up-circle" size={40} color="#000" />
+          <View style={{
+            width: '33%',
+            alignItems: 'flex-end',
+            justifyContent: 'center',
+            paddingRight: 10
+          }}>
+            <TouchableOpacity 
+              onPress={() => Swapdata(item.ID)}
+              style={{ padding: 8 }}
+            >
+              <Ionicons name="caret-up-circle" size={35} color={"black"} />
             </TouchableOpacity>
           </View>
         )}
@@ -280,7 +324,7 @@ const AllTasbeehScreen = ({ route }) => {
                 placeholderTextColor="#999"
               />
             </View>
-            <TouchableOpacity onPress={() => { Createexistingtasbeehchian() }} >
+            <TouchableOpacity onPress={() => { CompundChaindata() }} >
               <Ionicons name="checkmark-circle-sharp" size={40} color="green" />
             </TouchableOpacity>
           </>
@@ -297,7 +341,7 @@ const AllTasbeehScreen = ({ route }) => {
         )}
       </View>
       <FlatList
-        data={tasbeeh}
+        data={tasbeeh.reverse()}
         renderItem={Show}
       />
       {editingItem && (

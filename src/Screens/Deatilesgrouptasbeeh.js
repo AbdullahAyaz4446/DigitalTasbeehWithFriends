@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TouchableOpacity, Image, FlatList } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, Image, FlatList, Modal, TouchableWithoutFeedback } from 'react-native'
 import React, { useEffect, useState, useContext } from 'react'
 import { colors } from '../utiles/colors'
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -12,7 +12,8 @@ const Deatilesgrouptasbeeh = ({ route }) => {
     const [showprogress, setshowprogress] = useState(true);
     const [showlog, setshowlog] = useState(false);
     const [adminid, setAdminid] = useState(0);
-  
+    const [showModal, setShowModal] = useState(false);
+
 
     const handleprogress = () => {
         setshowprogress(true);
@@ -21,6 +22,24 @@ const Deatilesgrouptasbeeh = ({ route }) => {
     const handlelogs = () => {
         setshowprogress(false);
         setshowlog(true);
+    }
+    // Delete group Api Function
+    const deleteGroup = async () => {
+        try {
+            const query = `DeleteGroup?id=${encodeURIComponent(groupid)}`;
+            const response = await fetch(Group + query);
+            if (response.ok) {
+                const result = await response.json();
+                console.log(result);
+               navigation.goBack();
+               navigation.goBack();
+            } else {
+                const result = await response.text();
+                console.log(result);
+            }
+        } catch (error) {
+            console.log(error);
+        }
     }
     return (
         <View style={styles.container}>
@@ -33,7 +52,7 @@ const Deatilesgrouptasbeeh = ({ route }) => {
             <View style={styles.headerbar} >
                 {Userid == adminid && (
                     <>
-                        <TouchableOpacity>
+                        <TouchableOpacity onPress={() => setShowModal(true)}>
                             <View style={styles.headeritems}>
                                 <AntDesign name="delete" size={40} color="#fff" />
                             </View>
@@ -61,7 +80,7 @@ const Deatilesgrouptasbeeh = ({ route }) => {
                     <Progress
                         groupid={groupid}
                         Userid={Userid}
-                        setAdminid={setAdminid} // Pass setter function
+                        setAdminid={setAdminid} 
                     />
                 )}
                 {showlog && (
@@ -72,6 +91,32 @@ const Deatilesgrouptasbeeh = ({ route }) => {
                     />
                 )}
             </View>
+            <Modal transparent visible={showModal} animationType="fade">
+                <TouchableWithoutFeedback onPress={() => setShowModal(false)}>
+                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)', padding: 20 }}>
+                        <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 20, width: '90%', height: '25%' }}>
+                            <Text style={{ fontSize: 24, fontWeight: 'bold', textAlign: 'center', marginBottom: 20, color: 'black' }}>
+                                Do You Want to Delete this Group
+                            </Text>
+                       
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                                <TouchableOpacity
+                                    onPress={() => setShowModal(false)}
+                                    style={{ backgroundColor: colors.tasbeehconatiner, padding: 10, borderRadius: 10, width: '48%' }}>
+                                    <Text style={{ fontSize: 18, color: 'black', textAlign: 'center' }}>Cancel</Text>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity onPress={()=>{ deleteGroup()}}
+                                    style={{ backgroundColor:'red', padding: 10, borderRadius: 10, width: '48%' }}>
+                                    <Text style={{ fontSize: 18, color: 'black', textAlign: 'center' }}>Delete</Text>
+                                </TouchableOpacity>
+                            </View>
+
+                        </View>
+                    </View>
+                </TouchableWithoutFeedback>
+            </Modal>
+
         </View>
     )
 }
@@ -143,10 +188,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        backgroundColor: '#f5f5f5',
+        backgroundColor: colors.tasbeehconatiner,
         padding: 10,
         marginVertical: 5,
         borderRadius: 10,
+        paddingVertical: 20
     },
 
     itemText: {
@@ -154,6 +200,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         flex: 1,
         textAlign: 'center',
+        fontWeight: 'bold'
     },
     logcontainer: {
         backgroundColor: colors.tasbeehconatiner, marginVertical: 5, borderRadius: 20, padding: 20
@@ -169,8 +216,8 @@ const Progress = ({ groupid, Userid, setAdminid }) => {
     const [progress, setprogress] = useState(0);
     const [Achived, setAchived] = useState(0);
     const [goal, setgoal] = useState(0);
-    const { online } = useContext(OnlineContext);
-    // const [adminid,setadminid] = useState(0);
+
+
     // APi Function to get the group progress
     const Getmembersprogress = async () => {
         try {
@@ -197,12 +244,13 @@ const Progress = ({ groupid, Userid, setAdminid }) => {
     }
     useEffect(() => {
         Getmembersprogress();
+
     }, []);
 
     const show = ({ item }) => (
         <View style={styles.rowContainer}>
             {
-                online == "online" ? (
+                item.userid == Userid ? (
                     <View
                         style={{
                             width: 10,
@@ -217,7 +265,7 @@ const Progress = ({ groupid, Userid, setAdminid }) => {
                             width: 10,
                             height: 10,
                             borderRadius: 5,
-                            backgroundColor: 'gry',
+                            backgroundColor: '#333333',
                         }}
                     />
                 )
@@ -229,7 +277,10 @@ const Progress = ({ groupid, Userid, setAdminid }) => {
             <Text style={styles.itemText}>{item.CurrentCount}/{item.AssignCount}</Text>
             {
                 item.Adminid == item.userid ?
+
                     <Text style={[styles.itemText, { color: 'green' }]}>Admin</Text>
+
+
                     :
                     <Text style={[styles.itemText, { color: 'black' }]}>Member </Text>
             }
@@ -329,11 +380,11 @@ const Logs = ({ groupid, Userid, adminid }) => {
         </View>
     )
     // Sort the data  function
-    // const sortedLogData = [...logdata].sort((a, b) => {
-    //     if (a.status === "Active" && b.status !== "Active") return -1;
-    //     if (a.status !== "Active" && b.status === "Active") return 1;
-    //     return 0;
-    // });
+    const sortedLogData = [...logdata].sort((a, b) => {
+        if (a.status === "Active" && b.status !== "Active") return -1;
+        if (a.status !== "Active" && b.status === "Active") return 1;
+        return 0;
+    });
     return (
         <View style={{ marginTop: 20 }}>
             <FlatList

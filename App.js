@@ -19,15 +19,12 @@ import Singletasbeeh from './src/Screens/Singletasbeeh';
 import Deatilesgrouptasbeeh from './src/Screens/Deatilesgrouptasbeeh';
 import Notification from './src/Screens/Notification';
 import Singletasbeehdeatiles from './src/Screens/Singletasbeehdeatiles';
-import { OnlineProvider } from './src/Screens/OnlineContext';
-
-
 
 
 
 const App = () => {
   const Stack = createNativeStackNavigator();
-  global.ipadd = `192.168.100.233`;
+  global.ipadd = `192.168.211.68`;
   global.url = `http://${ipadd}/DigitalTasbeehWithFriendsApi/api/user/`;
   global.tasbeehurl = `http://${ipadd}/DigitalTasbeehWithFriendsApi/api/CreateTasbeeh/`;
   // global.Imageurl = `http://${ipadd}/DigitalTasbeehWithFriendsApi/Images/`;
@@ -40,9 +37,9 @@ const App = () => {
  
   
 
-  
+
   return (
-    <OnlineProvider>
+
     <NavigationContainer >
       <Stack.Navigator
         initialRouteName="Start"
@@ -69,7 +66,7 @@ const App = () => {
         <Stack.Screen name="Singletasbeehdeatiles" component={Singletasbeehdeatiles} />
       </Stack.Navigator>
     </NavigationContainer>
-    </OnlineProvider>
+
   );
 }
 
