@@ -178,7 +178,9 @@ const TasbeehGroup = ({ route }) => {
           <Ionicons name="arrow-back-circle-sharp" size={40} color="#000" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{Name}</Text>
-        <TouchableOpacity onPress={() => navigation.navigate("Singletasbeehdeatiles")}>
+        <TouchableOpacity onPress={() => navigation.navigate("Singletasbeehdeatiles",{
+          "tasbeehid":tasbeehId,"Name":Name
+        })}>
           <Ionicons name="options" size={30} color="#000" />
         </TouchableOpacity>
       </View>

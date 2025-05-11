@@ -295,7 +295,7 @@ const AllTasbeehScreen = ({ route }) => {
       <View style={styles.header}>
         {editingItem ? (
           <>
-            <TouchableOpacity onPress={() => { setEditingItem(null), setexisttasbeeh([]) }}>
+            <TouchableOpacity onPress={() => { setEditingItem(null), setexisttasbeeh([]),setEditTitle("") }}>
               <Ionicons name="close-circle-sharp" size={40} color="#000" />
             </TouchableOpacity>
             <View style={styles.inputContainer}>

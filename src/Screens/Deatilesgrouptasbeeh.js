@@ -402,8 +402,11 @@ const Logs = ({ groupid, Userid, adminid }) => {
     return (
         <View style={{ marginTop: 20 }}>
             <FlatList
-                data={logdata}
+                data={sortedLogData}
                 renderItem={show}
+                contentContainerStyle={{
+                    paddingBottom: 130,
+                  }}
             />
         </View>
     )
