@@ -7,6 +7,8 @@ import {
     FlatList,
     Image,
     Alert,
+    Modal,
+    TouchableWithoutFeedback
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
@@ -17,14 +19,15 @@ const AllgrouosSingle = ({ route }) => {
     const navigation = useNavigation();
     const { Userid } = route.params;
     const [combinedData, setCombinedData] = useState([]); // State to store combined data
-
+    const [showModal, setShowModal] = useState(false);
+    const[seleteditem,setselecteditem]=useState(null);
 
 
     useEffect(() => {
-        fetchAndCombineData(); 
+        fetchAndCombineData();
     }, [combinedData]);
     useEffect(() => {
-        fetchAndCombineData(); 
+        fetchAndCombineData();
     }, []);
 
 
@@ -35,15 +38,15 @@ const AllgrouosSingle = ({ route }) => {
             const response = await fetch(url + query);
             if (response.ok) {
                 const data = await response.json();
-                return data; 
+                return data;
             } else {
                 const errorText = await response.text();
                 console.log(errorText);
-                return []; 
+                return [];
             }
         } catch (error) {
             console.log(error);
-            return []; 
+            return [];
         }
     };
 
@@ -54,11 +57,11 @@ const AllgrouosSingle = ({ route }) => {
             const response = await fetch(Singletasbeeh + query);
             if (response.ok) {
                 const data = await response.json();
-                return data; 
+                return data;
             } else {
                 const errorText = await response.text();
                 console.log(errorText);
-                return []; 
+                return [];
             }
         } catch (error) {
             console.log(error);
@@ -71,23 +74,23 @@ const AllgrouosSingle = ({ route }) => {
         const groups = await Allgroups();
         const singleTasbeehs = await AllSingle();
         const combined = [
-            ...groups.map(item => ({ ...item, type: 'group' })), 
-            ...singleTasbeehs.map(item => ({ ...item, type: 'single' })), 
+            ...groups.map(item => ({ ...item, type: 'group' })),
+            ...singleTasbeehs.map(item => ({ ...item, type: 'single' })),
         ];
-        setCombinedData(combined); 
+        setCombinedData(combined);
     };
 
     // Delete Group Api Function
-    const Deletegroup=async(id)=>{
+    const Deletegroup = async (id) => {
         try {
-            const query=`Deletegroup?id=${encodeURIComponent(id)}`;
-            const response=await fetch(Group+query);
-            if(response.ok){
+            const query = `Deletegroup?id=${encodeURIComponent(id)}`;
+            const response = await fetch(Group + query);
+            if (response.ok) {
                 const res = await response.text();
                 console.log(res);
-            
+
             }
-            else{
+            else {
                 const res = await response.text();
                 console.log(res);
             }
@@ -98,16 +101,16 @@ const AllgrouosSingle = ({ route }) => {
     }
 
     // Delete Single Api Function
-    const DeleteSingle=async(id)=>{
+    const DeleteSingle = async (id) => {
         try {
-            const query=`deletesingle?id=${encodeURIComponent(id)}`;
-            const response=await fetch(Singletasbeeh+query);
-            if(response.ok){
+            console.log(id);
+            const query = `deletesingle?id=${encodeURIComponent(id)}`;
+            const response = await fetch(Singletasbeeh + query);
+            if (response.ok) {
                 const res = await response.text();
                 console.log(res);
-               
             }
-            else{
+            else {
                 const res = await response.text();
                 console.log(res);
             }
@@ -117,33 +120,20 @@ const AllgrouosSingle = ({ route }) => {
         }
     }
 
-   
+
 
     // Render item for FlatList
     const Show = ({ item }) => (
         <TouchableOpacity
             onLongPress={() => {
-                Alert.alert(
-                    'Alert',
-                    'Are you sure you want to delete?',
-                    [
-                        { text: 'Cancel' },
-                        { text: 'Delete' ,onPress: () => {  
-                            if(item.type === 'group'){
-                                Deletegroup(item.Groupid);
-                            }
-                            else{
-                                DeleteSingle(item.id);
-                            }
-                        } ,style: 'destructive'},
-                    ]
-                );
+                setselecteditem(item);
+                setShowModal(true);
             }}
             onPress={() => {
                 if (item.type === 'group') {
-                    navigation.navigate('TasbeehGroup', {"groupid":item.Groupid,"Userid":Userid,"Adminid":item.Adminid});
+                    navigation.navigate('TasbeehGroup', { "groupid": item.Groupid, "Userid": Userid, "Adminid": item.Adminid });
                 } else {
-                    navigation.navigate('Singletasbeeh', { "tasbeehId": item.id });
+                    navigation.navigate('Singletasbeeh', { "tasbeehId": item.ID,"Name":item.Title});
                 }
             }}
         >
@@ -168,7 +158,7 @@ const AllgrouosSingle = ({ route }) => {
             <FlatList
                 data={combinedData}
                 renderItem={Show}
-            
+
             />
 
             <TouchableOpacity
@@ -177,6 +167,31 @@ const AllgrouosSingle = ({ route }) => {
             >
                 <Ionicons name="add" size={40} color="white" />
             </TouchableOpacity>
+            <Modal transparent visible={showModal} animationType="fade">
+                <TouchableWithoutFeedback onPress={() => setShowModal(false)}>
+                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)', padding: 20 }}>
+                        <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 20, width: '90%', height: '25%' }}>
+                            <Text style={{ fontSize: 24, fontWeight: 'bold', textAlign: 'center', marginBottom: 20, color: 'black' }}>
+                                Do You Want to Delete this {seleteditem?.type === 'group' ? 'Group' : 'Single'}
+                            </Text>
+
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                                <TouchableOpacity
+                                    onPress={() => setShowModal(false)}
+                                    style={{ backgroundColor: colors.tasbeehconatiner, padding: 10, borderRadius: 10, width: '48%' }}>
+                                    <Text style={{ fontSize: 18, color: 'black', textAlign: 'center' }}>Cancel</Text>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity onPress={() => {seleteditem.type==='group'?Deletegroup(seleteditem.Groupid):DeleteSingle(seleteditem.ID);setShowModal(false);fetchAndCombineData();}}
+                                    style={{ backgroundColor: 'red', padding: 10, borderRadius: 10, width: '48%' }}>
+                                    <Text style={{ fontSize: 18, color: 'black', textAlign: 'center' }}>Delete</Text>
+                                </TouchableOpacity>
+                            </View>
+
+                        </View>
+                    </View>
+                </TouchableWithoutFeedback>
+            </Modal>
         </View>
     );
 };
@@ -211,9 +226,9 @@ const styles = StyleSheet.create({
     itemText: {
         fontSize: 18,
         color: 'black',
-        fontWeight:'bold',
+        fontWeight: 'bold',
         paddingLeft: 10,
-        
+
     },
     fab: {
         position: 'absolute',

@@ -62,26 +62,6 @@ const AssignTasbeeh = ({ route }) => {
         setCombinedData(combined);
     }, [groups, single]);
 
-    // Get All Wazifa Api Function unwanted code
-    // const Allwazifa = async () => {
-    //     try {
-    //         const query = `Allwazifa?id=${encodeURIComponent(Userid)}`;
-    //         const response = await fetch(url + query);
-
-    //         if (response.ok) {
-    //             const data = await response.json();
-    //             const transformedData = data.map((item) => ({
-    //                 key: `w-${item.id}`, // Add prefix to avoid key clash
-    //                 value: item.Wazifa_Title + " (Wazifa)",
-    //             }));
-
-    //             settasbeeh(prev => [...prev, ...transformedData]);
-    //         }
-    //     } catch (error) {
-    //         console.log(error);
-    //     }
-    // };
-
 
     // Get All Single Tasbeeh Api Function
     const AllSingle = async () => {
@@ -174,10 +154,10 @@ const AssignTasbeeh = ({ route }) => {
                 SingleTasbeeh_id:groupid,
                 Tasbeeh_id: tasbeehid.substring(2),
                 Goal: parseInt(count, 10), 
-                End_date: deadline,
+                Enddate: deadline,
             }
             console.log("Final API Payload:", tasbeehobject);
-            const responce=await fetch(Wazifa + 'Assigntosingletasbeeh', {
+            const responce=await fetch(Singletasbeeh + 'Assigntosingletasbeeh', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -203,7 +183,7 @@ const AssignTasbeeh = ({ route }) => {
             const AssignTasbeehobj = {
                 Group_id: groupid,
                 Tasbeeh_id: tasbeehid.substring(2),
-                Goal: parseInt(count, 10),  // Convert to number
+                Goal: parseInt(count, 10),  
                 End_date: deadline,
             };
 

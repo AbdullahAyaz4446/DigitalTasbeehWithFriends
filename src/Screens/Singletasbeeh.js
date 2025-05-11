@@ -1,61 +1,238 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
+  ActivityIndicator
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { colors } from '../utiles/colors';
+import Svg, { Circle } from 'react-native-svg';
 
-const Singletasbeeh = ({ route }) => {
+const CircularProgress = ({ progress, size = 150, strokeWidth = 10 }) => {
+  const radius = (size - strokeWidth) / 2;
+  const circumference = radius * 2 * Math.PI;
+  const strokeDashoffset = circumference - (progress / 100) * circumference;
+
+  return (
+    <View style={{ alignItems: 'center' }}>
+      <Svg width={size} height={size}>
+        {/* Background circle */}
+        <Circle
+          stroke="#e0e0e0"
+          fill="none"
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          strokeWidth={strokeWidth}
+        />
+        {/* Progress circle */}
+        <Circle
+          stroke={colors.primary}
+          fill="none"
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          strokeWidth={strokeWidth}
+          strokeDasharray={`${circumference} ${circumference}`}
+          strokeDashoffset={strokeDashoffset}
+          strokeLinecap="round"
+          transform={`rotate(-90 ${size / 2} ${size / 2})`}
+        />
+      </Svg>
+      <Text style={{
+        position: 'absolute',
+        textAlign: 'center',
+        lineHeight: size,
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: 'black'
+      }}>
+        {progress}%
+      </Text>
+    </View>
+  );
+};
+
+const TasbeehGroup = ({ route }) => {
   const navigation = useNavigation();
-  const { Userid } = route.params;
+  const { tasbeehId, Name } = route.params;
+  const [logmemberdata, setlogmemberdata] = useState(null);
+  const [progress, setProgress] = useState(0);
+  const [Achived, setachived] = useState(0);
+  const [goal, setgoal] = useState(0);
+  const [filledDots, setFilledDots] = useState(0);
+  const [isComplete, setIsComplete] = useState(false);
+
+
+  {/*Use Effects*/ }
+  useFocusEffect(
+    React.useCallback(() => {
+      Singletasbeehprogress();
+    }, [])
+  );
+
+  useEffect(() => {
+    if (logmemberdata?.Achieved && logmemberdata?.Goal) {
+      const progressPercentage = Math.round((logmemberdata.Achieved / logmemberdata.Goal) * 100);
+      setProgress(progressPercentage);
+      setIsComplete(progressPercentage >= 100);
+    }
+  }, [logmemberdata]);
+
+
+  {/* Api Functions*/ }
+  const Singletasbeehprogress = async () => {
+    try {
+      const query = `Getsingletasbeehdata?id=${encodeURI(tasbeehId)}`
+      const response = await fetch(Singletasbeeh + query);
+      if (response.ok) {
+        const result = await response.json();
+        console.log(result);
+        setachived(result?.Achieved || 0);
+        setgoal(result?.Goal || 0);
+        setlogmemberdata(result);
+      }
+      else {
+        const result = await response.json();
+        console.log(result);
+      }
+
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+
+  const incrementProgress = async () => {
+    try {
+      const query = `Readsingletasbeeh?id=${encodeURI(tasbeehId)}`
+      const response = await fetch(Singletasbeeh + query);
+      if (response.ok) {
+        const result = await response.json();
+        await Singletasbeehprogress();
+        setFilledDots(prev => {
+          if (prev >= 7) return 0;
+          return prev + 1;
+        });
+      }
+      else {
+        const result = await response.json();
+        console.log(result);
+      }
+
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+
+
+
+
+
+
+  if (!logmemberdata || Object.keys(logmemberdata).length === 0) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons name="arrow-back-circle-sharp" size={40} color="#000" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Single</Text>
+        </View>
+
+        <View style={styles.noTasbeehContainer}>
+          <Text style={styles.noTasbeehText}>No Tasbeeh Assigned Yet</Text>
+        </View>
+      </View>
+    );
+  }
+
+  const renderProgressShapes = () => {
+    const totalShapes = 7;
+
+    return (
+      <View style={styles.shapesContainer}>
+        {[...Array(totalShapes)].map((_, index) => (
+          <View
+            key={index}
+            style={[
+              styles.shape,
+              {
+                backgroundColor: index < filledDots ? colors.primary : '#e0e0e0',
+              },
+            ]}
+          />
+        ))}
+      </View>
+    );
+  };
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back-circle-sharp" size={40} color="#000" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}></Text>
-        <TouchableOpacity>
+        <Text style={styles.headerTitle}>{Name}</Text>
+        <TouchableOpacity onPress={() => navigation.navigate("Singletasbeehdeatiles")}>
           <Ionicons name="options" size={30} color="#000" />
         </TouchableOpacity>
       </View>
 
-      <View style={styles.progressContainer}>
-        <View style={styles.progressTextContainer}>
-          <Text style={styles.progressText}>Your Progress:</Text>
+      {/* Completion Message */}
+      {isComplete && (
+        <View style={styles.completionContainer}>
+          <Text style={styles.completionText}>Your Goal Completed 😍</Text>
         </View>
-        <View style={styles.progressBar}>
-          <View style={[styles.progress, { width: `${0}%` }]} />
+      )}
+
+      <View style={styles.progressContainer}>
+        <CircularProgress progress={progress} />
+        <View style={styles.progressTextContainer}>
+          <Text style={styles.progressText}>
+            {Achived} / {goal}
+          </Text>
+          {renderProgressShapes()}
         </View>
       </View>
-      
-      <View style={{ padding: 20 }}>
+
+      <View style={{ padding: 0 }}>
         <Text style={{ fontSize: 20, color: 'black', fontWeight: 'bold' }}>
-          {/* Deadline text can go here */}
+          {logmemberdata?.Enddate && (
+            <Text style={{ fontSize: 20, color: 'black', fontWeight: 'bold' }}>
+              DeadLine: {logmemberdata.Enddate.split('T')[0]}
+            </Text>
+          )}
         </Text>
       </View>
-      
-      <View style={styles.tasbeehNameContainer}>
-        <View style={styles.tasbeehNameBackground}>
-          <Text style={styles.tasbeehNameText}>Tasbeeh Name</Text>
+
+      <View style={{ padding: 20, backgroundColor: colors.tasbeehconatiner, borderRadius: 30 }}>
+        <View style={{ alignSelf: 'center' }}>
+          <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 20 }}>
+            {/* {logmemberdata.TasbeehTitle || ''} */}
+          </Text>
+          <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 20 }}>
+            {/* {logmemberdata.TasbeehTitle || 'سُبْحَانَ ٱللَّٰهِ' + "         Count:20/50"} */}
+          </Text>
+          <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 20 }}>
+            {/* {logmemberdata.TasbeehTitle || 'ٱلْحَمْدُ لِلَّٰهِ' + "            Count:00/50"} */}
+          </Text>
         </View>
       </View>
 
-      {/* Leave Button - Positioned at bottom left like the screenshot */}
-      <TouchableOpacity style={styles.leaveButton}>
-        <Text style={styles.leaveText}>Leave</Text>
-      </TouchableOpacity>
-
-      {/* FAB Button - Centered at bottom */}
       <View style={styles.fabContainer}>
-        <TouchableOpacity style={styles.fab}>
-          <Ionicons name="add" size={40} color="white" />
+        <TouchableOpacity
+          style={[styles.fab, isComplete && styles.disabledFab]}
+          onPress={incrementProgress}
+          disabled={isComplete}
+        >
+          <Text style={{ fontSize: 40, fontWeight: 'bold', color: 'white' }}>
+            {isComplete ? 'Completed!' : 'Count'}
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -65,8 +242,26 @@ const Singletasbeeh = ({ route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    paddingHorizontal: 20,
     backgroundColor: '#fff',
+    paddingTop: 20,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  noTasbeehContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  noTasbeehText: {
+    fontSize: 20,
+    color: 'black',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    padding: 20,
   },
   header: {
     flexDirection: 'row',
@@ -81,76 +276,36 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   progressContainer: {
-    width: '100%',
-    marginTop: 20,
     flexDirection: 'row',
+    justifyContent: 'space-around',
     alignItems: 'center',
+    marginVertical: 20,
   },
   progressTextContainer: {
-    width: '50%',
-    justifyContent: 'center',
     alignItems: 'center',
   },
   progressText: {
-    fontSize: 16,
-    color: 'black'
-  },
-  progressBar: {
-    height: 30,
-    width: '50%',
-    backgroundColor: '#e0e0e0',
-    borderRadius: 40,
-    overflow: 'hidden',
-  },
-  progress: {
-    height: '100%',
-    backgroundColor: colors.primary,
-    borderRadius: 10,
-  },
-  tasbeehNameContainer: {
-    padding: 20,
-    backgroundColor: colors.tasbeehconatiner,
-    borderRadius: 30,
-    marginTop: 20,
-  },
-  tasbeehNameBackground: {
-    backgroundColor: 'pink',
-    alignSelf: 'center',
-    padding: 10,
-    borderRadius: 10,
-  },
-  tasbeehNameText: {
+    fontSize: 24,
+    fontWeight: 'bold',
     color: 'black',
-    fontWeight: 'bold',
-    fontSize: 20,
   },
-  leaveButton: {
-    position: 'absolute',
-    bottom: 200, 
-    left: 20,
-    backgroundColor: 'red',
-    paddingVertical: 10,
-    paddingHorizontal: 30,
-    borderTopRightRadius: 20,
-
-  },
-  leaveText: {
-    color: 'white',
-    fontWeight: 'bold',
+  progressLabel: {
     fontSize: 16,
+    color: 'gray',
+    marginTop: 5,
   },
   fabContainer: {
     position: 'absolute',
-    bottom: 20,
+    bottom: 0,
     left: 0,
     right: 0,
     alignItems: 'center',
   },
   fab: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#1e3a8a',
+    width: "100%",
+    height: 300,
+    borderRadius: 0,
+    backgroundColor: colors.tasbeehconatiner,
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 5,
@@ -158,7 +313,53 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.5,
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
+  },
+  disabledFab: {
+    backgroundColor: '#cccccc',
+  },
+  leaveButton: {
+    position: 'absolute',
+    bottom: 250,
+    left: 20,
+    backgroundColor: 'red',
+    paddingVertical: 10,
+    paddingHorizontal: 30,
+    borderTopRightRadius: 20,
+  },
+  leaveText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  shapesContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
+    marginBottom: 10,
+  },
+  shape: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    marginHorizontal: 5,
+    borderWidth: 1,
+    borderColor: '#ccc',
+  },
+  completionContainer: {
+    padding: 10,
+    backgroundColor: colors.primary,
+    borderRadius: 20,
+    marginVertical: 10,
+    alignItems: 'center',
+  },
+  completionText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 18,
   },
 });
 
-export default Singletasbeeh;
+export default TasbeehGroup;

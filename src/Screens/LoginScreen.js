@@ -12,7 +12,7 @@ const LoginScreen = () => {
   const [password, setPassword] = useState('');
 
 
-
+  {/*LogIn Api Function*/ }
   const Login = async () => {
     try {
       console.log("pressed");

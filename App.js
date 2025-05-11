@@ -24,7 +24,7 @@ import Singletasbeehdeatiles from './src/Screens/Singletasbeehdeatiles';
 
 const App = () => {
   const Stack = createNativeStackNavigator();
-  global.ipadd = `192.168.211.68`;
+  global.ipadd = `192.168.137.1`;
   global.url = `http://${ipadd}/DigitalTasbeehWithFriendsApi/api/user/`;
   global.tasbeehurl = `http://${ipadd}/DigitalTasbeehWithFriendsApi/api/CreateTasbeeh/`;
   // global.Imageurl = `http://${ipadd}/DigitalTasbeehWithFriendsApi/Images/`;

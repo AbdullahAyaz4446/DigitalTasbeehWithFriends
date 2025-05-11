@@ -31,8 +31,8 @@ const Deatilesgrouptasbeeh = ({ route }) => {
             if (response.ok) {
                 const result = await response.json();
                 console.log(result);
-               navigation.goBack();
-               navigation.goBack();
+                navigation.goBack();
+                navigation.goBack();
             } else {
                 const result = await response.text();
                 console.log(result);
@@ -41,6 +41,7 @@ const Deatilesgrouptasbeeh = ({ route }) => {
             console.log(error);
         }
     }
+
     return (
         <View style={styles.container}>
             <View style={styles.header}>
@@ -50,6 +51,16 @@ const Deatilesgrouptasbeeh = ({ route }) => {
                 <Text style={styles.headerTitle}>Tasbeeh Group</Text>
             </View>
             <View style={styles.headerbar} >
+            {Adminid != Userid && (
+                    <TouchableOpacity onPress={() => handlelogs()}>
+                        <View style={styles.headeritems}>
+                            <Image
+                                source={require('../Assests/leave.png')}
+                                style={{ width: 80, height: 80 }}
+                            />
+                        </View>
+                    </TouchableOpacity>
+                )}
                 {Userid == adminid && (
                     <>
                         <TouchableOpacity onPress={() => setShowModal(true)}>
@@ -74,13 +85,14 @@ const Deatilesgrouptasbeeh = ({ route }) => {
                         <Image source={require('../Assests/LOg.png')} />
                     </View>
                 </TouchableOpacity>
+              
             </View>
             <View>
                 {showprogress && (
                     <Progress
                         groupid={groupid}
                         Userid={Userid}
-                        setAdminid={setAdminid} 
+                        setAdminid={setAdminid}
                     />
                 )}
                 {showlog && (
@@ -98,7 +110,7 @@ const Deatilesgrouptasbeeh = ({ route }) => {
                             <Text style={{ fontSize: 24, fontWeight: 'bold', textAlign: 'center', marginBottom: 20, color: 'black' }}>
                                 Do You Want to Delete this Group
                             </Text>
-                       
+
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                                 <TouchableOpacity
                                     onPress={() => setShowModal(false)}
@@ -106,8 +118,8 @@ const Deatilesgrouptasbeeh = ({ route }) => {
                                     <Text style={{ fontSize: 18, color: 'black', textAlign: 'center' }}>Cancel</Text>
                                 </TouchableOpacity>
 
-                                <TouchableOpacity onPress={()=>{ deleteGroup()}}
-                                    style={{ backgroundColor:'red', padding: 10, borderRadius: 10, width: '48%' }}>
+                                <TouchableOpacity onPress={() => { deleteGroup() }}
+                                    style={{ backgroundColor: 'red', padding: 10, borderRadius: 10, width: '48%' }}>
                                     <Text style={{ fontSize: 18, color: 'black', textAlign: 'center' }}>Delete</Text>
                                 </TouchableOpacity>
                             </View>
@@ -221,11 +233,11 @@ const Progress = ({ groupid, Userid, setAdminid }) => {
     // APi Function to get the group progress
     const Getmembersprogress = async () => {
         try {
-
             const query = `TasbeehProgressAndMembersProgress?groupid=${encodeURIComponent(groupid)}`;
             const responce = await fetch(Group + query);
             if (responce.ok) {
                 const result = await responce.json();
+                console.log(result);
                 setgroupprogress(result);
                 const percentage = (result[0].Achieved / result[0].TasbeehGoal) * 100;
                 setprogress(percentage);
@@ -242,6 +254,8 @@ const Progress = ({ groupid, Userid, setAdminid }) => {
             console.log(error);
         }
     }
+
+
     useEffect(() => {
         Getmembersprogress();
 

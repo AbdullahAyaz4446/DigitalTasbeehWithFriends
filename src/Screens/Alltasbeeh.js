@@ -27,24 +27,7 @@ const AllTasbeehScreen = ({ route }) => {
   const [existtasbeeh, setexisttasbeeh] = useState([]);
 
   const navigation = useNavigation();
-  // All Wazifa Api Function
-  // const Allwazifa = async () => {
-  //   try {
-  //     const query = `Alltasbeeh?id=${encodeURIComponent(Userid)}`;
-  //     const responce = await fetch(tasbeehurl + query);
-  //     if (responce.ok) {
-  //       const data = await responce.json();
-  //       console.log(data);
-  //       setwazifa(data);
-  //     }
-  //     else {
-  //       const ans = await responce.text();
-  //       console.log(ans);
-  //     }
-  //   } catch (error) {
-  //     console.log(error.message);
-  //   }
-  // }
+
   {/*All Tasbeeh Api Function*/ }
   const Alltasbeeh = async () => {
     try {
@@ -440,6 +423,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 18,
     color: 'black',
+    fontWeight:'bold'
   },
   logo: {
     width: 24,

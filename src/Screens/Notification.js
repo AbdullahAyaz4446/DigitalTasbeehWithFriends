@@ -20,7 +20,8 @@ const Notification = ({ route }) => {
     const [Showmodel, setmodel] = useState(false);
     const [notifications, setNotifications] = useState([]);
     const [tasbeehdeatiles, settasbeehdeatiles] = useState([]);
-    
+    const [showModal, setShowModal] = useState(false);
+
     // All Request Api Function 
     const Allrequest = async () => {
         try {
@@ -64,7 +65,7 @@ const Notification = ({ route }) => {
     const Acceptrequest = async (id) => {
         try {
             const query = `AcceptRequest?requestid=${encodeURIComponent(id)}&userid=${encodeURIComponent(Userid)}`;
-            const response = await fetch( SendRequest+query,{
+            const response = await fetch(SendRequest + query, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -87,7 +88,7 @@ const Notification = ({ route }) => {
     const Rejectrequest = async (id) => {
         try {
             const query = `RejectRequest?requestid=${encodeURIComponent(id)}`;
-            const response = await fetch( SendRequest+query);
+            const response = await fetch(SendRequest + query);
             if (response.ok) {
                 const data = await response.json();
                 console.log(data);
@@ -122,8 +123,8 @@ const Notification = ({ route }) => {
                 {
                     text: "Accept",
                     onPress: () => {
-                      
-                        
+
+
                         Acceptrequest(id);
                         setNotifications(prev => prev.filter(item => item.id !== id));
                         console.log("Accepted notification:", id);
@@ -197,6 +198,7 @@ const Notification = ({ route }) => {
                     <Text style={styles.buttonText}>Reject</Text>
                 </TouchableOpacity>
             </View>
+            
         </View>
     );
 
@@ -222,33 +224,58 @@ const Notification = ({ route }) => {
                 </View>
             )}
             <Modal transparent visible={Showmodel} animationType="fade">
-                
-                    <View style={styles.modalOverlay}>
-                        <View style={styles.modalContent}>
-                            <TouchableOpacity
-                                style={styles.closeButton}
-                                onPress={() => setmodel(false)}
-                            >
-                                <Ionicons name="close" size={24} color="#000" />
-                            </TouchableOpacity>
 
-                            <Text style={styles.modalTitle}>Details</Text>
-                            {tasbeehdeatiles.length > 0 && (
-                                <FlatList
-                                    data={tasbeehdeatiles}
-                                    renderItem={({ item }) => (
-                                        <View style={styles.tasbeehItem}>
-                                            <Text style={styles.tasbeehText}>{item.Text}</Text>
-                                            <Text style={styles.tasbeehCount}>Count: {item.Count}</Text>
-                                        </View>
-                                    )}
-                                    style={styles.tasbeehList}
-                                    keyExtractor={(item, index) => index.toString()}
-                                />
-                            )}
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                        <TouchableOpacity
+                            style={styles.closeButton}
+                            onPress={() => setmodel(false)}
+                        >
+                            <Ionicons name="close" size={24} color="#000" />
+                        </TouchableOpacity>
+
+                        <Text style={styles.modalTitle}>Details</Text>
+                        {tasbeehdeatiles.length > 0 && (
+                            <FlatList
+                                data={tasbeehdeatiles}
+                                renderItem={({ item }) => (
+                                    <View style={styles.tasbeehItem}>
+                                        <Text style={styles.tasbeehText}>{item.Text}</Text>
+                                        <Text style={styles.tasbeehCount}>Count: {item.Count}</Text>
+                                    </View>
+                                )}
+                                style={styles.tasbeehList}
+                                keyExtractor={(item, index) => index.toString()}
+                            />
+                        )}
+                    </View>
+                </View>
+
+            </Modal>
+            <Modal transparent visible={showModal} animationType="fade">
+                <TouchableWithoutFeedback onPress={() => setShowModal(false)}>
+                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)', padding: 20 }}>
+                        <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 20, width: '90%', height: '25%' }}>
+                            <Text style={{ fontSize: 24, fontWeight: 'bold', textAlign: 'center', marginBottom: 20, color: 'black' }}>
+                                Do You Want to Delete this Group
+                            </Text>
+
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                                <TouchableOpacity
+                                    onPress={() => setShowModal(false)}
+                                    style={{ backgroundColor: colors.tasbeehconatiner, padding: 10, borderRadius: 10, width: '48%' }}>
+                                    <Text style={{ fontSize: 18, color: 'black', textAlign: 'center' }}>Cancel</Text>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity onPress={() => { deleteGroup() }}
+                                    style={{ backgroundColor: 'red', padding: 10, borderRadius: 10, width: '48%' }}>
+                                    <Text style={{ fontSize: 18, color: 'black', textAlign: 'center' }}>Delete</Text>
+                                </TouchableOpacity>
+                            </View>
+
                         </View>
                     </View>
-              
+                </TouchableWithoutFeedback>
             </Modal>
         </View>
     );
@@ -319,7 +346,7 @@ const styles = StyleSheet.create({
     },
     buttonsContainer: {
         flexDirection: 'row',
-        justifyContent:'space-around',
+        justifyContent: 'space-around',
         marginTop: 5,
     },
     button: {
@@ -400,16 +427,16 @@ const styles = StyleSheet.create({
         right: 10,
         zIndex: 1,
         padding: 5,
-      },
-      
-      modalContent: {
+    },
+
+    modalContent: {
         backgroundColor: 'white',
         padding: 20,
         borderRadius: 20,
         width: '90%',
         maxHeight: '80%',
         position: 'relative', // Needed for absolute positioning of close button
-      },
+    },
 });
 
 export default Notification;

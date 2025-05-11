@@ -9,7 +9,7 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { colors } from '../utiles/colors';
-import Svg, { Circle } from 'react-native-svg'; 
+import Svg, { Circle } from 'react-native-svg';
 
 const CircularProgress = ({ progress, size = 150, strokeWidth = 10 }) => {
   const radius = (size - strokeWidth) / 2;
@@ -42,8 +42,8 @@ const CircularProgress = ({ progress, size = 150, strokeWidth = 10 }) => {
           transform={`rotate(-90 ${size / 2} ${size / 2})`}
         />
       </Svg>
-      <Text style={{ 
-        position: 'absolute', 
+      <Text style={{
+        position: 'absolute',
         textAlign: 'center',
         lineHeight: size,
         fontSize: 24,
@@ -78,11 +78,12 @@ const TasbeehGroup = ({ route }) => {
       setProgress(progressPercentage);
       setIsComplete(progressPercentage >= 100);
     }
+    Tasbeehincremnet();
   }, [logmemberdata]);
 
   const renderProgressShapes = () => {
-    const totalShapes = 7; 
-  
+    const totalShapes = 7;
+
     return (
       <View style={styles.shapesContainer}>
         {[...Array(totalShapes)].map((_, index) => (
@@ -99,7 +100,7 @@ const TasbeehGroup = ({ route }) => {
       </View>
     );
   };
-  
+
   const Tasbeehdeatileslogedmember = async () => {
 
     try {
@@ -117,20 +118,38 @@ const TasbeehGroup = ({ route }) => {
       console.log(error);
       setlogmemberdata(null);
     } finally {
-      
+
     }
   };
+  // Api Function for  tasbeeh in incremnet 
+  const Tasbeehincremnet=async()=>{
+    try {
+      const query=`IncremnetInTasbeeh?groupid=${encodeURIComponent(groupid)}`
+      const responce=await fetch(Group+query);
+      if(responce.ok){
+        const res=await responce.json();
+      console.log(res);
+      }
+      else{
+        const res=await responce.json();
+      console.log(res);
+      }
+      
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   const incrementProgress = async () => {
     if (isComplete) return;
-    
+
     try {
       const query = `ReadTasbehandnotificationsend?userid=${encodeURIComponent(Userid)}&groupid=${encodeURIComponent(groupid)}`;
       const response = await fetch(url + query);
       if (response.ok) {
         await Tasbeehdeatileslogedmember();
         setFilledDots(prev => {
-          if (prev >= 7) return 0; 
+          if (prev >= 7) return 0;
           return prev + 1;
         });
       }
@@ -148,7 +167,7 @@ const TasbeehGroup = ({ route }) => {
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Group</Text>
           {
-            logmemberdata && Object.keys(logmemberdata).length > 0 &&(
+            logmemberdata && Object.keys(logmemberdata).length > 0 && (
               <TouchableOpacity onPress={() => navigation.navigate("Deatilesgrouptasbeeh", {
                 "groupid": groupid,
                 "Userid": Userid,
@@ -159,16 +178,16 @@ const TasbeehGroup = ({ route }) => {
             )
           }
         </View>
-        
+
         <View style={styles.noTasbeehContainer}>
           <Text style={styles.noTasbeehText}>No Tasbeeh Assigned To This Group Yet</Text>
         </View>
 
-        {Adminid != Userid && (
+        {/* {Adminid != Userid && (
           <TouchableOpacity style={styles.leaveButton}>
             <Text style={styles.leaveText}>Leave</Text>
           </TouchableOpacity>
-        )}
+        )} */}
       </View>
     );
   }
@@ -192,7 +211,7 @@ const TasbeehGroup = ({ route }) => {
       {/* Completion Message */}
       {isComplete && (
         <View style={styles.completionContainer}>
-          <Text style={styles.completionText}>Tasbeeh Goal Completed!</Text>
+          <Text style={styles.completionText}>Your Goal Completed 😍</Text>
         </View>
       )}
 
@@ -205,7 +224,7 @@ const TasbeehGroup = ({ route }) => {
           {renderProgressShapes()}
         </View>
       </View>
-      
+
       <View style={{ padding: 0 }}>
         <Text style={{ fontSize: 20, color: 'black', fontWeight: 'bold' }}>
           {logmemberdata?.deadline && (
@@ -215,34 +234,34 @@ const TasbeehGroup = ({ route }) => {
           )}
         </Text>
       </View>
-      
+
       <View style={{ padding: 20, backgroundColor: colors.tasbeehconatiner, borderRadius: 30 }}>
         <View style={{ alignSelf: 'center' }}>
           <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 20 }}>
             {logmemberdata.TasbeehTitle || ''}
           </Text>
           <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 20 }}>
-            {logmemberdata.TasbeehTitle || 'سُبْحَانَ ٱللَّٰهِ'+"         Count:20/50"}
+            {logmemberdata.TasbeehTitle || 'سُبْحَانَ ٱللَّٰهِ' + "         Count:20/50"}
           </Text>
           <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 20 }}>
-            {logmemberdata.TasbeehTitle || 'ٱلْحَمْدُ لِلَّٰهِ'+"            Count:00/50"}
+            {logmemberdata.TasbeehTitle || 'ٱلْحَمْدُ لِلَّٰهِ' + "            Count:00/50"}
           </Text>
         </View>
       </View>
-
-      {Adminid != Userid && (
+      
+      {/* {Adminid != Userid && (
         <TouchableOpacity style={styles.leaveButton}>
-          <Text style={styles.leaveText}>Leave</Text>
+          <Text style={styles.leaveText}>Leave Tasbeeh</Text>
         </TouchableOpacity>
-      )}
+      )} */}
 
       <View style={styles.fabContainer}>
-        <TouchableOpacity 
-          style={[styles.fab, isComplete && styles.disabledFab]} 
+        <TouchableOpacity
+          style={[styles.fab, isComplete && styles.disabledFab]}
           onPress={incrementProgress}
           disabled={isComplete}
         >
-          <Text style={{fontSize:40,fontWeight:'bold',color:'white'}}>
+          <Text style={{ fontSize: 40, fontWeight: 'bold', color: 'white' }}>
             {isComplete ? 'Completed!' : 'Count'}
           </Text>
         </TouchableOpacity>
@@ -254,7 +273,7 @@ const TasbeehGroup = ({ route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal:20,
+    paddingHorizontal: 20,
     backgroundColor: '#fff',
     paddingTop: 20,
   },
@@ -308,7 +327,7 @@ const styles = StyleSheet.create({
   },
   fabContainer: {
     position: 'absolute',
-    bottom:0,
+    bottom: 0,
     left: 0,
     right: 0,
     alignItems: 'center',
@@ -333,7 +352,7 @@ const styles = StyleSheet.create({
   },
   leaveButton: {
     position: 'absolute',
-    bottom: 120,
+    bottom: 250,
     left: 20,
     backgroundColor: 'red',
     paddingVertical: 10,
