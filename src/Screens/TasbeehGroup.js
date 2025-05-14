@@ -4,7 +4,9 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  ActivityIndicator
+  ActivityIndicator,
+  Modal,
+  TouchableWithoutFeedback
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -57,14 +59,23 @@ const CircularProgress = ({ progress, size = 150, strokeWidth = 10 }) => {
 };
 
 const TasbeehGroup = ({ route }) => {
+
   const navigation = useNavigation();
-  const { groupid, Userid, Adminid } = route.params;
+  const { groupid, Userid, Adminid, tasbeehid, title } = route.params;
   const [logmemberdata, setlogmemberdata] = useState(null);
   const [progress, setProgress] = useState(0);
   const [Achived, setachived] = useState(0);
   const [goal, setgoal] = useState(0);
   const [filledDots, setFilledDots] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [showOptions, setShowOptions] = useState(false);
+
+
+
+  const toggleOptions = () => {
+    setShowOptions(!showOptions);
+  }
 
   useFocusEffect(
     React.useCallback(() => {
@@ -79,7 +90,7 @@ const TasbeehGroup = ({ route }) => {
       setIsComplete(progressPercentage >= 100);
     }
     Tasbeehincremnet();
-  }, [logmemberdata]);
+  }, [logmemberdata])
 
   const renderProgressShapes = () => {
     const totalShapes = 7;
@@ -102,9 +113,8 @@ const TasbeehGroup = ({ route }) => {
   };
 
   const Tasbeehdeatileslogedmember = async () => {
-
     try {
-      const query = `TasbeehProgressLogedMember?userid=${encodeURIComponent(Userid)}&groupid=${encodeURIComponent(groupid)}`;
+      const query = `TasbeehProgressLogedMember?userid=${encodeURIComponent(Userid)}&groupid=${encodeURIComponent(groupid)}&tasbeehid=${encodeURIComponent(tasbeehid)}`;
       const response = await fetch(url + query);
       if (response.ok) {
         const result = await response.json();
@@ -118,23 +128,21 @@ const TasbeehGroup = ({ route }) => {
       console.log(error);
       setlogmemberdata(null);
     } finally {
-
+      setLoading(false);
     }
   };
-  // Api Function for  tasbeeh in incremnet 
-  const Tasbeehincremnet=async()=>{
+  const Tasbeehincremnet = async () => {
     try {
-      const query=`IncremnetInTasbeeh?groupid=${encodeURIComponent(groupid)}`
-      const responce=await fetch(Group+query);
-      if(responce.ok){
-        const res=await responce.json();
-      console.log(res);
+      const query = `IncremnetInTasbeeh?groupid=${encodeURIComponent(groupid)}&tasbeehid=${encodeURIComponent(tasbeehid)}`
+      const responce = await fetch(Group + query);
+      if (responce.ok) {
+        const res = await responce.json();
+        console.log(res);
       }
-      else{
-        const res=await responce.json();
-      console.log(res);
+      else {
+        const res = await responce.json();
+        console.log(res);
       }
-      
     } catch (error) {
       console.log(error);
     }
@@ -144,9 +152,10 @@ const TasbeehGroup = ({ route }) => {
     if (isComplete) return;
 
     try {
-      const query = `ReadTasbehandnotificationsend?userid=${encodeURIComponent(Userid)}&groupid=${encodeURIComponent(groupid)}`;
+      const query = `ReadTasbehandnotificationsend?userid=${encodeURIComponent(Userid)}&groupid=${encodeURIComponent(groupid)}&tasbeehid=${encodeURIComponent(tasbeehid)}`;
       const response = await fetch(url + query);
       if (response.ok) {
+        console.log("hello");
         await Tasbeehdeatileslogedmember();
         setFilledDots(prev => {
           if (prev >= 7) return 0;
@@ -158,39 +167,16 @@ const TasbeehGroup = ({ route }) => {
     }
   };
 
-  if (!logmemberdata || Object.keys(logmemberdata).length === 0) {
+  if (loading) {
     return (
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Ionicons name="arrow-back-circle-sharp" size={40} color="#000" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Group</Text>
-          {
-            logmemberdata && Object.keys(logmemberdata).length > 0 && (
-              <TouchableOpacity onPress={() => navigation.navigate("Deatilesgrouptasbeeh", {
-                "groupid": groupid,
-                "Userid": Userid,
-                "Adminid": Adminid
-              })}>
-                <Ionicons name="options" size={30} color="#000" />
-              </TouchableOpacity>
-            )
-          }
-        </View>
-
-        <View style={styles.noTasbeehContainer}>
-          <Text style={styles.noTasbeehText}>No Tasbeeh Assigned To This Group Yet</Text>
-        </View>
-
-        {/* {Adminid != Userid && (
-          <TouchableOpacity style={styles.leaveButton}>
-            <Text style={styles.leaveText}>Leave</Text>
-          </TouchableOpacity>
-        )} */}
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text style={styles.loadingText}>Loading Tasbeeh Data...</Text>
       </View>
     );
   }
+
+
 
   return (
     <View style={styles.container}>
@@ -198,22 +184,60 @@ const TasbeehGroup = ({ route }) => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back-circle-sharp" size={40} color="#000" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{logmemberdata.GroupTitle}</Text>
-        <TouchableOpacity onPress={() => navigation.navigate("Deatilesgrouptasbeeh", {
-          "groupid": groupid,
-          "Userid": Userid,
-          "Adminid": Adminid
-        })}>
-          <Ionicons name="options" size={30} color="#000" />
-        </TouchableOpacity>
+        <Text style={styles.headerTitle}>{title}</Text>
+
+        <View style={styles.optionsWrapper}>
+          <TouchableOpacity onPress={toggleOptions}>
+            <Ionicons name="options" size={30} color="#000" />
+          </TouchableOpacity>
+
+          {showOptions && (
+            <>
+              {/* Overlay to close when clicking outside */}
+              <TouchableWithoutFeedback onPress={() => setShowOptions(false)}>
+                <View style={styles.dropdownOverlay} />
+              </TouchableWithoutFeedback>
+
+              {/* Dropdown Menu */}
+              <View style={styles.dropdownMenu}>
+                <TouchableOpacity
+                  style={styles.dropdownOption}
+                  onPress={() => {
+                    setShowOptions(false);
+                    navigation.navigate("LeaveGroup", { groupid, Userid });
+                  }}
+                >
+                  <Text style={styles.dropdownOptionText}>Leave Tasbeeh</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.dropdownOption}
+                  onPress={() => {
+                    setShowOptions(false);
+                    navigation.navigate("Deatilesgrouptasbeeh", { groupid, tasbeehid, Userid });
+                  }}
+                >
+                  <Text style={styles.dropdownOptionText}>Tasbeeh Progress</Text>
+                </TouchableOpacity>
+                {Userid == Adminid && (
+                  <TouchableOpacity
+                    style={styles.dropdownOption}
+                    onPress={() => {
+                      setShowOptions(false);
+                      navigation.navigate("AddMember", { groupid, Adminid });
+                    }}
+                  >
+                    <Text style={styles.dropdownOptionText}>Add New Member</Text>
+                  </TouchableOpacity>
+                )
+                }
+
+              </View>
+            </>
+          )}
+        </View>
       </View>
 
-      {/* Completion Message */}
-      {isComplete && (
-        <View style={styles.completionContainer}>
-          <Text style={styles.completionText}>Your Goal Completed 😍</Text>
-        </View>
-      )}
 
       <View style={styles.progressContainer}>
         <CircularProgress progress={progress} />
@@ -235,25 +259,24 @@ const TasbeehGroup = ({ route }) => {
         </Text>
       </View>
 
-      <View style={{ padding: 20, backgroundColor: colors.tasbeehconatiner, borderRadius: 30 }}>
-        <View style={{ alignSelf: 'center' }}>
-          <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 20 }}>
-            {logmemberdata.TasbeehTitle || ''}
-          </Text>
-          <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 20 }}>
-            {logmemberdata.TasbeehTitle || 'سُبْحَانَ ٱللَّٰهِ' + "         Count:20/50"}
-          </Text>
-          <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 20 }}>
-            {logmemberdata.TasbeehTitle || 'ٱلْحَمْدُ لِلَّٰهِ' + "            Count:00/50"}
-          </Text>
-        </View>
-      </View>
       
-      {/* {Adminid != Userid && (
-        <TouchableOpacity style={styles.leaveButton}>
-          <Text style={styles.leaveText}>Leave Tasbeeh</Text>
-        </TouchableOpacity>
-      )} */}
+           <View style={{ padding: 20, backgroundColor: colors.tasbeehconatiner, borderRadius: 30 }}>
+           <View style={{ alignSelf: 'center' }}>
+             <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 20 }}>
+               {/* {logmemberdata.TasbeehTitle || ''} */}
+             </Text>
+             <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 20 }}>
+               {/* {logmemberdata.TasbeehTitle || 'سُبْحَانَ ٱللَّٰهِ' + "         Count:20/50"} */}
+             </Text>
+             <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 20 }}>
+               {/* {logmemberdata.TasbeehTitle || 'ٱلْحَمْدُ لِلَّٰهِ' + "            Count:00/50"} */}
+             </Text>
+           </View>
+         </View>
+      
+      
+
+   
 
       <View style={styles.fabContainer}>
         <TouchableOpacity
@@ -270,6 +293,9 @@ const TasbeehGroup = ({ route }) => {
   );
 };
 
+
+export default TasbeehGroup;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -281,18 +307,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#fff',
   },
-  noTasbeehContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  noTasbeehText: {
-    fontSize: 20,
-    color: 'black',
-    fontWeight: 'bold',
-    textAlign: 'center',
-    padding: 20,
+  loadingText: {
+    marginTop: 20,
+    fontSize: 18,
+    color: colors.primary,
   },
   header: {
     flexDirection: 'row',
@@ -320,10 +340,20 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: 'black',
   },
-  progressLabel: {
-    fontSize: 16,
-    color: 'gray',
-    marginTop: 5,
+  shapesContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
+    marginBottom: 10,
+  },
+  shape: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    marginHorizontal: 5,
+    borderWidth: 1,
+    borderColor: '#ccc',
   },
   fabContainer: {
     position: 'absolute',
@@ -350,47 +380,39 @@ const styles = StyleSheet.create({
   disabledFab: {
     backgroundColor: '#cccccc',
   },
-  leaveButton: {
+  optionsWrapper: {
+    position: 'relative',
+  },
+  dropdownMenu: {
     position: 'absolute',
-    bottom: 250,
-    left: 20,
-    backgroundColor: 'red',
-    paddingVertical: 10,
-    paddingHorizontal: 30,
-    borderTopRightRadius: 20,
-  },
-  leaveText: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  shapesContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 20,
-    marginBottom: 10,
-  },
-  shape: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    marginHorizontal: 5,
-    borderWidth: 1,
-    borderColor: '#ccc',
-  },
-  completionContainer: {
+    top: 40,
+    right: 0,
+    backgroundColor: 'white',
+    borderRadius: 8,
     padding: 10,
-    backgroundColor: colors.primary,
-    borderRadius: 20,
-    marginVertical: 10,
-    alignItems: 'center',
+    minWidth: 180,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    zIndex: 100,
   },
-  completionText: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 18,
+  dropdownOption: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+  },
+  dropdownOptionText: {
+    fontSize: 16,
+    color: '#333',
+  },
+  dropdownOverlay: {
+    position: 'absolute',
+    top: -100,
+    left: -500,
+    right: -500,
+    bottom: -500,
+    backgroundColor: 'transparent',
+    zIndex: 98,
   },
 });
-
-export default TasbeehGroup;

@@ -20,7 +20,7 @@ const AllgrouosSingle = ({ route }) => {
     const { Userid } = route.params;
     const [combinedData, setCombinedData] = useState([]); // State to store combined data
     const [showModal, setShowModal] = useState(false);
-    const[seleteditem,setselecteditem]=useState(null);
+    const [seleteditem, setselecteditem] = useState(null);
 
 
     useEffect(() => {
@@ -124,16 +124,20 @@ const AllgrouosSingle = ({ route }) => {
 
     // Render item for FlatList
     const Show = ({ item }) => (
+
         <TouchableOpacity
+
             onLongPress={() => {
-                setselecteditem(item);
-                setShowModal(true);
+                if (Userid == item.Adminid) {
+                    setselecteditem(item);
+                    setShowModal(true);
+                }
             }}
             onPress={() => {
                 if (item.type === 'group') {
-                    navigation.navigate('TasbeehGroup', { "groupid": item.Groupid, "Userid": Userid, "Adminid": item.Adminid });
+                    navigation.navigate('Allgrouptasbeeh', { "groupid": item.Groupid, "Userid": Userid, "Adminid": item.Adminid, "title": item.Grouptitle });
                 } else {
-                    navigation.navigate('Singletasbeeh', { "tasbeehId": item.ID,"Name":item.Title});
+                    navigation.navigate('Allsingletasbeeh', { "tasbeehId": item.ID, "Name": item.Title });
                 }
             }}
         >
@@ -141,7 +145,7 @@ const AllgrouosSingle = ({ route }) => {
                 <Text style={styles.itemText}>
                     {item.type === 'group' ? item.Grouptitle : item.Title}
                 </Text>
-                {/* <Text style={{color:'black'}}>{item.Groupid}</Text> */}
+
             </View>
         </TouchableOpacity>
     );
@@ -156,7 +160,7 @@ const AllgrouosSingle = ({ route }) => {
             </View>
 
             <FlatList
-                data={combinedData}
+                data={combinedData.reverse()}
                 renderItem={Show}
 
             />
@@ -182,7 +186,7 @@ const AllgrouosSingle = ({ route }) => {
                                     <Text style={{ fontSize: 18, color: 'black', textAlign: 'center' }}>Cancel</Text>
                                 </TouchableOpacity>
 
-                                <TouchableOpacity onPress={() => {seleteditem.type==='group'?Deletegroup(seleteditem.Groupid):DeleteSingle(seleteditem.ID);setShowModal(false);fetchAndCombineData();}}
+                                <TouchableOpacity onPress={() => { seleteditem.type === 'group' ? Deletegroup(seleteditem.Groupid) : DeleteSingle(seleteditem.ID); setShowModal(false); fetchAndCombineData(); }}
                                     style={{ backgroundColor: 'red', padding: 10, borderRadius: 10, width: '48%' }}>
                                     <Text style={{ fontSize: 18, color: 'black', textAlign: 'center' }}>Delete</Text>
                                 </TouchableOpacity>

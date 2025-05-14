@@ -167,6 +167,7 @@ const Maunnallycontribution = ({ route }) => {
                                         newCount[index] = value;
                                         setcount(newCount);
                                     }}
+                                    
                                 />
                             </View>
                         </View>

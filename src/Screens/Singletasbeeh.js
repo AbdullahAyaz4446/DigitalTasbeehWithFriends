@@ -4,7 +4,8 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  ActivityIndicator
+  ActivityIndicator,
+  TouchableWithoutFeedback
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -58,14 +59,21 @@ const CircularProgress = ({ progress, size = 150, strokeWidth = 10 }) => {
 
 const TasbeehGroup = ({ route }) => {
   const navigation = useNavigation();
-  const { tasbeehId, Name } = route.params;
+  const { tasbeehId, Name, tid } = route.params;
   const [logmemberdata, setlogmemberdata] = useState(null);
   const [progress, setProgress] = useState(0);
   const [Achived, setachived] = useState(0);
   const [goal, setgoal] = useState(0);
   const [filledDots, setFilledDots] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [showOptions, setShowOptions] = useState(false);
 
+
+
+  const toggleOptions = () => {
+    setShowOptions(!showOptions);
+  }
 
   {/*Use Effects*/ }
   useFocusEffect(
@@ -79,6 +87,7 @@ const TasbeehGroup = ({ route }) => {
       const progressPercentage = Math.round((logmemberdata.Achieved / logmemberdata.Goal) * 100);
       setProgress(progressPercentage);
       setIsComplete(progressPercentage >= 100);
+      setIsLoading(false);
     }
   }, [logmemberdata]);
 
@@ -86,7 +95,8 @@ const TasbeehGroup = ({ route }) => {
   {/* Api Functions*/ }
   const Singletasbeehprogress = async () => {
     try {
-      const query = `Getsingletasbeehdata?id=${encodeURI(tasbeehId)}`
+
+      const query = `Getsingletasbeehdata?id=${encodeURI(tasbeehId)}&tasbeehid=${encodeURI(tid)}`
       const response = await fetch(Singletasbeeh + query);
       if (response.ok) {
         const result = await response.json();
@@ -94,21 +104,22 @@ const TasbeehGroup = ({ route }) => {
         setachived(result?.Achieved || 0);
         setgoal(result?.Goal || 0);
         setlogmemberdata(result);
+        setIsLoading(false);
       }
       else {
         const result = await response.json();
         console.log(result);
       }
-
     } catch (error) {
       console.log(error);
+    } finally {
+      setIsLoading(false);
     }
   }
 
-
   const incrementProgress = async () => {
     try {
-      const query = `Readsingletasbeeh?id=${encodeURI(tasbeehId)}`
+      const query = `Readsingletasbeeh?id=${encodeURI(tasbeehId)}&tasbeehid=${encodeURI(tid)}`
       const response = await fetch(Singletasbeeh + query);
       if (response.ok) {
         const result = await response.json();
@@ -122,33 +133,9 @@ const TasbeehGroup = ({ route }) => {
         const result = await response.json();
         console.log(result);
       }
-
     } catch (error) {
       console.log(error);
     }
-  }
-
-
-
-
-
-
-
-  if (!logmemberdata || Object.keys(logmemberdata).length === 0) {
-    return (
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Ionicons name="arrow-back-circle-sharp" size={40} color="#000" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Single</Text>
-        </View>
-
-        <View style={styles.noTasbeehContainer}>
-          <Text style={styles.noTasbeehText}>No Tasbeeh Assigned Yet</Text>
-        </View>
-      </View>
-    );
   }
 
   const renderProgressShapes = () => {
@@ -171,6 +158,15 @@ const TasbeehGroup = ({ route }) => {
     );
   };
 
+  if (isLoading || !logmemberdata) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text style={styles.loadingText}>Loading Tasbeeh Data...</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -178,19 +174,36 @@ const TasbeehGroup = ({ route }) => {
           <Ionicons name="arrow-back-circle-sharp" size={40} color="#000" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{Name}</Text>
-        <TouchableOpacity onPress={() => navigation.navigate("Singletasbeehdeatiles",{
-          "tasbeehid":tasbeehId,"Name":Name
-        })}>
-          <Ionicons name="options" size={30} color="#000" />
-        </TouchableOpacity>
+
+        <View style={styles.optionsWrapper}>
+          <TouchableOpacity onPress={toggleOptions}>
+            <Ionicons name="options" size={30} color="#000" />
+          </TouchableOpacity>
+
+          {showOptions && (
+            <>
+              {/* Overlay to close when clicking outside */}
+              <TouchableWithoutFeedback onPress={() => setShowOptions(false)}>
+                <View style={styles.dropdownOverlay} />
+              </TouchableWithoutFeedback>
+
+              {/* Dropdown Menu */}
+              <View style={styles.dropdownMenu}>
+                <TouchableOpacity
+                  style={styles.dropdownOption}
+                  onPress={() => {
+                    setShowOptions(false);
+                    navigation.navigate("LeaveGroup", { groupid, Userid });
+                  }}
+                >
+                  <Text style={styles.dropdownOptionText}>Leave Tasbeeh</Text>
+                </TouchableOpacity>
+              </View>
+            </>
+          )}
+        </View>
       </View>
 
-      {/* Completion Message */}
-      {isComplete && (
-        <View style={styles.completionContainer}>
-          <Text style={styles.completionText}>Your Goal Completed 😍</Text>
-        </View>
-      )}
 
       <View style={styles.progressContainer}>
         <CircularProgress progress={progress} />
@@ -215,13 +228,13 @@ const TasbeehGroup = ({ route }) => {
       <View style={{ padding: 20, backgroundColor: colors.tasbeehconatiner, borderRadius: 30 }}>
         <View style={{ alignSelf: 'center' }}>
           <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 20 }}>
-            {/* {logmemberdata.TasbeehTitle || ''} */}
+            {logmemberdata.TasbeehTitle || ''}
           </Text>
           <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 20 }}>
-            {/* {logmemberdata.TasbeehTitle || 'سُبْحَانَ ٱللَّٰهِ' + "         Count:20/50"} */}
+            {logmemberdata.TasbeehTitle || 'سُبْحَانَ ٱللَّٰهِ' + "         Count:20/50"}
           </Text>
           <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 20 }}>
-            {/* {logmemberdata.TasbeehTitle || 'ٱلْحَمْدُ لِلَّٰهِ' + "            Count:00/50"} */}
+            {logmemberdata.TasbeehTitle || 'ٱلْحَمْدُ لِلَّٰهِ' + "            Count:00/50"}
           </Text>
         </View>
       </View>
@@ -252,6 +265,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#fff',
+  },
+  loadingText: {
+    marginTop: 20,
+    fontSize: 18,
+    color: 'black',
   },
   noTasbeehContainer: {
     flex: 1,
@@ -361,6 +380,41 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     fontSize: 18,
+  },
+  optionsWrapper: {
+    position: 'relative',
+  },
+  dropdownMenu: {
+    position: 'absolute',
+    top: 40,
+    right: 0,
+    backgroundColor: 'white',
+    borderRadius: 8,
+    padding: 10,
+    minWidth: 180,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    zIndex: 100,
+  },
+  dropdownOption: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+  },
+  dropdownOptionText: {
+    fontSize: 16,
+    color: '#333',
+  },
+  dropdownOverlay: {
+    position: 'absolute',
+    top: -100,
+    left: -500,
+    right: -500,
+    bottom: -500,
+    backgroundColor: 'transparent',
+    zIndex: 98,
   },
 });
 

@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View, TouchableOpacity, Image, FlatList, Modal, TouchableWithoutFeedback } from 'react-native'
 import React, { useEffect, useState, useContext } from 'react'
+import { AppState } from 'react-native'; 
 import { colors } from '../utiles/colors'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
@@ -8,126 +9,29 @@ import { OnlineContext } from './OnlineContext';
 
 const Deatilesgrouptasbeeh = ({ route }) => {
     const navigation = useNavigation();
-    const { groupid, Userid, Adminid } = route.params;
+    const { groupid, Userid, Adminid,tasbeehid } = route.params;
     const [showprogress, setshowprogress] = useState(true);
-    const [showlog, setshowlog] = useState(false);
-    const [adminid, setAdminid] = useState(0);
-    const [showModal, setShowModal] = useState(false);
-
-
-    const handleprogress = () => {
-        setshowprogress(true);
-        setshowlog(false);
-    }
-    const handlelogs = () => {
-        setshowprogress(false);
-        setshowlog(true);
-    }
-    // Delete group Api Function
-    const deleteGroup = async () => {
-        try {
-            const query = `DeleteGroup?id=${encodeURIComponent(groupid)}`;
-            const response = await fetch(Group + query);
-            if (response.ok) {
-                const result = await response.json();
-                console.log(result);
-                navigation.goBack();
-                navigation.goBack();
-            } else {
-                const result = await response.text();
-                console.log(result);
-            }
-        } catch (error) {
-            console.log(error);
-        }
-    }
-
     return (
         <View style={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                     <Ionicons name="arrow-back-circle-sharp" size={40} color="#000" />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Tasbeeh Group</Text>
+                <Text style={styles.headerTitle}>Tasbeeh Progress</Text>
             </View>
-            <View style={styles.headerbar} >
-            {Adminid != Userid && (
-                    <TouchableOpacity onPress={() => handlelogs()}>
-                        <View style={styles.headeritems}>
-                            <Image
-                                source={require('../Assests/leave.png')}
-                                style={{ width: 80, height: 80 }}
-                            />
-                        </View>
-                    </TouchableOpacity>
-                )}
-                {Userid == adminid && (
-                    <>
-                        <TouchableOpacity onPress={() => setShowModal(true)}>
-                            <View style={styles.headeritems}>
-                                <AntDesign name="delete" size={40} color="#fff" />
-                            </View>
-                        </TouchableOpacity>
-                        <TouchableOpacity>
-                            <View style={styles.headeritems}>
-                                <AntDesign name="adduser" size={40} color="#fff" />
-                            </View>
-                        </TouchableOpacity>
-                    </>
-                )}
-                <TouchableOpacity onPress={() => handleprogress()}>
-                    <View style={styles.headeritems}>
-                        <Image source={require('../Assests/Progress.png')} />
-                    </View>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => handlelogs()}>
-                    <View style={styles.headeritems}>
-                        <Image source={require('../Assests/LOg.png')} />
-                    </View>
-                </TouchableOpacity>
-              
-            </View>
+           
             <View>
                 {showprogress && (
                     <Progress
                         groupid={groupid}
                         Userid={Userid}
-                        setAdminid={setAdminid}
+                        tasbeehid={tasbeehid}
+                        Adminid={Adminid}
                     />
                 )}
-                {showlog && (
-                    <Logs
-                        groupid={groupid}
-                        Userid={Userid}
-                        adminid={adminid} // Pass the adminid
-                    />
-                )}
+
             </View>
-            <Modal transparent visible={showModal} animationType="fade">
-                <TouchableWithoutFeedback onPress={() => setShowModal(false)}>
-                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)', padding: 20 }}>
-                        <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 20, width: '90%', height: '25%' }}>
-                            <Text style={{ fontSize: 24, fontWeight: 'bold', textAlign: 'center', marginBottom: 20, color: 'black' }}>
-                                Do You Want to Delete this Group
-                            </Text>
 
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                                <TouchableOpacity
-                                    onPress={() => setShowModal(false)}
-                                    style={{ backgroundColor: colors.tasbeehconatiner, padding: 10, borderRadius: 10, width: '48%' }}>
-                                    <Text style={{ fontSize: 18, color: 'black', textAlign: 'center' }}>Cancel</Text>
-                                </TouchableOpacity>
-
-                                <TouchableOpacity onPress={() => { deleteGroup() }}
-                                    style={{ backgroundColor: 'red', padding: 10, borderRadius: 10, width: '48%' }}>
-                                    <Text style={{ fontSize: 18, color: 'black', textAlign: 'center' }}>Delete</Text>
-                                </TouchableOpacity>
-                            </View>
-
-                        </View>
-                    </View>
-                </TouchableWithoutFeedback>
-            </Modal>
 
         </View>
     )
@@ -155,7 +59,7 @@ const styles = StyleSheet.create({
     },
     headerbar: {
         flexDirection: 'row',
-        justifyContent: 'space-between'
+        justifyContent: 'space-around'
     },
     headeritems: {
         backgroundColor: colors.bar, height: 90, width: 90, justifyContent: 'center', alignItems: 'center', borderRadius: 20
@@ -223,17 +127,19 @@ const styles = StyleSheet.create({
 
 });
 
-const Progress = ({ groupid, Userid, setAdminid }) => {
+const Progress = ({ groupid, Userid,tasbeehid,Adminid}) => {
     const [groupprogress, setgroupprogress] = useState([]);
     const [progress, setprogress] = useState(0);
     const [Achived, setAchived] = useState(0);
     const [goal, setgoal] = useState(0);
+    const [isOnline, setIsOnline] = useState(true);
+    
 
 
     // APi Function to get the group progress
     const Getmembersprogress = async () => {
         try {
-            const query = `TasbeehProgressAndMembersProgress?groupid=${encodeURIComponent(groupid)}`;
+            const query = `TasbeehProgressAndMembersProgress?groupid=${encodeURIComponent(groupid)}&tasbeehid=${encodeURIComponent(tasbeehid)}`;
             const responce = await fetch(Group + query);
             if (responce.ok) {
                 const result = await responce.json();
@@ -243,7 +149,7 @@ const Progress = ({ groupid, Userid, setAdminid }) => {
                 setprogress(percentage);
                 setAchived(result[0].Achieved);
                 setgoal(result[0].TasbeehGoal);
-                setAdminid(result[0].Adminid);
+            
 
             }
             else {
@@ -254,6 +160,79 @@ const Progress = ({ groupid, Userid, setAdminid }) => {
             console.log(error);
         }
     }
+        // Get online Function
+        const checkOnlineStatus = async () => {
+            try {
+                const query = `Online?ID=${encodeURIComponent(Userid)}`;
+                const response = await fetch(url + query);
+                const isCurrentlyOnline = response.ok;
+                setIsOnline(isCurrentlyOnline);
+                await updateOnlineStatus(isCurrentlyOnline);
+                return isCurrentlyOnline;
+            } catch (error) {
+                setIsOnline(false);
+                await updateOnlineStatus(false);
+                return false;
+            }
+        };
+        //  update state
+        const updateOnlineStatus = async (status) => {
+            try {
+                const statusParam = status ? 'online' : 'offline';
+                const query = `UpdateOnlineStatus?UserID=${encodeURIComponent(Userid)}&Status=${encodeURIComponent(statusParam)}`;
+                
+                const response = await fetch(url + query, {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' }
+                });
+    
+                if (!response.ok) {
+                    throw new Error('Failed to update status');
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Status update error:', error);
+                throw error;
+            }
+        };
+    
+
+        // Improved AppState and interval management and online show 
+          useEffect(() => {
+            let isMounted = true;
+            let intervalId;
+        
+            const handleAppStateChange = async (nextAppState) => {
+                if (!isMounted) return;
+                
+                if (nextAppState === 'active') {
+                    // App came to foreground
+                    await checkOnlineStatus();
+                } else {
+                    
+                    await updateOnlineStatus(false);
+                }
+            };
+        
+            // Initial status check
+            checkOnlineStatus();
+        
+            const setupInterval = () => {
+                intervalId = setInterval(async () => {
+                    if (AppState.currentState === 'active') {
+                        await checkOnlineStatus();
+                    }
+                }, 15000); 
+            };
+            setupInterval();
+            const subscription = AppState.addEventListener('change', handleAppStateChange);
+            return () => {
+                isMounted = false;
+                clearInterval(intervalId);
+                subscription?.remove();
+                updateOnlineStatus(false).catch(console.error);
+            };
+        }, [Userid]);
 
 
     useEffect(() => {
@@ -264,7 +243,7 @@ const Progress = ({ groupid, Userid, setAdminid }) => {
     const show = ({ item }) => (
         <View style={styles.rowContainer}>
             {
-                item.userid == Userid ? (
+                item.Status == "online" ? (
                     <View
                         style={{
                             width: 10,
@@ -294,7 +273,6 @@ const Progress = ({ groupid, Userid, setAdminid }) => {
 
                     <Text style={[styles.itemText, { color: 'green' }]}>Admin</Text>
 
-
                     :
                     <Text style={[styles.itemText, { color: 'black' }]}>Member </Text>
             }
@@ -303,9 +281,6 @@ const Progress = ({ groupid, Userid, setAdminid }) => {
     return (
         <View>
             <View style={styles.progresscomheader}>
-                <Text style={styles.progresscomheadertext}>
-                    Tasbeeh Progress
-                </Text>
             </View>
             <View style={styles.progressContainer}>
                 <View style={styles.progressTextContainer}>
@@ -326,88 +301,6 @@ const Progress = ({ groupid, Userid, setAdminid }) => {
             <FlatList
                 data={groupprogress}
                 renderItem={show} />
-        </View>
-    )
-}
-
-// Show log component
-const Logs = ({ groupid, Userid, adminid }) => {
-    const [logdata, setlogdata] = useState([]);
-
-    // Tasbeeh Logs ApiFunction
-    const Tasbeehlogs = async () => {
-        try {
-            const query = `Tasbeehlogs?groupid=${encodeURIComponent(groupid)}`;
-            const responce = await fetch(Group + query);
-            if (responce.ok) {
-                const result = await responce.json();
-                console.log(result);
-                setlogdata(result);
-            }
-            else {
-                const result = await responce.text();
-                console.log(result);
-            }
-        } catch (error) {
-            console.log(error);
-        }
-
-    }
-    useEffect(() => {
-        Tasbeehlogs();
-        console.log(logdata);
-    }, [logdata]);
-
-    const show = ({ item }) => (
-        <View style={styles.logcontainer}>
-            <Text style={styles.logtext}>Title:          {item.title}</Text>
-            <Text style={styles.logtext}>Goal:          {item.Goal}</Text>
-            <Text style={styles.logtext}>Achieved:   {item.Achieved} </Text>
-            <Text style={styles.logtext}>Remaning: {item.Goal - item.Achieved}</Text>
-            <View style={{ flexDirection: 'row', justifyContent: item.deadline == null ? 'flex-end' : 'space-between' }}>
-                {item.deadline != null && (
-                    <Text style={styles.logtext}>DeadLine:  {item.deadline?.split('T')[0] || 'Not set'}</Text>
-                )
-                }
-                {item.status == "Unactive" && Userid == adminid && (
-                    <TouchableOpacity onPress={async () => {
-                        const query = `ActiveTasbeeh?id=${encodeURIComponent(item.id)}`;
-                        const responce = await fetch(AssignTasbeh + query);
-                        if (responce.ok) {
-                            const result = await responce.json();
-                            console.log(result);
-                            Tasbeehlogs();
-                        }
-                        else {
-                            const result = await responce.text();
-                            console.log(result);
-                        }
-                    }}>
-                        <View style={{ backgroundColor: colors.primary, padding: 5, borderRadius: 15 }}>
-                            <Text style={[styles.logtext, { color: "white" }]}>Resume</Text>
-                        </View>
-                    </TouchableOpacity>
-                )
-                }
-            </View>
-
-        </View>
-    )
-    // Sort the data  function
-    const sortedLogData = [...logdata].sort((a, b) => {
-        if (a.status === "Active" && b.status !== "Active") return -1;
-        if (a.status !== "Active" && b.status === "Active") return 1;
-        return 0;
-    });
-    return (
-        <View style={{ marginTop: 20 }}>
-            <FlatList
-                data={sortedLogData}
-                renderItem={show}
-                contentContainerStyle={{
-                    paddingBottom: 130,
-                  }}
-            />
         </View>
     )
 }

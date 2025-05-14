@@ -19,6 +19,8 @@ import Singletasbeeh from './src/Screens/Singletasbeeh';
 import Deatilesgrouptasbeeh from './src/Screens/Deatilesgrouptasbeeh';
 import Notification from './src/Screens/Notification';
 import Singletasbeehdeatiles from './src/Screens/Singletasbeehdeatiles';
+import Allgrouptasbeeh from './src/Screens/Allgrouptasbeeh';
+import Allsingletasbeeh from './src/Screens/Allsingletasbeeh';
 
 
 
@@ -64,6 +66,8 @@ const App = () => {
         <Stack.Screen name="Deatilesgrouptasbeeh" component={Deatilesgrouptasbeeh} />
         <Stack.Screen name="Notification" component={Notification} />
         <Stack.Screen name="Singletasbeehdeatiles" component={Singletasbeehdeatiles} />
+        <Stack.Screen name="Allgrouptasbeeh" component={Allgrouptasbeeh} />
+        <Stack.Screen name="Allsingletasbeeh" component={Allsingletasbeeh} />
       </Stack.Navigator>
     </NavigationContainer>
 

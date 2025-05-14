@@ -37,10 +37,11 @@ const AssignTasbeeh = ({ route }) => {
     // Use useEffect to handle navigation when contributetype changes
     useEffect(() => {
         if (contributetype === 'Mannully') {
+            
             navigation.navigate('Maunnallycontribution', {
                 "groupid": groupid,
                 "Userid": Userid,
-                "Tasbeeh_id": tasbeehid,
+                "Tasbeeh_id": tasbeehid.substring(2),
                 "Goal": count,
                 "End_date": deadline
             });

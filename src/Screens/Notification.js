@@ -45,12 +45,13 @@ const Notification = ({ route }) => {
     // Api Function to fetch all  request tasbeeh deatiles
     const Allrequestdetails = async (id) => {
         try {
+            console.log(id);
             const query = `Gettasbeehwazifadeatiles?id=${encodeURIComponent(id)}`;
             const response = await fetch(Wazifa + query);
             if (response.ok) {
                 const data = await response.json();
                 settasbeehdeatiles(data);
-                console.log(tasbeehdeatiles);
+                console.log(data);
             }
             else {
                 const ans = await response.text();
@@ -229,7 +230,11 @@ const Notification = ({ route }) => {
                     <View style={styles.modalContent}>
                         <TouchableOpacity
                             style={styles.closeButton}
-                            onPress={() => setmodel(false)}
+                            onPress={() => {
+                                setmodel(false);
+                                settasbeehdeatiles([]);
+                            }}
+                          
                         >
                             <Ionicons name="close" size={24} color="#000" />
                         </TouchableOpacity>
@@ -240,6 +245,10 @@ const Notification = ({ route }) => {
                                 data={tasbeehdeatiles}
                                 renderItem={({ item }) => (
                                     <View style={styles.tasbeehItem}>
+                                        {(item.Type=="Wazifa"||item.Type=="Quran")&&(
+                                             <Text style={styles.tasbeehText}>{item.Type}</Text> 
+                                        )
+                                        }
                                         <Text style={styles.tasbeehText}>{item.Text}</Text>
                                         <Text style={styles.tasbeehCount}>Count: {item.Count}</Text>
                                     </View>

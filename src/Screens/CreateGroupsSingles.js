@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext} from 'react';
+import { AppState } from 'react-native'; 
 import {
     View,
     Text,
@@ -22,7 +23,7 @@ const CreateGroupSingle = ({ route }) => {
     const [selectedType, setSelectedType] = useState('');
     const [members, setmembers] = useState([]);
     const [selectedmembersid, setselectedmembersid] = useState([]);
-
+    const [isOnline, setIsOnline] = useState(true);
 
 
     const selectiontype = [
@@ -46,6 +47,42 @@ const CreateGroupSingle = ({ route }) => {
             console.log(error);
         }
     };
+    // Get online Function
+    const checkOnlineStatus = async () => {
+        try {
+            const query = `Online?ID=${encodeURIComponent(Userid)}`;
+            const response = await fetch(url + query);
+            const isCurrentlyOnline = response.ok;
+            setIsOnline(isCurrentlyOnline);
+            await updateOnlineStatus(isCurrentlyOnline);
+            return isCurrentlyOnline;
+        } catch (error) {
+            setIsOnline(false);
+            await updateOnlineStatus(false);
+            return false;
+        }
+    };
+    //  update state
+    const updateOnlineStatus = async (status) => {
+        try {
+            const statusParam = status ? 'online' : 'offline';
+            const query = `UpdateOnlineStatus?UserID=${encodeURIComponent(Userid)}&Status=${encodeURIComponent(statusParam)}`;
+            
+            const response = await fetch(url + query, {
+                method: 'GET',
+                headers: { 'Accept': 'application/json' }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to update status');
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Status update error:', error);
+            throw error;
+        }
+    };
+
 
     // Handle Checkbox Toggle
     const handleCheckboxToggle = (id) => {
@@ -169,6 +206,46 @@ const CreateGroupSingle = ({ route }) => {
             console.log("An error occurred:", error);
         }
     };
+
+  // Improved AppState and interval management and online show 
+  useEffect(() => {
+    let isMounted = true;
+    let intervalId;
+
+    const handleAppStateChange = async (nextAppState) => {
+        if (!isMounted) return;
+        
+        if (nextAppState === 'active') {
+            // App came to foreground
+            await checkOnlineStatus();
+        } else {
+            
+            await updateOnlineStatus(false);
+        }
+    };
+
+    // Initial status check
+    checkOnlineStatus();
+
+    const setupInterval = () => {
+        intervalId = setInterval(async () => {
+            if (AppState.currentState === 'active') {
+                await checkOnlineStatus();
+            }
+        }, 15000); 
+    };
+    setupInterval();
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
+    return () => {
+        isMounted = false;
+        clearInterval(intervalId);
+        subscription?.remove();
+        updateOnlineStatus(false).catch(console.error);
+    };
+}, [Userid]);
+
+
+
     // Refreshing the selected members arry
     useEffect(() => {
         console.log(selectedmembersid);
@@ -219,8 +296,8 @@ const CreateGroupSingle = ({ route }) => {
                             renderItem={({ item }) => (
                                 <View style={styles.rowContainer}>
                                     <Text style={styles.itemText}>{item.name}</Text>
-                                    <Text style={[styles.itemText, { color: item.Members_id == Userid ? 'green' : 'gray' }]}>
-                                        {item.Members_id == Userid ? 'Online' : 'Offline'}
+                                    <Text style={[styles.itemText, { color: item.Status=="online"? 'green' : 'gray' }]}>
+                                        {item.Status=="online" ? 'Online' : 'Offline'}
                                     </Text>
                                     <Checkbox
                                         status={selectedmembersid.includes(item.ID) ? 'checked' : 'unchecked'}
