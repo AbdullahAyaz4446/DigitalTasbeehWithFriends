@@ -384,7 +384,7 @@ const TasbeehGroup = ({ route }) => {
         </View>
       </View>
 
-      <View style={{ padding: 20 }}>
+      <View style={{ padding: 20,height:350 }}>
 
 
         <FlatList
@@ -599,6 +599,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
     shadowRadius: 2,
+    
   },
   cardText: {
     fontSize: 16,
