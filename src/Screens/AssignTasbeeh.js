@@ -37,7 +37,7 @@ const AssignTasbeeh = ({ route }) => {
     // Use useEffect to handle navigation when contributetype changes
     useEffect(() => {
         if (contributetype === 'Mannully') {
-            
+
             navigation.navigate('Maunnallycontribution', {
                 "groupid": groupid,
                 "Userid": Userid,
@@ -57,7 +57,7 @@ const AssignTasbeeh = ({ route }) => {
         Allgroups();
         AllSingle();
     }, [deadline]);
-  // Combile the data from groups and single
+    // Combile the data from groups and single
     useEffect(() => {
         const combined = [...groups, ...single];
         setCombinedData(combined);
@@ -110,7 +110,7 @@ const AssignTasbeeh = ({ route }) => {
                         type: 'group'
                     }));
                 setGroups(transformedData);
-               
+
                 console.log(transformedData);
             } else {
                 const ans = await response.text();
@@ -147,44 +147,44 @@ const AssignTasbeeh = ({ route }) => {
     };
     // Assign Tasbeeh Api Function
     const Assigntasbeeh = async () => {
-    
+
         if (selectedtype === "Single") {
-           try {
-           
-            const tasbeehobject={
-                SingleTasbeeh_id:groupid,
-                Tasbeeh_id: tasbeehid.substring(2),
-                Goal: parseInt(count, 10), 
-                Enddate: deadline,
+            try {
+
+                const tasbeehobject = {
+                    SingleTasbeeh_id: groupid,
+                    Tasbeeh_id: tasbeehid.substring(2),
+                    Goal: parseInt(count, 10),
+                    Enddate: deadline,
+                }
+                console.log("Final API Payload:", tasbeehobject);
+                const responce = await fetch(Singletasbeeh + 'Assigntosingletasbeeh', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(tasbeehobject),
+                });
+                if (responce.ok) {
+                    const ans = await responce.json();
+                    console.log(ans);
+                    navigation.goBack();
+
+                }
+                else {
+                    const ans = await responce.text();
+                    console.log(ans);
+                }
+
+            } catch (error) {
+                console.log(error);
             }
-            console.log("Final API Payload:", tasbeehobject);
-            const responce=await fetch(Singletasbeeh + 'Assigntosingletasbeeh', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(tasbeehobject),
-            });
-            if (responce.ok) {
-                const ans = await responce.json();
-                console.log(ans);
-                navigation.goBack();
-            
-            }
-            else {
-                const ans = await responce.text();
-                console.log(ans);
-            }
-          
-           } catch (error) {
-            console.log(error); 
-           }
         }
         else {
             const AssignTasbeehobj = {
                 Group_id: groupid,
                 Tasbeeh_id: tasbeehid.substring(2),
-                Goal: parseInt(count, 10),  
+                Goal: parseInt(count, 10),
                 End_date: deadline,
             };
 
@@ -231,7 +231,9 @@ const AssignTasbeeh = ({ route }) => {
     // Equally Contribution  Api Function\
     const DistributeTasbeehEqually = async () => {
         try {
-            const Query = `DistributeTasbeehEqually?groupid=${groupid}`;
+            const tid = tasbeehid.substring(2);
+            const Query = `DistributeTasbeehEqually?groupid=${encodeURIComponent(groupid)}&tasbeehid=${encodeURIComponent(tid)}`;
+            console.log(Query);
             const response = await fetch(SendRequest + Query, {
                 method: 'POST',
                 headers: {
@@ -348,11 +350,11 @@ const AssignTasbeeh = ({ route }) => {
                     }
                 </ScrollView>
 
-                {contributetype == 'Equally'? <View>
-                        <TouchableOpacity onPress={Assigntasbeeh} style={styles.button}>
-                            <Text style={styles.buttonText}>Assign</Text>
-                        </TouchableOpacity>
-                    </View>:selectedtype=="Single"&&(
+                {contributetype == 'Equally' ? <View>
+                    <TouchableOpacity onPress={Assigntasbeeh} style={styles.button}>
+                        <Text style={styles.buttonText}>Assign</Text>
+                    </TouchableOpacity>
+                </View> : selectedtype == "Single" && (
                     <View>
                         <TouchableOpacity onPress={Assigntasbeeh} style={styles.button}>
                             <Text style={styles.buttonText}>Assign</Text>
@@ -435,14 +437,16 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 20,
         paddingLeft: 10,
+        marginBottom: 8,
     },
     input: {
         height: 50,
-        borderColor: '#000',
+        borderColor: '#ddd',
         borderWidth: 1,
         padding: 10,
-        borderRadius: 100,
+        borderRadius: 25,
         color: 'black',
+        backgroundColor: 'white',
     }
 });
 

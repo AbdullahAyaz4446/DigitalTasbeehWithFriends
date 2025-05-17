@@ -12,15 +12,11 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import { colors } from '../utiles/colors';
 
-
 const Friends = ({ route }) => {
     const navigation = useNavigation();
     const { Userid } = route.params;
     const [data, setdata] = useState([]); 
     
-
-    // Get All Friends Api Function
-
     // Get all Members Function
     const members = async () => {
       try {
@@ -36,22 +32,22 @@ const Friends = ({ route }) => {
       } catch (error) {
           console.log(error);
       }
-  };
+    };
 
     useEffect(() => {
         members();
-    }
-    , []);
+    }, []);
 
-    // Render item for FlatList
+    // Updated card-style render item
     const Show = ({ item }) => (
- 
-            <View style={styles.itemContainer}>
-                <Text style={styles.itemText}>
-                   {item.name}
-                </Text>
+        <View style={styles.cardContainer}>
+            <View style={styles.cardContent}>
+                <View style={styles.avatar}>
+                    <Ionicons name="person" size={24} color="#fff" />
+                </View>
+                <Text style={styles.cardText}>{item.name}</Text>
             </View>
-      
+        </View>
     );
 
     return (
@@ -66,6 +62,7 @@ const Friends = ({ route }) => {
             <FlatList
                 data={data}
                 renderItem={Show}
+                contentContainerStyle={styles.listContainer}
             />
         </View>
     );
@@ -91,21 +88,39 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: 'bold',
     },
-    itemContainer: {
-  
-  
-        alignItems: 'center',
-        padding: 10,
-        marginVertical: 10,
-        borderRadius: 10,
-        backgroundColor: colors.tasbeehconatiner,
-        padding: 20
+    listContainer: {
+        paddingBottom: 20,
     },
-    itemText: {
-        flex: 1,
+    // Card styles
+    cardContainer: {
+        backgroundColor: colors.tasbeehconatiner,
+        borderRadius: 12,
+        padding: 16,
+        marginVertical: 8,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+    cardContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    avatar: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: colors.primary,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 16,
+    },
+    cardText: {
         fontSize: 18,
         color: 'black',
-        fontWeight: 'bold'
+        fontWeight: 'bold',
+        flex: 1,
     },
     fab: {
         position: 'absolute',

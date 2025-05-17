@@ -1,25 +1,37 @@
 import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import React from 'react';
-import { colors } from '../utiles/colors'; 
-import { useNavigation } from '@react-navigation/native'; 
+import { colors } from '../utiles/colors';
+import { useNavigation } from '@react-navigation/native';
+
 
 const StartScreen = () => {
-  const navigation = useNavigation(); 
 
+  {/*Varaiables*/ }
+  const navigation = useNavigation();
+
+
+
+
+  {/*handle login function */ }
   const handleLogin = () => {
-    console.log('Button Pressed!'); 
+    console.log('Button Pressed!');
     navigation.replace('Login');
   };
-  
+
+
+
+
+
+  {/*Main View*/ }
   return (
     <View style={styles.container}>
       <Image source={require("../Assests/hand-drawn-flat-design-tasbih-illustration-b.png")} style={styles.Tasbeehimage} />
-      
+
       <View style={styles.row}>
         <Text style={styles.Text}>Digital Tasbeeh</Text>
         <Image source={require('../Assests/mosque_9987994.png')} style={styles.logo} />
       </View>
-    
+
       <Text style={[styles.Description, { paddingTop: 30 }]}>Welcome to Digital Tasbeeh!</Text>
       <Text style={styles.Description}>Start counting your blessings with ease and</Text>
       <Text style={styles.Description}>accuracy.</Text>
@@ -65,7 +77,7 @@ const styles = StyleSheet.create({
     color: 'black',
     textAlign: 'center',
   },
-  button: {         
+  button: {
     backgroundColor: colors.primary,
     paddingVertical: 15,
     paddingHorizontal: 100,
@@ -73,9 +85,9 @@ const styles = StyleSheet.create({
     marginTop: 50,
   },
   buttonText: {
-    color: colors.white,          
-    fontWeight: 'bold',      
-    fontSize: 24,             
+    color: colors.white,
+    fontWeight: 'bold',
+    fontSize: 24,
     textAlign: 'center',
   }
 }); 

@@ -6,10 +6,20 @@ import { colors } from '../utiles/colors';
 
 
 const LoginScreen = () => {
+
+
+
+  
   {/*Varaiables*/ }
   const navigation = useNavigation();
   const [email, setemail] = useState('');
   const [password, setPassword] = useState('');
+
+
+
+
+
+
 
 
   {/*LogIn Api Function*/ }
@@ -37,12 +47,25 @@ const LoginScreen = () => {
     }
   }
 
-  {/*Move Screen Sign Up */ }
+
+
+
+
+
+
+  {/*Move Screen Sign Up Function */ }
   const handleSignup = () => {
     console.log('Button Pressed!');
     navigation.navigate('SignUp');
   };
 
+
+
+
+
+
+
+ {/*Main View */ }
   return (
     <View style={styles.container}>
       {/* <TouchableOpacity onPress={() => navigation.goBack()}>

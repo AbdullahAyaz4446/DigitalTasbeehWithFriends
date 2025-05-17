@@ -11,6 +11,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { colors } from '../utiles/colors';
 import Svg, { Circle } from 'react-native-svg';
+import { red100 } from 'react-native-paper/lib/typescript/styles/themes/v2/colors';
 
 const CircularProgress = ({ progress, size = 150, strokeWidth = 10 }) => {
   const radius = (size - strokeWidth) / 2;
@@ -138,6 +139,24 @@ const TasbeehGroup = ({ route }) => {
     }
   }
 
+  const closetasbeeh=async()=>{
+    try {
+      const query=`Closetasbeeh?id=${encodeURI(tid)}`;
+      const responce=await fetch(Singletasbeeh+query);
+      if(responce.ok){
+        const result=await responce.json();
+        console.log(result);
+        navigation.goBack();
+      }
+      else{
+        const result=await responce.json();
+        console.log(result);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   const renderProgressShapes = () => {
     const totalShapes = 7;
 
@@ -193,10 +212,10 @@ const TasbeehGroup = ({ route }) => {
                   style={styles.dropdownOption}
                   onPress={() => {
                     setShowOptions(false);
-                    navigation.navigate("LeaveGroup", { groupid, Userid });
+                    closetasbeeh();
                   }}
                 >
-                  <Text style={styles.dropdownOptionText}>Leave Tasbeeh</Text>
+                  <Text style={styles.dropdownOptionText}>Close Tasbeeh</Text>
                 </TouchableOpacity>
               </View>
             </>
@@ -215,15 +234,6 @@ const TasbeehGroup = ({ route }) => {
         </View>
       </View>
 
-      <View style={{ padding: 0 }}>
-        <Text style={{ fontSize: 20, color: 'black', fontWeight: 'bold' }}>
-          {logmemberdata?.Enddate && (
-            <Text style={{ fontSize: 20, color: 'black', fontWeight: 'bold' }}>
-              DeadLine: {logmemberdata.Enddate.split('T')[0]}
-            </Text>
-          )}
-        </Text>
-      </View>
 
       <View style={{ padding: 20, backgroundColor: colors.tasbeehconatiner, borderRadius: 30 }}>
         <View style={{ alignSelf: 'center' }}>
@@ -324,7 +334,7 @@ const styles = StyleSheet.create({
   },
   fab: {
     width: "100%",
-    height: 300,
+    height: 200,
     borderRadius: 0,
     backgroundColor: colors.tasbeehconatiner,
     alignItems: 'center',
@@ -405,7 +415,7 @@ const styles = StyleSheet.create({
   },
   dropdownOptionText: {
     fontSize: 16,
-    color: '#333',
+    color: 'red',
   },
   dropdownOverlay: {
     position: 'absolute',

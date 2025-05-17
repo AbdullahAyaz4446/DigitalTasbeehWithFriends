@@ -1,15 +1,15 @@
 import { StyleSheet, Text, View, TouchableOpacity, Image, FlatList, Modal, TouchableWithoutFeedback } from 'react-native'
 import React, { useEffect, useState, useContext } from 'react'
-import { AppState } from 'react-native'; 
+import { AppState } from 'react-native';
 import { colors } from '../utiles/colors'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
-import AntDesign from 'react-native-vector-icons/AntDesign';
-import { OnlineContext } from './OnlineContext';
+import { Item } from 'react-native-paper/lib/typescript/components/Drawer/Drawer';
+
 
 const Deatilesgrouptasbeeh = ({ route }) => {
     const navigation = useNavigation();
-    const { groupid, Userid, Adminid,tasbeehid } = route.params;
+    const { groupid, Userid, Adminid, tasbeehid } = route.params;
     const [showprogress, setshowprogress] = useState(true);
     return (
         <View style={styles.container}>
@@ -19,7 +19,7 @@ const Deatilesgrouptasbeeh = ({ route }) => {
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Tasbeeh Progress</Text>
             </View>
-           
+
             <View>
                 {showprogress && (
                     <Progress
@@ -127,13 +127,13 @@ const styles = StyleSheet.create({
 
 });
 
-const Progress = ({ groupid, Userid,tasbeehid,Adminid}) => {
+const Progress = ({ groupid, Userid, tasbeehid, Adminid }) => {
     const [groupprogress, setgroupprogress] = useState([]);
     const [progress, setprogress] = useState(0);
     const [Achived, setAchived] = useState(0);
     const [goal, setgoal] = useState(0);
     const [isOnline, setIsOnline] = useState(true);
-    
+
 
 
     // APi Function to get the group progress
@@ -149,7 +149,7 @@ const Progress = ({ groupid, Userid,tasbeehid,Adminid}) => {
                 setprogress(percentage);
                 setAchived(result[0].Achieved);
                 setgoal(result[0].TasbeehGoal);
-            
+
 
             }
             else {
@@ -160,79 +160,79 @@ const Progress = ({ groupid, Userid,tasbeehid,Adminid}) => {
             console.log(error);
         }
     }
-        // Get online Function
-        const checkOnlineStatus = async () => {
-            try {
-                const query = `Online?ID=${encodeURIComponent(Userid)}`;
-                const response = await fetch(url + query);
-                const isCurrentlyOnline = response.ok;
-                setIsOnline(isCurrentlyOnline);
-                await updateOnlineStatus(isCurrentlyOnline);
-                return isCurrentlyOnline;
-            } catch (error) {
-                setIsOnline(false);
-                await updateOnlineStatus(false);
-                return false;
-            }
-        };
-        //  update state
-        const updateOnlineStatus = async (status) => {
-            try {
-                const statusParam = status ? 'online' : 'offline';
-                const query = `UpdateOnlineStatus?UserID=${encodeURIComponent(Userid)}&Status=${encodeURIComponent(statusParam)}`;
-                
-                const response = await fetch(url + query, {
-                    method: 'GET',
-                    headers: { 'Accept': 'application/json' }
-                });
-    
-                if (!response.ok) {
-                    throw new Error('Failed to update status');
-                }
-                return await response.json();
-            } catch (error) {
-                console.error('Status update error:', error);
-                throw error;
-            }
-        };
-    
+    // Get online Function
+    const checkOnlineStatus = async () => {
+        try {
+            const query = `Online?ID=${encodeURIComponent(Userid)}`;
+            const response = await fetch(url + query);
+            const isCurrentlyOnline = response.ok;
+            setIsOnline(isCurrentlyOnline);
+            await updateOnlineStatus(isCurrentlyOnline);
+            return isCurrentlyOnline;
+        } catch (error) {
+            setIsOnline(false);
+            await updateOnlineStatus(false);
+            return false;
+        }
+    };
+    //  update state
+    const updateOnlineStatus = async (status) => {
+        try {
+            const statusParam = status ? 'online' : 'offline';
+            const query = `UpdateOnlineStatus?UserID=${encodeURIComponent(Userid)}&Status=${encodeURIComponent(statusParam)}`;
 
-        // Improved AppState and interval management and online show 
-          useEffect(() => {
-            let isMounted = true;
-            let intervalId;
-        
-            const handleAppStateChange = async (nextAppState) => {
-                if (!isMounted) return;
-                
-                if (nextAppState === 'active') {
-                    // App came to foreground
+            const response = await fetch(url + query, {
+                method: 'GET',
+                headers: { 'Accept': 'application/json' }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to update status');
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Status update error:', error);
+            throw error;
+        }
+    };
+
+
+    // Improved AppState and interval management and online show 
+    useEffect(() => {
+        let isMounted = true;
+        let intervalId;
+
+        const handleAppStateChange = async (nextAppState) => {
+            if (!isMounted) return;
+
+            if (nextAppState === 'active') {
+
+                await checkOnlineStatus();
+            } else {
+
+                await updateOnlineStatus(false);
+            }
+        };
+
+        // Initial status check
+        checkOnlineStatus();
+
+        const setupInterval = () => {
+            intervalId = setInterval(async () => {
+                if (AppState.currentState === 'active') {
                     await checkOnlineStatus();
-                } else {
-                    
-                    await updateOnlineStatus(false);
                 }
-            };
-        
-            // Initial status check
-            checkOnlineStatus();
-        
-            const setupInterval = () => {
-                intervalId = setInterval(async () => {
-                    if (AppState.currentState === 'active') {
-                        await checkOnlineStatus();
-                    }
-                }, 15000); 
-            };
-            setupInterval();
-            const subscription = AppState.addEventListener('change', handleAppStateChange);
-            return () => {
-                isMounted = false;
-                clearInterval(intervalId);
-                subscription?.remove();
-                updateOnlineStatus(false).catch(console.error);
-            };
-        }, [Userid]);
+            }, 15000);
+        };
+        setupInterval();
+        const subscription = AppState.addEventListener('change', handleAppStateChange);
+        return () => {
+            isMounted = false;
+            clearInterval(intervalId);
+            subscription?.remove();
+            updateOnlineStatus(false).catch(console.error);
+        };
+    }, [Userid]);
 
 
     useEffect(() => {
@@ -243,7 +243,7 @@ const Progress = ({ groupid, Userid,tasbeehid,Adminid}) => {
     const show = ({ item }) => (
         <View style={styles.rowContainer}>
             {
-                item.Status == "online" ? (
+                "online" == "online" ? (
                     <View
                         style={{
                             width: 10,
@@ -268,16 +268,25 @@ const Progress = ({ groupid, Userid,tasbeehid,Adminid}) => {
 
 
             <Text style={styles.itemText}>{item.CurrentCount}/{item.AssignCount}</Text>
-            {
-                item.Adminid == item.userid ?
 
-                    <Text style={[styles.itemText, { color: 'green' }]}>Admin</Text>
-
-                    :
-                    <Text style={[styles.itemText, { color: 'black' }]}>Member </Text>
-            }
+            {item.Adminid == item.userid ? (
+                <Text style={[styles.itemText, { color: 'green' }]}>Admin</Text>
+            ) : item.userid == Userid ? (
+                <Text style={[styles.itemText, { color: 'black' }]}>You</Text>
+            ) : (
+                <Text style={[styles.itemText, { color: 'black' }]}>Member</Text>
+            )}
         </View>
     );
+
+
+
+    // // Sort the data  to show you data on top function
+    // const sortedLogData = [...logdata].sort((a, b) => {
+    //     if (a.status === "Active" && b.status !== "Active") return -1;
+    //     if (a.status !== "Active" && b.status === "Active") return 1;
+    //     return 0;
+    // });
     return (
         <View>
             <View style={styles.progresscomheader}>
@@ -301,6 +310,7 @@ const Progress = ({ groupid, Userid,tasbeehid,Adminid}) => {
             <FlatList
                 data={groupprogress}
                 renderItem={show} />
+
         </View>
     )
 }

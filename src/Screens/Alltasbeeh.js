@@ -14,24 +14,19 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { colors } from '../utiles/colors';
-import { AntDesign } from 'react-native-vector-icons/AntDesign';
-import { black } from 'react-native-paper/lib/typescript/styles/themes/v2/colors';
 
 const AllTasbeehScreen = ({ route }) => {
-  {/*Varaiables*/ }
   const { Userid } = route.params;
   const [tasbeeh, settasbeeh] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [editTitle, setEditTitle] = useState('');
   const [existtasbeeh, setexisttasbeeh] = useState([]);
-
   const navigation = useNavigation();
 
-  {/*All Tasbeeh Api Function*/ }
+  // All Tasbeeh Api Function
   const Alltasbeeh = async () => {
     try {
-
       const query = `Alltasbeeh?userid=${encodeURIComponent(Userid)}`;
       const response = await fetch(tasbeehurl + query);
 
@@ -39,7 +34,6 @@ const AllTasbeehScreen = ({ route }) => {
         const data = await response.json();
         console.log(data);
         settasbeeh(data);
-
       } else {
         const ans = await response.text();
         console.log(ans);
@@ -48,7 +42,8 @@ const AllTasbeehScreen = ({ route }) => {
       console.log(error.message);
     }
   };
-  {/*Delete Tasbeeh Api Function*/ }
+
+  // Delete Tasbeeh Api Function
   const deletetasbeeh = async (ID) => {
     console.log("delete tasbeeh is calling");
     try {
@@ -66,7 +61,8 @@ const AllTasbeehScreen = ({ route }) => {
       console.log(error.message);
     }
   }
-  {/*Delete Tasbeeh Api Function*/ }
+
+  // Delete Wazifa Api Function
   const Deletewazifa = async (id) => {
     console.log("calling delete");
     try {
@@ -80,10 +76,9 @@ const AllTasbeehScreen = ({ route }) => {
       console.log(error);
     }
   }
-  {/*Create Chain Tasbeeh api function*/ }
-  //Add Wazifa Title Api Function
-  const Createexistingtasbeehchian = async () => {
 
+  // Create Chain Tasbeeh api function
+  const Createexistingtasbeehchian = async () => {
     try {
       if (editTitle) {
         const obj = {
@@ -115,12 +110,11 @@ const AllTasbeehScreen = ({ route }) => {
       console.log(error);
     }
   }
-  {/*Create Chain Tasbeeh compund data api function*/ }
 
+  // Create Chain Tasbeeh compund data api function
   const CompundChaindata = async () => {
     try {
-    
-      const id=await Createexistingtasbeehchian();
+      const id = await Createexistingtasbeehchian();
       const updatedCompound = existtasbeeh.map((element) => ({
         Tasbeeh_id: id,
         Existing_Tasbeehid: element.ID
@@ -150,31 +144,24 @@ const AllTasbeehScreen = ({ route }) => {
     }
   }
 
-
-  {/*Use Effect To Get All tasbeeh and wazifa and compund unwanted code  */ }
-
-  // useEffect(() => {
-  //   const combine = [
-  //     ...tasbeeh.map(item => ({ ...item, type: 'Tasbeeh' })),
-  //     ...wazifa.map(item => ({ ...item, type: 'Wazifa' }))
-  //   ];
-  //   setcompund(combine);
-  // }, [tasbeeh, wazifa]);
-
-  {/*Use Effect To Get All Tasbeeh In the Screen Load*/ }
+  // Use Effect To Get All Tasbeeh In the Screen Load
   useEffect(() => {
     Alltasbeeh();
   }, [editingItem]);
+
+  // Usefocuseffect To Get All Tasbeeh when you come back
   useFocusEffect(
     React.useCallback(() => {
       Alltasbeeh();
     }, [])
   );
 
-
+  // on long press to create compund api function
   const handleLongPress = (item) => {
     setEditingItem(true);
   };
+
+  // Sawp data function 
   const Swapdata = (ID) => {
     setexisttasbeeh(predata => {
       const currentindex = predata.findIndex((item) => item.ID === ID);
@@ -185,13 +172,11 @@ const AllTasbeehScreen = ({ route }) => {
     })
   };
 
-
-  {/*Flat List To Show All Tasbeeh Function*/ }
+  // Flat List To Show All Tasbeeh Function - Updated with Card View
   const Show = ({ item }) => (
     <TouchableOpacity
       onLongPress={() => handleLongPress(item)}
       activeOpacity={0.7}
-
       onPress={() => {
         if (editingItem) {
           settasbeeh(tasbeeh.filter(t => t.ID !== item.ID));
@@ -199,104 +184,66 @@ const AllTasbeehScreen = ({ route }) => {
           console.log(existtasbeeh);
         }
       }}
-
+      style={styles.cardContainer}
     >
-      <View style={styles.itemContainer}>
-        <View style={styles.itemContent}>
-          <Text style={styles.itemText}>{item.Tasbeeh_Title}</Text>
-          {/* {!editingItem &&
-            (<TouchableOpacity>
-              <Image source={require('../Assests/pencil.png')} style={styles.logo} />
-            </TouchableOpacity>)
-          } */}
-
+      <View style={styles.cardContent}>
+        <View style={styles.cardTextContainer}>
+          <Text style={styles.cardTitle}>{item.Tasbeeh_Title}</Text>
+          <Text style={styles.cardSubtitle}>{item.Type}</Text>
         </View>
-        {!editingItem && (<TouchableOpacity onPress={() => { item.type === "Quran" || "Compund" ? deletetasbeeh(item.ID) : Deletewazifa(item.ID) }}>
-          <Image source={require('../Assests/trash.png')} style={styles.logo} />
-        </TouchableOpacity>)}
+        {!editingItem && (
+          <TouchableOpacity 
+            onPress={() => { item.type === "Quran" || "Compund" ? deletetasbeeh(item.ID) : Deletewazifa(item.ID) }}
+            style={styles.deleteButton}
+          >
+            <Ionicons name="trash-outline" size={24} color="#ff4444" />
+          </TouchableOpacity>
+        )}
       </View>
     </TouchableOpacity>
   );
 
-  
-  {/*Flat List To Show Existing Tasbeeh  data*/ }
+  // Flat List To Show Existing Tasbeeh data - Updated with Card View
   const Showexistingtasbeehdata = ({ item, index }) => (
-    <View style={{ 
-      marginVertical: 10, 
-      backgroundColor: colors.tasbeehconatiner, 
-      borderRadius: 20,
-      padding: 10
-    }}>
-      <View style={{ 
-        flexDirection: 'row', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-        width: '100%'
-      }}>
- 
-        <View style={{
-          width: '33%',
-          justifyContent: 'center',
-          paddingHorizontal: 5
-        }}>
-          <Text style={{ 
-            fontSize: 16, 
-            color: 'black', 
-            fontWeight: 'bold',
-            textAlign: 'left'
-          }}>
-            {item.Tasbeeh_Title}
-          </Text>
+    <View style={styles.existingCardContainer}>
+      <View style={styles.existingCardContent}>
+        <View style={styles.existingCardTextContainer}>
+          <Text style={styles.existingCardTitle}>{item.Tasbeeh_Title}</Text>
+          <Text style={styles.existingCardSubtitle}>{item.Type}</Text>
         </View>
-  
-      
-        <View style={{
-          width: '33%',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
+        
+        <View style={styles.existingCardActions}>
           <TouchableOpacity 
             onPress={() => {
               setexisttasbeeh(existtasbeeh.filter(t => t.ID !== item.ID));
               settasbeeh(prev => [...(prev || []), item]);
             }}
-            style={{ padding: 8 }}
+            style={styles.existingCardButton}
           >
-            <Image 
-              source={require('../Assests/trash.png')} 
-              style={{ width: 24, height: 24 }} 
-            />
+            <Ionicons name="remove-circle-outline" size={24} color="#ff4444" />
           </TouchableOpacity>
-        </View>
-  
-        {/* Move Up Button Column - 33% width (conditionally shown) */}
-        {existtasbeeh.length > 1 && index !== 0 && (
-          <View style={{
-            width: '33%',
-            alignItems: 'flex-end',
-            justifyContent: 'center',
-            paddingRight: 10
-          }}>
+        
+          {existtasbeeh.length > 1 && index !== 0 && (
             <TouchableOpacity 
               onPress={() => Swapdata(item.ID)}
-              style={{ padding: 8 }}
+              style={styles.existingCardButton}
             >
-              <Ionicons name="caret-up-circle" size={35} color={"black"} />
+              <Ionicons name="arrow-up-circle-outline" size={24} color="black" />
             </TouchableOpacity>
-          </View>
-        )}
+          )}
+        </View>
       </View>
     </View>
   );
 
-
+  // Main View
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         {editingItem ? (
           <>
-            <TouchableOpacity onPress={() => { setEditingItem(null), setexisttasbeeh([]),setEditTitle("") }}>
-              <Ionicons name="close-circle-sharp" size={40} color="#000" />
+            <TouchableOpacity onPress={() => { setEditingItem(null), setexisttasbeeh([]), setEditTitle("") }}>
+              <Ionicons name="close-circle-sharp" size={40} color="#ff4444" />
             </TouchableOpacity>
             <View style={styles.inputContainer}>
               <TextInput
@@ -308,7 +255,7 @@ const AllTasbeehScreen = ({ route }) => {
               />
             </View>
             <TouchableOpacity onPress={() => { CompundChaindata() }} >
-              <Ionicons name="checkmark-circle-sharp" size={40} color="green" />
+              <Ionicons name="checkmark-circle-sharp" size={40} color="#4CAF50" />
             </TouchableOpacity>
           </>
         ) : (
@@ -323,26 +270,24 @@ const AllTasbeehScreen = ({ route }) => {
           </>
         )}
       </View>
+      
       <FlatList
         data={tasbeeh.reverse()}
         renderItem={Show}
+        keyExtractor={(item) => item.ID.toString()}
+        contentContainerStyle={styles.listContainer}
       />
+      
       {editingItem && (
-        <View style={{ marginTop: 15 }}>
-          <View style={{ backgroundColor: colors.notification, borderRadius: 20, padding: 10 }}>
-            <Text style={{
-              color: 'black',
-              fontSize: 18,
-              fontWeight: 'bold',
-              marginBottom: 10,
-              textAlign: 'center',
-            }}>  Existing Tasbeeh Chain
-            </Text>
+        <View style={styles.existingChainContainer}>
+          <View style={styles.chainHeader}>
+            <Text style={styles.chainHeaderText}>Existing Tasbeeh Chain</Text>
           </View>
-          <View style={{ maxHeight: 300 }}>
+          <View style={styles.chainListContainer}>
             <FlatList
               data={existtasbeeh}
               renderItem={Showexistingtasbeehdata}
+              keyExtractor={(item) => item.ID.toString()}
             />
           </View>
         </View>
@@ -355,33 +300,35 @@ const AllTasbeehScreen = ({ route }) => {
         >
           <Ionicons name="add" size={40} color="white" />
         </TouchableOpacity>
-      )
-      }
-
+      )}
+      
       <Modal transparent visible={showModal} animationType="fade">
         <TouchableWithoutFeedback onPress={() => setShowModal(false)}>
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)', padding: 20 }}>
-            <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 20, width: '90%', height: '30%' }}>
-              <Text style={{ fontSize: 24, fontWeight: 'bold', textAlign: 'center', marginBottom: 20, color: 'black' }}>Select Option</Text>
-              <TouchableOpacity onPress={() => {
-                setShowModal(false);
-                navigation.navigate('CraeteTasbeeh', { "Userid": Userid })
-              }
-              } style={{ backgroundColor: colors.tasbeehconatiner, padding: 10, borderRadius: 10, marginBottom: 10 }}>
-                <Text style={{ fontSize: 18, color: 'black', textAlign: 'center' }}>Quran Tasbeeh</Text>
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Select Option</Text>
+              <TouchableOpacity 
+                onPress={() => {
+                  setShowModal(false);
+                  navigation.navigate('CraeteTasbeeh', { "Userid": Userid })
+                }} 
+                style={styles.modalOption}
+              >
+                <Text style={styles.modalOptionText}>Quran Tasbeeh</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => {
-                setShowModal(false);
-                navigation.navigate('Wazifa', { "Userid": Userid })
-              }} style={{ backgroundColor: colors.tasbeehconatiner, padding: 10, borderRadius: 10, marginBottom: 10 }}>
-                <Text style={{ fontSize: 18, color: 'black', textAlign: 'center' }}>Wazifa Tasbeeh</Text>
+              <TouchableOpacity 
+                onPress={() => {
+                  setShowModal(false);
+                  navigation.navigate('Wazifa', { "Userid": Userid })
+                }} 
+                style={styles.modalOption}
+              >
+                <Text style={styles.modalOptionText}>Wazifa Tasbeeh</Text>
               </TouchableOpacity>
             </View>
           </View>
         </TouchableWithoutFeedback>
       </Modal>
-
-
     </View>
   );
 };
@@ -389,13 +336,14 @@ const AllTasbeehScreen = ({ route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: '#fff',
+    padding: 16,
+    backgroundColor: '#f5f5f5',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 20,
+    paddingHorizontal: 8,
   },
   headerTitle: {
     flex: 1,
@@ -404,57 +352,13 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
   },
-  itemContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 20,
-    marginVertical: 10,
-    borderRadius: 25,
-    backgroundColor: colors.tasbeehconatiner,
-
+  listContainer: {
+    paddingBottom: 20,
   },
-  itemContent: {
+  titleContainer: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  itemText: {
-    flex: 1,
-    fontSize: 18,
-    color: 'black',
-    fontWeight:'bold'
-  },
-  logo: {
-    width: 24,
-    height: 24,
-    marginLeft: 10,
-  },
-  fab: {
-    position: 'absolute',
-    bottom: 20,
-    right: 20,
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#1e3a8a',
-    alignItems: 'center',
     justifyContent: 'center',
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.5,
-  },
-  selectionHeader: {
-    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 10,
-  },
-  selectedCount: {
-    fontSize: 16,
-    color: colors.primary,
   },
   inputContainer: {
     flex: 1,
@@ -466,16 +370,154 @@ const styles = StyleSheet.create({
     borderColor: '#000',
     borderWidth: 1,
     padding: 10,
-    borderRadius: 100,
+    borderRadius: 25,
     color: 'black',
-
+    backgroundColor: 'white',
   },
-  titleContainer: {
+  
+  // Card Styles for Main Tasbeeh List
+  cardContainer: {
+    backgroundColor: "#92A5E3",
+    borderRadius: 12,
+    padding: 16,
+    marginVertical: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  cardContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  cardTextContainer: {
+    flex: 1,
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 4,
+  },
+  cardSubtitle: {
+    fontSize: 14,
+    color: '#666',
+  },
+  deleteButton: {
+    padding: 8,
+  },
+  
+  // Existing Chain Styles
+  existingChainContainer: {
+    marginTop: 20,
+  },
+  chainHeader: {
+    backgroundColor: colors.notification,
+    borderRadius: 20,
+    padding: 12,
+    marginBottom: 12,
+  },
+  chainHeaderText: {
+    color: 'black',
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  chainListContainer: {
+    maxHeight: 300,
+  },
+  
+  // Existing Card Styles
+  existingCardContainer: {
+    backgroundColor:"white",
+    borderRadius: 12,
+    padding: 16,
+    marginVertical: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  existingCardContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  existingCardTextContainer: {
+    flex: 1,
+  },
+  existingCardTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  existingCardSubtitle: {
+    fontSize: 14,
+    color: '#666',
+  },
+  existingCardActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  existingCardButton: {
+    padding: 8,
+    marginLeft: 8,
+  },
+  
+  // Modal Styles
+  modalOverlay: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 24,
+    borderRadius: 16,
+    width: '90%',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 20,
+    color: 'black',
+  },
+  modalOption: {
+    backgroundColor: colors.tasbeehconatiner,
+    padding: 16,
+    borderRadius: 10,
+    marginBottom: 12,
+    alignItems: 'center',
+  },
+  modalOptionText: {
+    fontSize: 18,
+    color: 'black',
+    fontWeight: '500',
+  },
+  
+  // FAB Style
+  fab: {
+    position: 'absolute',
+    bottom: 24,
+    right: 24,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: '#1e3a8a',
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.5,
   },
 });
 
-
-export default AllTasbeehScreen;  
+export default AllTasbeehScreen;

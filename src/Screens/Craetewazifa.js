@@ -5,16 +5,15 @@ import {
     TouchableOpacity,
     StyleSheet,
     TextInput,
-    FlatList, Image, Alert
+    FlatList, 
+    Image, 
+    Alert
 } from 'react-native';
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useNavigation } from '@react-navigation/native';
 import { colors } from '../utiles/colors';
-import { SelectList } from 'react-native-dropdown-select-list';
-
 
 const Craetewazifa = ({ route }) => {
-    {/*Varaiables*/ }
     const { Userid } = route.params;
     const [wazifatitle, setwazifatitle] = useState('');
     const [wazifatext, setwazifatext] = useState('');
@@ -23,9 +22,8 @@ const Craetewazifa = ({ route }) => {
     const [data, setdata] = useState([]);
     const navigation = useNavigation();
 
-    //Add Wazifa Title Api Function
+    // Add Wazifa Title Api Function
     const addwazifatitle = async () => {
-
         try {
             if (wazifatitle) {
                 const obj = {
@@ -58,7 +56,8 @@ const Craetewazifa = ({ route }) => {
             console.log(error);
         }
     }
-    //  Add wazifa text Api Function
+
+    // Add wazifa text Api Function
     const addwazifatext = async () => {
         try {
             if (wazifatext && Count) {
@@ -94,6 +93,7 @@ const Craetewazifa = ({ route }) => {
             console.log(error);
         }
     }
+
     // Delete wazifatext api function
     const Deletewazifatext = async (id) => {
         try {
@@ -101,7 +101,7 @@ const Craetewazifa = ({ route }) => {
             const responce = await fetch(Wazifa + query);
             if (responce.ok) {
                 setcompund(compund.filter((item) => item.wazifa_text_id !== id));
-                setdata(data.filter((item) => item.id !== id)); // Update FlatList data
+                setdata(data.filter((item) => item.id !== id));
                 const ans = await responce.text();
             }
             else {
@@ -112,9 +112,9 @@ const Craetewazifa = ({ route }) => {
             console.log(error);
         }
     }
+
     // Compund wazifa Api function
     const CompundWazifadata = async () => {
-
         if (compund.length > 0) {
             const id = await addwazifatitle();
             try {
@@ -135,7 +135,6 @@ const Craetewazifa = ({ route }) => {
                     navigation.goBack();
                     const ans = await response.json();
                     console.log(ans);
-
                 } else {
                     const ans = await response.text();
                     console.log("Error:", ans);
@@ -145,25 +144,17 @@ const Craetewazifa = ({ route }) => {
             }
         }
     };
-  
+
     // Function to swap data
     const Swapdata = (id) => {
         setdata(prevData => {
-            // Find the index of the item with matching id
             const currentIndex = prevData.findIndex(item => item.id === id);
-            console.log("current index",currentIndex)
-            // Create a new array to avoid mutating state directly
             const newData = [...prevData];
-            // Swap current item with the previous one
-            // [newData[currentIndex], newData[currentIndex - 1]] =
-            //     [newData[currentIndex - 1], newData[currentIndex]];
-            [newData[currentIndex],newData[currentIndex-1]]=
-            [newData[currentIndex-1],newData[currentIndex]];
-
+            [newData[currentIndex], newData[currentIndex - 1]] =
+                [newData[currentIndex - 1], newData[currentIndex]];
             return newData;
         });
 
-        // Also update compund state to keep them in sync
         setcompund(prevCompund => {
             const currentIndex = prevCompund.findIndex(item => item.wazifa_text_id === id);
             const newCompund = [...prevCompund];
@@ -173,34 +164,32 @@ const Craetewazifa = ({ route }) => {
         });
     };
 
-    useEffect(() => {
-        console.log("Current compound state:", compund);
-    }, [compund]);
-
-
+    // Flat list to Show Wazifa text - Updated with Card View
     const showdata = ({ item, index }) => (
-        <View style={{ marginVertical: 10, backgroundColor: colors.tasbeehconatiner, borderRadius: 20 }}>
-            <View style={{ margin: 20 }}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                    <Text style={{ fontSize: 20, color: 'black', fontWeight: 'bold' }}>Arabic:{item.text}</Text>
-                    <Text style={{ fontSize: 20, color: 'black', fontWeight: 'bold' }}>Count:{item.count}</Text>
+        <View style={styles.cardContainer}>
+            <View style={styles.cardContent}>
+                <View style={styles.cardTextContainer}>
+                    <Text style={styles.cardTitle}>Arabic: {item.text}</Text>
+                    <Text style={styles.cardSubtitle}>Count: {item.count}</Text>
                 </View>
-            </View>
-
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                <View style={{ alignItems: 'center', marginVertical: 20, marginLeft: 20 }}>
-                    <TouchableOpacity onPress={() => Deletewazifatext(item.id)}>
-                        <Image source={require('../Assests/trash.png')} style={styles.logo} />
+                
+                <View style={styles.cardActions}>
+                    <TouchableOpacity 
+                        onPress={() => Deletewazifatext(item.id)}
+                        style={styles.deleteButton}
+                    >
+                        <Ionicons name="trash-outline" size={24} color="#ff4444" />
                     </TouchableOpacity>
-                </View>
-
-                {data.length > 1 && index !== 0 && (
-                    <View style={{ alignItems: 'center', marginVertical: 20, marginRight: 20 }}>
-                        <TouchableOpacity onPress={() => Swapdata(item.id)}>
-                            <Ionicons name="caret-up-circle" size={40} color="#000" />
+                    
+                    {data.length > 1 && index !== 0 && (
+                        <TouchableOpacity 
+                            onPress={() => Swapdata(item.id)}
+                            style={styles.moveButton}
+                        >
+                            <Ionicons name="arrow-up-circle-outline" size={24} color="#4CAF50" />
                         </TouchableOpacity>
-                    </View>
-                )}
+                    )}
+                </View>
             </View>
         </View>
     );
@@ -217,7 +206,7 @@ const Craetewazifa = ({ route }) => {
             <View style={styles.inputContainer}>
                 <Text style={styles.label}>Enter Wazifa Title</Text>
                 <TextInput
-                    style={[styles.input, { color: 'black' }]}
+                    style={styles.input}
                     placeholder="Enter Wazifa Title"
                     placeholderTextColor="#A9A9A9"
                     value={wazifatitle}
@@ -257,13 +246,16 @@ const Craetewazifa = ({ route }) => {
                     </TouchableOpacity>
                 </View>
             </View>
+            
             <FlatList
                 data={data}
-                renderItem={({ item, index }) => showdata({ item, index })}
+                renderItem={showdata}
+                keyExtractor={(item) => item.id.toString()}
+                contentContainerStyle={styles.listContainer}
             />
 
             <View style={{ width: "100%", justifyContent: 'flex-end' }}>
-                <TouchableOpacity onPress={() => { CompundWazifadata() }} style={styles.button}>
+                <TouchableOpacity onPress={() => { CompundWazifadata() }} style={styles.submitButton}>
                     <Text style={styles.buttonText}>Submit</Text>
                 </TouchableOpacity>
             </View>
@@ -275,7 +267,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 20,
-        backgroundColor: '#fff',
+        backgroundColor: '#f5f5f5',
     },
     header: {
         flexDirection: 'row',
@@ -297,13 +289,16 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 20,
         paddingLeft: 10,
+        marginBottom: 8,
     },
     input: {
         height: 50,
         borderColor: '#000',
         borderWidth: 1,
         padding: 10,
-        borderRadius: 100,
+        borderRadius: 25,
+        color: 'black',
+        backgroundColor: 'white',
     },
     tasbeehForm: {
         flexDirection: 'row',
@@ -314,6 +309,7 @@ const styles = StyleSheet.create({
         padding: 20,
         borderRadius: 20,
         alignItems: 'center',
+        marginBottom: 20,
     },
     tasbeehFormLabels: {
         flex: 1,
@@ -329,7 +325,7 @@ const styles = StyleSheet.create({
     },
     smallInput: {
         height: 40,
-        borderColor: '#000',
+        borderColor: '#ddd',
         borderWidth: 1,
         paddingHorizontal: 10,
         color: 'black',
@@ -344,17 +340,63 @@ const styles = StyleSheet.create({
         borderRadius: 30,
         marginTop: 10,
     },
+    submitButton: {
+        backgroundColor: colors.primary,
+        paddingVertical: 15,
+        borderRadius: 30,
+        marginTop: 10,
+    },
     buttonText: {
         color: colors.white,
         fontWeight: 'bold',
         fontSize: 24,
         textAlign: 'center',
     },
-    logo: {
-        width: 30,
-        height: 30,
-        marginLeft: 10,
-    }
+    listContainer: {
+        paddingBottom: 20,
+    },
+    // Card Styles
+    cardContainer: {
+        backgroundColor: 'white',
+        borderRadius: 12,
+        padding: 16,
+        marginVertical: 8,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+    cardContent: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    cardTextContainer: {
+        flex: 1,
+    },
+    cardTitle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#333',
+        marginBottom: 4,
+    },
+    cardSubtitle: {
+        fontSize: 14,
+        color: '#666',
+    },
+    cardActions: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    deleteButton: {
+        padding: 8,
+        marginLeft: 8,
+    },
+    moveButton: {
+        padding: 8,
+        marginLeft: 8,
+    },
 });
 
 export default Craetewazifa;

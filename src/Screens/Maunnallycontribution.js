@@ -74,15 +74,17 @@ const Maunnallycontribution = ({ route }) => {
         try {
             const formData = new FormData();
             formData.append("groupid", groupid.toString());
+            formData.append("tasbeehid", Tasbeeh_id.toString());
 
             formData.append("id", JSON.stringify(groupmembersid));
             formData.append("count", JSON.stringify(count));
+            
 
             const distributionResponse = await fetch(SendRequest + 'DistributeTasbeehManually', {
                 method: 'POST',
                 body: formData,
             });
-
+            
             if (distributionResponse.ok) {
                 navigation.goBack();
                 navigation.goBack();
@@ -227,6 +229,7 @@ const styles = StyleSheet.create({
         color: 'black',
         flex: 1,
         marginRight: 10,
+        
     },
     button: {
         backgroundColor: colors.primary,

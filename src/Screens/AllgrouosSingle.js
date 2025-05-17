@@ -14,14 +14,12 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import { colors } from '../utiles/colors';
 
-
 const AllgrouosSingle = ({ route }) => {
     const navigation = useNavigation();
     const { Userid } = route.params;
-    const [combinedData, setCombinedData] = useState([]); // State to store combined data
+    const [combinedData, setCombinedData] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [seleteditem, setselecteditem] = useState(null);
-
 
     useEffect(() => {
         fetchAndCombineData();
@@ -29,7 +27,6 @@ const AllgrouosSingle = ({ route }) => {
     useEffect(() => {
         fetchAndCombineData();
     }, []);
-
 
     // Fetch All Groups
     const Allgroups = async () => {
@@ -65,7 +62,7 @@ const AllgrouosSingle = ({ route }) => {
             }
         } catch (error) {
             console.log(error);
-            return []; // Return empty array if there's an error
+            return [];
         }
     };
 
@@ -77,7 +74,7 @@ const AllgrouosSingle = ({ route }) => {
             ...groups.map(item => ({ ...item, type: 'group' })),
             ...singleTasbeehs.map(item => ({ ...item, type: 'single' })),
         ];
-        setCombinedData(combined);
+        setCombinedData(combined.reverse());
     };
 
     // Delete Group Api Function
@@ -88,13 +85,11 @@ const AllgrouosSingle = ({ route }) => {
             if (response.ok) {
                 const res = await response.text();
                 console.log(res);
-
             }
             else {
                 const res = await response.text();
                 console.log(res);
             }
-
         } catch (error) {
             console.log(error);
         }
@@ -114,21 +109,16 @@ const AllgrouosSingle = ({ route }) => {
                 const res = await response.text();
                 console.log(res);
             }
-
         } catch (error) {
             console.log(error);
         }
     }
 
-
-
     // Render item for FlatList
     const Show = ({ item }) => (
-
         <TouchableOpacity
-
             onLongPress={() => {
-                if (Userid == item.Adminid) {
+                if (Userid == item.Adminid && item.type == 'group' || item.type == 'single') {
                     setselecteditem(item);
                     setShowModal(true);
                 }
@@ -140,12 +130,21 @@ const AllgrouosSingle = ({ route }) => {
                     navigation.navigate('Allsingletasbeeh', { "tasbeehId": item.ID, "Name": item.Title });
                 }
             }}
+            style={styles.cardTouchable}
         >
-            <View style={styles.itemContainer}>
-                <Text style={styles.itemText}>
-                    {item.type === 'group' ? item.Grouptitle : item.Title}
-                </Text>
-
+            <View style={styles.cardContainer}>
+                <View style={styles.cardContent}>
+                    <Ionicons 
+                        name={item.type === 'group' ? 'people' : 'person'} 
+                        size={24} 
+                        color="black" 
+                        style={styles.cardIcon}
+                    />
+                    <Text style={styles.cardTitle}>
+                        {item.type === 'group' ? item.Grouptitle : item.Title}
+                    </Text>
+                </View>
+                <Ionicons name="chevron-forward" size={24} color="#666" />
             </View>
         </TouchableOpacity>
     );
@@ -160,9 +159,10 @@ const AllgrouosSingle = ({ route }) => {
             </View>
 
             <FlatList
-                data={combinedData.reverse()}
+                data={combinedData}
                 renderItem={Show}
-
+                keyExtractor={(item, index) => index.toString()}
+                contentContainerStyle={styles.listContainer}
             />
 
             <TouchableOpacity
@@ -171,27 +171,34 @@ const AllgrouosSingle = ({ route }) => {
             >
                 <Ionicons name="add" size={40} color="white" />
             </TouchableOpacity>
+            
             <Modal transparent visible={showModal} animationType="fade">
                 <TouchableWithoutFeedback onPress={() => setShowModal(false)}>
-                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)', padding: 20 }}>
-                        <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 20, width: '90%', height: '25%' }}>
-                            <Text style={{ fontSize: 24, fontWeight: 'bold', textAlign: 'center', marginBottom: 20, color: 'black' }}>
-                                Do You Want to Delete this {seleteditem?.type === 'group' ? 'Group' : 'Single'}
+                    <View style={styles.modalOverlay}>
+                        <View style={styles.modalContent}>
+                            <Text style={styles.modalTitle}>
+                                Do You Want to Delete this {seleteditem?.type === 'group' ? 'Group' : 'Single'}?
                             </Text>
 
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                            <View style={styles.modalButtons}>
                                 <TouchableOpacity
                                     onPress={() => setShowModal(false)}
-                                    style={{ backgroundColor: colors.tasbeehconatiner, padding: 10, borderRadius: 10, width: '48%' }}>
-                                    <Text style={{ fontSize: 18, color: 'black', textAlign: 'center' }}>Cancel</Text>
+                                    style={styles.cancelButton}>
+                                    <Text style={styles.buttonText}>Cancel</Text>
                                 </TouchableOpacity>
 
-                                <TouchableOpacity onPress={() => { seleteditem.type === 'group' ? Deletegroup(seleteditem.Groupid) : DeleteSingle(seleteditem.ID); setShowModal(false); fetchAndCombineData(); }}
-                                    style={{ backgroundColor: 'red', padding: 10, borderRadius: 10, width: '48%' }}>
-                                    <Text style={{ fontSize: 18, color: 'black', textAlign: 'center' }}>Delete</Text>
+                                <TouchableOpacity 
+                                    onPress={() => { 
+                                        seleteditem.type === 'group' 
+                                            ? Deletegroup(seleteditem.Groupid) 
+                                            : DeleteSingle(seleteditem.ID); 
+                                        setShowModal(false); 
+                                        fetchAndCombineData(); 
+                                    }}
+                                    style={styles.deleteButton}>
+                                    <Text style={styles.buttonText}>Delete</Text>
                                 </TouchableOpacity>
                             </View>
-
                         </View>
                     </View>
                 </TouchableWithoutFeedback>
@@ -206,7 +213,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 20,
-        backgroundColor: '#fff',
+        backgroundColor: '#f5f5f5',
     },
     header: {
         flexDirection: 'row',
@@ -220,27 +227,48 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: 'bold',
     },
-    itemContainer: {
-        alignItems: 'center',
-        padding: 25,
-        marginVertical: 10,
-        borderRadius: 10,
-        backgroundColor: colors.tasbeehconatiner,
+    listContainer: {
+        paddingBottom: 20,
     },
-    itemText: {
+    cardTouchable: {
+        marginVertical: 8,
+        borderRadius: 12,
+        backgroundColor: 'white',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+    cardContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: 20,
+        borderRadius: 12,
+        backgroundColor: "#92A5E3",
+    },
+    cardContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    cardIcon: {
+        marginRight: 15,
+        padding: 10,
+        borderRadius: 10,
+    },
+    cardTitle: {
         fontSize: 18,
         color: 'black',
-        fontWeight: 'bold',
-        paddingLeft: 10,
-
+        fontWeight: '600',
     },
     fab: {
         position: 'absolute',
         bottom: 20,
         right: 20,
-        width: 80,
-        height: 80,
-        borderRadius: 40,
+        width: 60,
+        height: 60,
+        borderRadius: 30,
         backgroundColor: '#1e3a8a',
         alignItems: 'center',
         justifyContent: 'center',
@@ -249,5 +277,47 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.25,
         shadowRadius: 3.5,
+    },
+    modalOverlay: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        padding: 20,
+    },
+    modalContent: {
+        backgroundColor: 'white',
+        padding: 25,
+        borderRadius: 20,
+        width: '90%',
+    },
+    modalTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        textAlign: 'center',
+        marginBottom: 25,
+        color: 'black',
+    },
+    modalButtons: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    cancelButton: {
+        backgroundColor: colors.tasbeehconatiner,
+        padding: 12,
+        borderRadius: 10,
+        width: '48%',
+    },
+    deleteButton: {
+        backgroundColor: 'red',
+        padding: 12,
+        borderRadius: 10,
+        width: '48%',
+    },
+    buttonText: {
+        fontSize: 18,
+        color: 'white',
+        textAlign: 'center',
+        fontWeight: '500',
     },
 });

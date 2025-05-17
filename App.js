@@ -21,8 +21,7 @@ import Notification from './src/Screens/Notification';
 import Singletasbeehdeatiles from './src/Screens/Singletasbeehdeatiles';
 import Allgrouptasbeeh from './src/Screens/Allgrouptasbeeh';
 import Allsingletasbeeh from './src/Screens/Allsingletasbeeh';
-
-
+import Addmemberingroup from './src/Screens/Addmemberingroup';
 
 const App = () => {
   const Stack = createNativeStackNavigator();
@@ -36,12 +35,8 @@ const App = () => {
   global.Singletasbeeh = `http://${ipadd}/DigitalTasbeehWithFriendsApi/api/Sigle/`;
   global.Wazifa = `http://${ipadd}/DigitalTasbeehWithFriendsApi/api/Wazifa/`;
   global.Online = `http://${ipadd}/DigitalTasbeehWithFriendsApi/api/online/`;
- 
-  
-
 
   return (
-
     <NavigationContainer >
       <Stack.Navigator
         initialRouteName="Start"
@@ -68,6 +63,7 @@ const App = () => {
         <Stack.Screen name="Singletasbeehdeatiles" component={Singletasbeehdeatiles} />
         <Stack.Screen name="Allgrouptasbeeh" component={Allgrouptasbeeh} />
         <Stack.Screen name="Allsingletasbeeh" component={Allsingletasbeeh} />
+        <Stack.Screen name="Addmemberingroup" component={Addmemberingroup} />
       </Stack.Navigator>
     </NavigationContainer>
 

@@ -6,12 +6,16 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Modal,
-  TouchableWithoutFeedback
+  TouchableWithoutFeedback,
+  FlatList
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { colors } from '../utiles/colors';
 import Svg, { Circle } from 'react-native-svg';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
 
 const CircularProgress = ({ progress, size = 150, strokeWidth = 10 }) => {
   const radius = (size - strokeWidth) / 2;
@@ -61,7 +65,7 @@ const CircularProgress = ({ progress, size = 150, strokeWidth = 10 }) => {
 const TasbeehGroup = ({ route }) => {
 
   const navigation = useNavigation();
-  const { groupid, Userid, Adminid, tasbeehid, title } = route.params;
+  const { groupid, Userid, Adminid, tasbeehid, title, tid } = route.params;
   const [logmemberdata, setlogmemberdata] = useState(null);
   const [progress, setProgress] = useState(0);
   const [Achived, setachived] = useState(0);
@@ -70,6 +74,9 @@ const TasbeehGroup = ({ route }) => {
   const [isComplete, setIsComplete] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showOptions, setShowOptions] = useState(false);
+  const [tasbeehdeatiles, settasbeehdeatiles] = useState([]);
+  const [completedItems, setCompletedItems] = useState([]);
+  const [itemProgress, setItemProgress] = useState({});
 
 
 
@@ -89,8 +96,19 @@ const TasbeehGroup = ({ route }) => {
       setProgress(progressPercentage);
       setIsComplete(progressPercentage >= 100);
     }
+    console.log("tid", tid, "userid")
+    tasbeehdeatilestdetails();
     Tasbeehincremnet();
   }, [logmemberdata])
+
+
+  useEffect(() => {
+    const initializeProgress = async () => {
+      const savedProgress = await loadProgress();
+      setItemProgress(savedProgress);
+    };
+    initializeProgress();
+  }, []);
 
   const renderProgressShapes = () => {
     const totalShapes = 7;
@@ -112,12 +130,32 @@ const TasbeehGroup = ({ route }) => {
     );
   };
 
+  const STORAGE_KEY = `@TasbeehProgress_${Userid}_${groupid}_${tasbeehid}`;
+
+  const loadProgress = async () => {
+    try {
+      const savedProgress = await AsyncStorage.getItem(STORAGE_KEY);
+      return savedProgress ? JSON.parse(savedProgress) : {};
+    } catch (error) {
+      console.error('Error loading progress:', error);
+      return {};
+    }
+  };
+
+  const saveProgress = async (progressData) => {
+    try {
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(progressData));
+    } catch (error) {
+      console.error('Error saving progress:', error);
+    }
+  };
   const Tasbeehdeatileslogedmember = async () => {
     try {
       const query = `TasbeehProgressLogedMember?userid=${encodeURIComponent(Userid)}&groupid=${encodeURIComponent(groupid)}&tasbeehid=${encodeURIComponent(tasbeehid)}`;
       const response = await fetch(url + query);
       if (response.ok) {
         const result = await response.json();
+        console.log(result);
         setachived(result?.Current || 0);
         setgoal(result?.Goal || 0);
         setlogmemberdata(result);
@@ -149,23 +187,108 @@ const TasbeehGroup = ({ route }) => {
   }
 
   const incrementProgress = async () => {
-    if (isComplete) return;
-
     try {
-      const query = `ReadTasbehandnotificationsend?userid=${encodeURIComponent(Userid)}&groupid=${encodeURIComponent(groupid)}&tasbeehid=${encodeURIComponent(tasbeehid)}`;
-      const response = await fetch(url + query);
-      if (response.ok) {
-        console.log("hello");
-        await Tasbeehdeatileslogedmember();
-        setFilledDots(prev => {
-          if (prev >= 7) return 0;
-          return prev + 1;
-        });
+      // Get current active index (first incomplete item)
+      const activeIndex = tasbeehdeatiles.findIndex((item, index) => {
+        const currentCount = itemProgress[index] || 0;
+        return currentCount < item.Count;
+      });
+
+      if (activeIndex === -1) {
+        // All items completed - reset and increment main counter
+        await handleChainCompletion();
+        return;
       }
+
+      // Update count for current item
+      const updatedProgress = {
+        ...itemProgress,
+        [activeIndex]: (itemProgress[activeIndex] || 0) + 1
+      };
+
+      setItemProgress(updatedProgress);
+      await saveProgress(updatedProgress);
+
+      // Check if item is now complete
+      if (updatedProgress[activeIndex] >= tasbeehdeatiles[activeIndex].Count) {
+        console.log(`Completed ${tasbeehdeatiles[activeIndex].Text}`);
+
+        // Check if this was the last item in the chain
+        const allCompleted = tasbeehdeatiles.every((item, idx) =>
+          (updatedProgress[idx] || 0) >= item.Count
+        );
+
+        if (allCompleted) {
+          await handleChainCompletion();
+        }
+      }
+
+      setFilledDots(prev => (prev >= 7 ? 0 : prev + 1));
     } catch (error) {
       console.log('Error incrementing progress:', error);
     }
   };
+
+  const handleChainCompletion = async () => {
+    try {
+      // Reset all item progress
+      setItemProgress({});
+      await AsyncStorage.removeItem(STORAGE_KEY);
+
+      // Increment main counter
+      const query = `ReadTasbehandnotificationsend?userid=${encodeURIComponent(Userid)}&groupid=${encodeURIComponent(groupid)}&tasbeehid=${encodeURIComponent(tasbeehid)}`;
+      const response = await fetch(url + query);
+
+      if (response.ok) {
+        const result = await response.json();
+        await Tasbeehdeatileslogedmember();
+        Alert.alert("Completed!", "You've completed the entire tasbeeh chain!");
+      }
+    } catch (error) {
+      console.log('Error handling chain completion:', error);
+    }
+  };
+
+
+  const closetasbeeh = async () => {
+    try {
+      const query = `Closetasbeeh?id=${encodeURI(tasbeehid)}`;
+      const responce = await fetch(AssignTasbeh + query);
+      if (responce.ok) {
+        const result = await responce.json();
+        console.log(result);
+        navigation.goBack();
+      }
+      else {
+        const result = await responce.json();
+        console.log(result);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+
+  // Api Function to fetch  tasbeeh deatiles
+  const tasbeehdeatilestdetails = async () => {
+    try {
+
+      const query = `Gettasbeehwazifadeatiles?id=${encodeURIComponent(tid)}`;
+      const response = await fetch(Wazifa + query);
+      if (response.ok) {
+        const data = await response.json();
+        settasbeehdeatiles(data);
+        console.log(data);
+      }
+      else {
+        const ans = await response.text();
+        console.log(ans);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
 
   if (loading) {
     return (
@@ -174,6 +297,17 @@ const TasbeehGroup = ({ route }) => {
         <Text style={styles.loadingText}>Loading Tasbeeh Data...</Text>
       </View>
     );
+  }
+
+  // Add this near your progress display
+  {
+    Object.keys(itemProgress).length > 0 && tasbeehdeatiles.every((item, idx) =>
+      (itemProgress[idx] || 0) >= item.Count
+    ) && (
+      <View style={styles.completionBanner}>
+        <Text style={styles.completionText}>Chain Completed!</Text>
+      </View>
+    )
   }
 
 
@@ -200,15 +334,6 @@ const TasbeehGroup = ({ route }) => {
 
               {/* Dropdown Menu */}
               <View style={styles.dropdownMenu}>
-                <TouchableOpacity
-                  style={styles.dropdownOption}
-                  onPress={() => {
-                    setShowOptions(false);
-                    navigation.navigate("LeaveGroup", { groupid, Userid });
-                  }}
-                >
-                  <Text style={styles.dropdownOptionText}>Leave Tasbeeh</Text>
-                </TouchableOpacity>
 
                 <TouchableOpacity
                   style={styles.dropdownOption}
@@ -217,21 +342,31 @@ const TasbeehGroup = ({ route }) => {
                     navigation.navigate("Deatilesgrouptasbeeh", { groupid, tasbeehid, Userid });
                   }}
                 >
-                  <Text style={styles.dropdownOptionText}>Tasbeeh Progress</Text>
+                  <Text style={styles.dropdownOptionText}>Progress</Text>
                 </TouchableOpacity>
-                {Userid == Adminid && (
+
+                {Userid == Adminid ? (
                   <TouchableOpacity
                     style={styles.dropdownOption}
                     onPress={() => {
                       setShowOptions(false);
-                      navigation.navigate("AddMember", { groupid, Adminid });
+                      closetasbeeh();
+
                     }}
                   >
-                    <Text style={styles.dropdownOptionText}>Add New Member</Text>
+                    <Text style={[styles.dropdownOptionText, { color: 'red' }]}>Close Tasbeeh</Text>
                   </TouchableOpacity>
-                )
+                ) :
+                  <TouchableOpacity
+                    style={styles.dropdownOption}
+                    onPress={() => {
+                      setShowOptions(false);
+                      navigation.navigate("LeaveGroup", { groupid, Userid });
+                    }}
+                  >
+                    <Text style={[styles.dropdownOptionText, { color: 'red' }]}>Leave Tasbeeh</Text>
+                  </TouchableOpacity>
                 }
-
               </View>
             </>
           )}
@@ -249,34 +384,66 @@ const TasbeehGroup = ({ route }) => {
         </View>
       </View>
 
-      <View style={{ padding: 0 }}>
-        <Text style={{ fontSize: 20, color: 'black', fontWeight: 'bold' }}>
-          {logmemberdata?.deadline && (
-            <Text style={{ fontSize: 20, color: 'black', fontWeight: 'bold' }}>
-              DeadLine: {logmemberdata.deadline.split('T')[0]}
-            </Text>
-          )}
-        </Text>
+      <View style={{ padding: 20 }}>
+
+
+        <FlatList
+          data={tasbeehdeatiles}
+          renderItem={({ item, index }) => {
+            const currentCount = itemProgress[index] || 0;
+            const isComplete = currentCount >= item.Count;
+            const isPreviousComplete = index === 0 ||
+              (itemProgress[index - 1] >= tasbeehdeatiles[index - 1].Count);
+            const isChainComplete = tasbeehdeatiles.every((item, idx) =>
+              (itemProgress[idx] || 0) >= item.Count
+            );
+            return (
+              <View style={[
+                styles.card,
+                !isPreviousComplete && styles.disabledCard,
+                isComplete && styles.completedCard,
+                isChainComplete && styles.chainCompletedCard
+              ]}>
+                {/* <Ionicons
+                  name={isComplete ? "checkmark-circle" : "ellipse"}
+                  size={20}
+                  color={isComplete ? colors.primary : (!isPreviousComplete ? '#ccc' : colors.primary)}
+                /> */}
+                 <View style={[
+                    styles.countBadge,
+                    !isPreviousComplete && styles.disabledBadge,
+                    isComplete && styles.completedBadge
+                  ]}>
+                    <Text style={styles.countText}>{currentCount}</Text>
+                  </View>
+                <Text style={[
+                  styles.cardText
+                  // styles.cardText,
+                  // !isPreviousComplete && styles.disabledText,
+                  // isComplete && styles.completedText
+                ]}>
+                  {item.Text}
+                </Text>
+                <View style={styles.progressContainer}>
+                  <Text style={styles.progressText}>
+                    {/* {currentCount}/{item.Count} */}
+                  </Text>
+                  <View style={[
+                    styles.countBadge,
+                    !isPreviousComplete && styles.disabledBadge,
+                    isComplete && styles.completedBadge
+                  ]}>
+                    <Text style={styles.countText}>{item.Count}</Text>
+                  </View>
+                </View>
+              </View>
+            );
+          }}
+          keyExtractor={(item, index) => index.toString()}
+        />
       </View>
 
-      
-           <View style={{ padding: 20, backgroundColor: colors.tasbeehconatiner, borderRadius: 30 }}>
-           <View style={{ alignSelf: 'center' }}>
-             <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 20 }}>
-               {/* {logmemberdata.TasbeehTitle || ''} */}
-             </Text>
-             <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 20 }}>
-               {/* {logmemberdata.TasbeehTitle || 'سُبْحَانَ ٱللَّٰهِ' + "         Count:20/50"} */}
-             </Text>
-             <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 20 }}>
-               {/* {logmemberdata.TasbeehTitle || 'ٱلْحَمْدُ لِلَّٰهِ' + "            Count:00/50"} */}
-             </Text>
-           </View>
-         </View>
-      
-      
 
-   
 
       <View style={styles.fabContainer}>
         <TouchableOpacity
@@ -289,6 +456,7 @@ const TasbeehGroup = ({ route }) => {
           </Text>
         </TouchableOpacity>
       </View>
+
     </View>
   );
 };
@@ -364,7 +532,7 @@ const styles = StyleSheet.create({
   },
   fab: {
     width: "100%",
-    height: 300,
+    height: 200,
     borderRadius: 0,
     backgroundColor: colors.tasbeehconatiner,
     alignItems: 'center',
@@ -414,5 +582,89 @@ const styles = StyleSheet.create({
     bottom: -500,
     backgroundColor: 'transparent',
     zIndex: 98,
+  },
+  bulletIcon: {
+    marginRight: 12,
+    alignSelf: 'center',
+  },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+  },
+  cardText: {
+    fontSize: 16,
+    color: '#333',
+    flex: 1,
+  },
+  countBadge: {
+    backgroundColor: colors.primary,
+    borderRadius: 50,
+    minWidth: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    marginLeft: 5,
+  },
+  countText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  separator: {
+    height: 12,
+  },
+  disabledCard: {
+    opacity: 0.6,
+    backgroundColor: '#f5f5f5',
+  },
+  completedCard: {
+    backgroundColor: '#f0f9ff',
+  },
+  disabledText: {
+    color: '#999',
+  },
+  completedText: {
+    textDecorationLine: 'line-through',
+    color: '#666',
+  },
+  disabledBadge: {
+    backgroundColor: '#ccc',
+  },
+  completedBadge: {
+    backgroundColor: '#4CAF50',
+  },
+  progressContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  progressText: {
+    marginRight: 8,
+    color: '#666',
+    fontSize: 14,
+  },
+  completionBanner: {
+    backgroundColor: '#4CAF50',
+    padding: 10,
+    borderRadius: 8,
+    marginVertical: 10,
+    alignItems: 'center',
+  },
+  completionText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  chainCompletedCard: {
+    borderLeftWidth: 4,
+    borderLeftColor: '#4CAF50',
   },
 });

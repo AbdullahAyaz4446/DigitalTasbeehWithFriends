@@ -15,6 +15,11 @@ import { colors } from "../utiles/colors";
 import * as ImagePicker from "react-native-image-picker";
 
 const SignupScreen = () => {
+
+
+
+
+    {/*Varaiables*/ }
   const navigation = useNavigation();
   const [Email, setEmail] = useState("");
   const [Password, setPassword] = useState("");
@@ -23,6 +28,11 @@ const SignupScreen = () => {
   const [imageURI, setImageURI] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
+
+
+
+
+  {/*SignUp Api Function*/ }
   const Signupuser = async () => {
     if (Password === cpassword) {
       const User = {
@@ -56,6 +66,11 @@ const SignupScreen = () => {
     }
   };
 
+
+
+
+
+
   // const openCamera = () => {
   //   ImagePicker.launchCamera({ mediaType: "photo" }, (response) => {
   //     if (response.assets && response.assets.length > 0) {
@@ -74,6 +89,11 @@ const SignupScreen = () => {
   //   });
   // };
 
+
+
+
+
+  {/*Main View*/ }
   return (
   
       <View style={styles.container}>

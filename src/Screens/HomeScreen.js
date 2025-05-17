@@ -5,14 +5,32 @@ import { useNavigation } from '@react-navigation/native';
 
 
 const HomeScreen = ({ route }) => {
+
+
+
+
+
+
   {/* Varaible */ }
   const navigation = useNavigation();
   const { Userdata } = route.params;
   // const [image, setimage] = useState(Imageurl + Userdata.Image);
 
+
+
+
+
+  {/* Show image when screen  load useeffect */ }
   // useEffect(() => {
   //   setimage(Imageurl + Userdata.Image);
   // }, [Userdata])
+
+
+
+
+
+
+  {/* Main View */ }
   return (
     <View style={styles.container}>
 
@@ -31,8 +49,6 @@ const HomeScreen = ({ route }) => {
           />
 
         </TouchableOpacity> */}
-
-
         <Text style={styles.headerTitle}>Home</Text>
       </View>
       <View>
