@@ -52,7 +52,7 @@ const Allsingletasbeeh = ({ route }) => {
                     disabled={item.Flag === 1 || item.Flag === 2}
                     onPress={() => {
                                     navigation.navigate("Singletasbeeh", {
-                                        "tasbeehId": tasbeehId, "Name": Name, "tid": item.ID
+                                        "tasbeehId": tasbeehId, "Name": Name, "astid": item.ID,"tid":item.tid
                                     })
                                 }}
                  

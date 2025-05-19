@@ -728,7 +728,7 @@ const Notification = ({ route }) => {
             <Modal transparent visible={showModal} animationType="fade">
                 <View style={styles.modalOverlay}>
                     <View style={styles.confirmationCard}>
-                        <Text style={styles.confirmationTitle}>Confirm Action</Text>
+                        <Text style={styles.confirmationTitle}>Confirm Alert</Text>
                         <Text style={styles.confirmationText}>Do you want to delete this group?</Text>
                         
                         <View style={styles.confirmationButtons}>

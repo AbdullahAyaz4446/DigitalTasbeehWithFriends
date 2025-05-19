@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native'
+import { StyleSheet, Text, TouchableOpacity, View, Image, ScrollView } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { colors } from '../utiles/colors'
 import { useNavigation } from '@react-navigation/native';
@@ -51,7 +51,7 @@ const HomeScreen = ({ route }) => {
         </TouchableOpacity> */}
         <Text style={styles.headerTitle}>Home</Text>
       </View>
-      <View>
+      <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.dashboard}>
           <View>
             <TouchableOpacity onPress={() => navigation.navigate('Alltasbeeh', {
@@ -119,7 +119,7 @@ const HomeScreen = ({ route }) => {
           </View>
         </View>
 
-      </View>
+      </ScrollView>
 
     </View>
   )

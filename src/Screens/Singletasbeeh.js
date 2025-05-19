@@ -5,13 +5,14 @@ import {
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
-  TouchableWithoutFeedback
+  TouchableWithoutFeedback,
+  FlatList
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { colors } from '../utiles/colors';
 import Svg, { Circle } from 'react-native-svg';
-import { red100 } from 'react-native-paper/lib/typescript/styles/themes/v2/colors';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const CircularProgress = ({ progress, size = 150, strokeWidth = 10 }) => {
   const radius = (size - strokeWidth) / 2;
@@ -60,7 +61,7 @@ const CircularProgress = ({ progress, size = 150, strokeWidth = 10 }) => {
 
 const TasbeehGroup = ({ route }) => {
   const navigation = useNavigation();
-  const { tasbeehId, Name, tid } = route.params;
+  const { tasbeehId, Name, astid, tid } = route.params;
   const [logmemberdata, setlogmemberdata] = useState(null);
   const [progress, setProgress] = useState(0);
   const [Achived, setachived] = useState(0);
@@ -69,6 +70,8 @@ const TasbeehGroup = ({ route }) => {
   const [isComplete, setIsComplete] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [showOptions, setShowOptions] = useState(false);
+  const [tasbeehdeatiles, settasbeehdeatiles] = useState([]);
+  const [itemProgress, setItemProgress] = useState({});
 
 
 
@@ -90,14 +93,64 @@ const TasbeehGroup = ({ route }) => {
       setIsComplete(progressPercentage >= 100);
       setIsLoading(false);
     }
+    tasbeehdeatilestdetails();
   }, [logmemberdata]);
+
+
+    useEffect(() => {
+      const initializeProgress = async () => {
+        const savedProgress = await loadProgress();
+        setItemProgress(savedProgress);
+      };
+      initializeProgress();
+    }, []);
+
+
+  const STORAGE_KEY = `@TasbeehProgress_${tasbeehId}_${astid}_${tid}`;
+
+  const loadProgress = async () => {
+    try {
+      const savedProgress = await AsyncStorage.getItem(STORAGE_KEY);
+      return savedProgress ? JSON.parse(savedProgress) : {};
+    } catch (error) {
+      console.error('Error loading progress:', error);
+      return {};
+    }
+  };
+
+  const saveProgress = async (progressData) => {
+    try {
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(progressData));
+    } catch (error) {
+      console.error('Error saving progress:', error);
+    }
+  };
+
+  // Api Function to fetch  tasbeeh deatiles
+  const tasbeehdeatilestdetails = async () => {
+    try {
+      const query = `Gettasbeehwazifadeatiles?id=${encodeURIComponent(tid)}`;
+      const response = await fetch(Wazifa + query);
+      if (response.ok) {
+        const data = await response.json();
+        settasbeehdeatiles(data);
+        console.log(data);
+      }
+      else {
+        const ans = await response.text();
+        console.log(ans);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
 
   {/* Api Functions*/ }
   const Singletasbeehprogress = async () => {
     try {
 
-      const query = `Getsingletasbeehdata?id=${encodeURI(tasbeehId)}&tasbeehid=${encodeURI(tid)}`
+      const query = `Getsingletasbeehdata?id=${encodeURI(tasbeehId)}&tasbeehid=${encodeURI(astid)}`
       const response = await fetch(Singletasbeeh + query);
       if (response.ok) {
         const result = await response.json();
@@ -118,38 +171,102 @@ const TasbeehGroup = ({ route }) => {
     }
   }
 
-  const incrementProgress = async () => {
-    try {
-      const query = `Readsingletasbeeh?id=${encodeURI(tasbeehId)}&tasbeehid=${encodeURI(tid)}`
-      const response = await fetch(Singletasbeeh + query);
-      if (response.ok) {
-        const result = await response.json();
-        await Singletasbeehprogress();
-        setFilledDots(prev => {
-          if (prev >= 7) return 0;
-          return prev + 1;
-        });
-      }
-      else {
-        const result = await response.json();
-        console.log(result);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }
+  // const incrementProgress = async () => {
+  //   try {
+      // const query = `Readsingletasbeeh?id=${encodeURI(tasbeehId)}&tasbeehid=${encodeURI(astid)}`
+      // const response = await fetch(Singletasbeeh + query);
+  //     if (response.ok) {
+  //       const result = await response.json();
+  //       await Singletasbeehprogress();
+  //       setFilledDots(prev => {
+  //         if (prev >= 7) return 0;
+  //         return prev + 1;
+  //       });
+  //     }
+  //     else {
+  //       const result = await response.json();
+  //       console.log(result);
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // }
 
-  const closetasbeeh=async()=>{
+    const incrementProgress = async () => {
+      try {
+        // Get current active index (first incomplete item)
+        const activeIndex = tasbeehdeatiles.findIndex((item, index) => {
+          const currentCount = itemProgress[index] || 0;
+          return currentCount < item.Count;
+        });
+  
+        if (activeIndex === -1) {
+          // All items completed - reset and increment main counter
+          await handleChainCompletion();
+          return;
+        }
+  
+        // Update count for current item
+        const updatedProgress = {
+          ...itemProgress,
+          [activeIndex]: (itemProgress[activeIndex] || 0) + 1
+        };
+  
+        setItemProgress(updatedProgress);
+        await saveProgress(updatedProgress);
+  
+        // Check if item is now complete
+        if (updatedProgress[activeIndex] >= tasbeehdeatiles[activeIndex].Count) {
+          console.log(`Completed ${tasbeehdeatiles[activeIndex].Text}`);
+  
+          // Check if this was the last item in the chain
+          const allCompleted = tasbeehdeatiles.every((item, idx) =>
+            (updatedProgress[idx] || 0) >= item.Count
+          );
+  
+          if (allCompleted) {
+            await handleChainCompletion();
+          }
+        }
+  
+        setFilledDots(prev => (prev >= 7 ? 0 : prev + 1));
+      } catch (error) {
+        console.log('Error incrementing progress:', error);
+      }
+    };
+
+
+    const handleChainCompletion = async () => {
+      try {
+        // Reset all item progress
+        setItemProgress({});
+        await AsyncStorage.removeItem(STORAGE_KEY);
+  
+        // Increment main counter
+        const query = `Readsingletasbeeh?id=${encodeURI(tasbeehId)}&tasbeehid=${encodeURI(astid)}`
+        const response = await fetch(Singletasbeeh + query);
+  
+        if (response.ok) {
+          const result = await response.json();
+                await Singletasbeehprogress();
+  
+        }
+      } catch (error) {
+        console.log('Error handling chain completion:', error);
+      }
+    };
+
+  const closetasbeeh = async () => {
     try {
-      const query=`Closetasbeeh?id=${encodeURI(tid)}`;
-      const responce=await fetch(Singletasbeeh+query);
-      if(responce.ok){
-        const result=await responce.json();
+      const query = `Closetasbeeh?id=${encodeURI(astid)}`;
+      const responce = await fetch(Singletasbeeh + query);
+      if (responce.ok) {
+        const result = await responce.json();
         console.log(result);
         navigation.goBack();
       }
-      else{
-        const result=await responce.json();
+      else {
+        const result = await responce.json();
         console.log(result);
       }
     } catch (error) {
@@ -235,19 +352,68 @@ const TasbeehGroup = ({ route }) => {
       </View>
 
 
-      <View style={{ padding: 20, backgroundColor: colors.tasbeehconatiner, borderRadius: 30 }}>
-        <View style={{ alignSelf: 'center' }}>
-          <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 20 }}>
-            {logmemberdata.TasbeehTitle || ''}
-          </Text>
-          <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 20 }}>
-            {logmemberdata.TasbeehTitle || 'سُبْحَانَ ٱللَّٰهِ' + "         Count:20/50"}
-          </Text>
-          <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 20 }}>
-            {logmemberdata.TasbeehTitle || 'ٱلْحَمْدُ لِلَّٰهِ' + "            Count:00/50"}
-          </Text>
-        </View>
+      <View style={{ padding: 20, height: 350 }}>
+
+
+        <FlatList
+          data={tasbeehdeatiles}
+          renderItem={({ item, index }) => {
+            const currentCount = itemProgress[index] || 0;
+            const isComplete = currentCount >= item.Count;
+            const isPreviousComplete = index === 0 ||
+              (itemProgress[index - 1] >= tasbeehdeatiles[index - 1].Count);
+            const isChainComplete = tasbeehdeatiles.every((item, idx) =>
+              (itemProgress[idx] || 0) >= item.Count
+            );
+            return (
+              <View style={[
+                styles.card,
+                !isPreviousComplete && styles.disabledCard,
+                isComplete && styles.completedCard,
+                isChainComplete && styles.chainCompletedCard
+              ]}>
+                {/* <Ionicons
+                  name={isComplete ? "checkmark-circle" : "ellipse"}
+                  size={20}
+                  color={isComplete ? colors.primary : (!isPreviousComplete ? '#ccc' : colors.primary)}
+                /> */}
+                <View style={[
+                  styles.countBadge,
+                  !isPreviousComplete && styles.disabledBadge,
+                  isComplete && styles.completedBadge
+                ]}>
+                  <Text style={styles.countText}>{currentCount}</Text>
+                </View>
+                <Text style={[
+                  styles.cardText
+                  // styles.cardText,
+                  // !isPreviousComplete && styles.disabledText,
+                  // isComplete && styles.completedText
+                ]}>
+                  {item.Text}
+                </Text>
+                <View style={styles.progressContainer}>
+                  <Text style={styles.progressText}>
+                    {/* {currentCount}/{item.Count} */}
+                  </Text>
+                  <View style={[
+                    styles.countBadge,
+                    !isPreviousComplete && styles.disabledBadge,
+                    isComplete && styles.completedBadge
+                  ]}>
+                    <Text style={styles.countText}>{item.Count}</Text>
+                  </View>
+                </View>
+              </View>
+            );
+          }}
+          keyExtractor={(item, index) => index.toString()}
+        />
       </View>
+
+
+
+   
 
       <View style={styles.fabContainer}>
         <TouchableOpacity
@@ -280,19 +446,7 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 20,
     fontSize: 18,
-    color: 'black',
-  },
-  noTasbeehContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  noTasbeehText: {
-    fontSize: 20,
-    color: 'black',
-    fontWeight: 'bold',
-    textAlign: 'center',
-    padding: 20,
+    color: colors.primary,
   },
   header: {
     flexDirection: 'row',
@@ -320,10 +474,20 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: 'black',
   },
-  progressLabel: {
-    fontSize: 16,
-    color: 'gray',
-    marginTop: 5,
+  shapesContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
+    marginBottom: 10,
+  },
+  shape: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    marginHorizontal: 5,
+    borderWidth: 1,
+    borderColor: '#ccc',
   },
   fabContainer: {
     position: 'absolute',
@@ -349,47 +513,6 @@ const styles = StyleSheet.create({
   },
   disabledFab: {
     backgroundColor: '#cccccc',
-  },
-  leaveButton: {
-    position: 'absolute',
-    bottom: 250,
-    left: 20,
-    backgroundColor: 'red',
-    paddingVertical: 10,
-    paddingHorizontal: 30,
-    borderTopRightRadius: 20,
-  },
-  leaveText: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  shapesContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 20,
-    marginBottom: 10,
-  },
-  shape: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    marginHorizontal: 5,
-    borderWidth: 1,
-    borderColor: '#ccc',
-  },
-  completionContainer: {
-    padding: 10,
-    backgroundColor: colors.primary,
-    borderRadius: 20,
-    marginVertical: 10,
-    alignItems: 'center',
-  },
-  completionText: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 18,
   },
   optionsWrapper: {
     position: 'relative',
@@ -425,6 +548,91 @@ const styles = StyleSheet.create({
     bottom: -500,
     backgroundColor: 'transparent',
     zIndex: 98,
+  },
+  bulletIcon: {
+    marginRight: 12,
+    alignSelf: 'center',
+  },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+
+  },
+  cardText: {
+    fontSize: 16,
+    color: '#333',
+    flex: 1,
+  },
+  countBadge: {
+    backgroundColor: colors.primary,
+    borderRadius: 50,
+    minWidth: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    marginLeft: 5,
+  },
+  countText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  separator: {
+    height: 12,
+  },
+  disabledCard: {
+    opacity: 0.6,
+    backgroundColor: '#f5f5f5',
+  },
+  completedCard: {
+    backgroundColor: '#f0f9ff',
+  },
+  disabledText: {
+    color: '#999',
+  },
+  completedText: {
+    textDecorationLine: 'line-through',
+    color: '#666',
+  },
+  disabledBadge: {
+    backgroundColor: '#ccc',
+  },
+  completedBadge: {
+    backgroundColor: '#4CAF50',
+  },
+  progressContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  progressText: {
+    marginRight: 8,
+    color: '#666',
+    fontSize: 14,
+  },
+  completionBanner: {
+    backgroundColor: '#4CAF50',
+    padding: 10,
+    borderRadius: 8,
+    marginVertical: 10,
+    alignItems: 'center',
+  },
+  completionText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  chainCompletedCard: {
+    borderLeftWidth: 4,
+    borderLeftColor: '#4CAF50',
   },
 });
 

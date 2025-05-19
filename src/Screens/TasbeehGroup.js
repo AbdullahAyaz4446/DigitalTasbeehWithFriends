@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -75,15 +75,17 @@ const TasbeehGroup = ({ route }) => {
   const [loading, setLoading] = useState(true);
   const [showOptions, setShowOptions] = useState(false);
   const [tasbeehdeatiles, settasbeehdeatiles] = useState([]);
-  const [completedItems, setCompletedItems] = useState([]);
   const [itemProgress, setItemProgress] = useState({});
-
+  const flatListRef = useRef(null);
 
 
   const toggleOptions = () => {
     setShowOptions(!showOptions);
   }
 
+  const scrollToTop = () => {
+    flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
+  };
   useFocusEffect(
     React.useCallback(() => {
       Tasbeehdeatileslogedmember();
@@ -108,6 +110,7 @@ const TasbeehGroup = ({ route }) => {
       setItemProgress(savedProgress);
     };
     initializeProgress();
+    scrollToTop();
   }, []);
 
   const renderProgressShapes = () => {
@@ -212,7 +215,7 @@ const TasbeehGroup = ({ route }) => {
       // Check if item is now complete
       if (updatedProgress[activeIndex] >= tasbeehdeatiles[activeIndex].Count) {
         console.log(`Completed ${tasbeehdeatiles[activeIndex].Text}`);
-
+        scrollToTop();
         // Check if this was the last item in the chain
         const allCompleted = tasbeehdeatiles.every((item, idx) =>
           (updatedProgress[idx] || 0) >= item.Count
@@ -229,6 +232,58 @@ const TasbeehGroup = ({ route }) => {
     }
   };
 
+
+
+
+
+  // const incrementProgress = async () => {
+  //   try {
+  //     // Get current active index
+  //     const activeIndex = tasbeehdeatiles.findIndex((item, index) => {
+  //       const currentCount = itemProgress[index] || 0;
+  //       return currentCount < item.Count;
+  //     });
+
+  //     if (activeIndex === -1) {
+  //       await handleChainCompletion();
+  //       return;
+  //     }
+
+  //     // Update count for current item
+  //     const updatedProgress = {
+  //       ...itemProgress,
+  //       [activeIndex]: (itemProgress[activeIndex] || 0) + 1
+  //     };
+
+  //     setItemProgress(updatedProgress);
+  //     await saveProgress(updatedProgress);
+
+  //     // Check if item is now complete
+  //     if (updatedProgress[activeIndex] >= tasbeehdeatiles[activeIndex].Count) {
+  //       // Smooth scroll to next item or top if last item
+  //       const nextIndex = activeIndex + 1;
+  //       if (nextIndex < tasbeehdeatiles.length) {
+  //         flatListRef.current?.scrollToIndex({
+  //           index: nextIndex,
+  //           animated: true,
+  //           viewPosition: 0.5 // Scroll to middle of screen
+  //         });
+  //       } else {
+  //         // Only scroll to top if we're not at the beginning
+  //         flatListRef.current?.scrollToOffset({
+  //           offset: 0,
+  //           animated: true
+  //         });
+  //       }
+  //     }
+
+  //     setFilledDots(prev => (prev >= 7 ? 0 : prev + 1));
+  //   } catch (error) {
+  //     console.log('Error incrementing progress:', error);
+  //   }
+  // };
+
+
   const handleChainCompletion = async () => {
     try {
       // Reset all item progress
@@ -242,7 +297,7 @@ const TasbeehGroup = ({ route }) => {
       if (response.ok) {
         const result = await response.json();
         await Tasbeehdeatileslogedmember();
-        Alert.alert("Completed!", "You've completed the entire tasbeeh chain!");
+
       }
     } catch (error) {
       console.log('Error handling chain completion:', error);
@@ -272,7 +327,6 @@ const TasbeehGroup = ({ route }) => {
   // Api Function to fetch  tasbeeh deatiles
   const tasbeehdeatilestdetails = async () => {
     try {
-
       const query = `Gettasbeehwazifadeatiles?id=${encodeURIComponent(tid)}`;
       const response = await fetch(Wazifa + query);
       if (response.ok) {
@@ -298,19 +352,6 @@ const TasbeehGroup = ({ route }) => {
       </View>
     );
   }
-
-  // Add this near your progress display
-  {
-    Object.keys(itemProgress).length > 0 && tasbeehdeatiles.every((item, idx) =>
-      (itemProgress[idx] || 0) >= item.Count
-    ) && (
-      <View style={styles.completionBanner}>
-        <Text style={styles.completionText}>Chain Completed!</Text>
-      </View>
-    )
-  }
-
-
 
   return (
     <View style={styles.container}>
@@ -384,10 +425,11 @@ const TasbeehGroup = ({ route }) => {
         </View>
       </View>
 
-      <View style={{ padding: 20,height:350 }}>
+      <View style={{ padding: 20, height: 350 }}>
 
 
         <FlatList
+          ref={flatListRef}
           data={tasbeehdeatiles}
           renderItem={({ item, index }) => {
             const currentCount = itemProgress[index] || 0;
@@ -404,23 +446,16 @@ const TasbeehGroup = ({ route }) => {
                 isComplete && styles.completedCard,
                 isChainComplete && styles.chainCompletedCard
               ]}>
-                {/* <Ionicons
-                  name={isComplete ? "checkmark-circle" : "ellipse"}
-                  size={20}
-                  color={isComplete ? colors.primary : (!isPreviousComplete ? '#ccc' : colors.primary)}
-                /> */}
-                 <View style={[
-                    styles.countBadge,
-                    !isPreviousComplete && styles.disabledBadge,
-                    isComplete && styles.completedBadge
-                  ]}>
-                    <Text style={styles.countText}>{currentCount}</Text>
-                  </View>
+                
+                <View style={[
+                  styles.countBadge,
+                  !isPreviousComplete && styles.disabledBadge,
+                  isComplete && styles.completedBadge
+                ]}>
+                  <Text style={styles.countText}>{currentCount}</Text>
+                </View>
                 <Text style={[
                   styles.cardText
-                  // styles.cardText,
-                  // !isPreviousComplete && styles.disabledText,
-                  // isComplete && styles.completedText
                 ]}>
                   {item.Text}
                 </Text>
@@ -440,9 +475,14 @@ const TasbeehGroup = ({ route }) => {
             );
           }}
           keyExtractor={(item, index) => index.toString()}
+          // contentContainerStyle={{ paddingBottom: 300 }} // Add space for FAB
+          // showsVerticalScrollIndicator={false}
+          // maintainVisibleContentPosition={{
+          //   minIndexForVisible: 0,
+          //   autoscrollToTopThreshold: 30,
+          // }}
         />
       </View>
-
 
 
       <View style={styles.fabContainer}>
@@ -456,6 +496,8 @@ const TasbeehGroup = ({ route }) => {
           </Text>
         </TouchableOpacity>
       </View>
+
+      
 
     </View>
   );
@@ -599,7 +641,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
     shadowRadius: 2,
-    
+
   },
   cardText: {
     fontSize: 16,
@@ -667,5 +709,5 @@ const styles = StyleSheet.create({
   chainCompletedCard: {
     borderLeftWidth: 4,
     borderLeftColor: '#4CAF50',
-  },
+  }
 });

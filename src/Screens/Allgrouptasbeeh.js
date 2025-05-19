@@ -4,16 +4,21 @@ import {
     Text,
     StyleSheet,
     TouchableOpacity,
-    FlatList
+    FlatList,
+    Modal
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { colors } from '../utiles/colors';
+import CalendarPicker from 'react-native-calendar-picker';
 
 const Allgrouptasbeeh = ({ route }) => {
     const navigation = useNavigation();
     const { groupid, title, Userid, Adminid } = route.params;
     const [logdata, setlogdata] = useState([]);
+    const [showModal, setShowModal] = useState(false);
+    const[deadline,setdeadline]=useState();
+
 
     const Tasbeehlogs = async () => {
         try {
@@ -33,7 +38,7 @@ const Allgrouptasbeeh = ({ route }) => {
         }
     };
 
-   const  reopentasbeeh= async (id) => {
+    const reopentasbeeh = async (id) => {
         try {
             const query = `Opentasbeeh?id=${encodeURI(id)}`;
             const responce = await fetch(AssignTasbeh + query);
@@ -52,6 +57,16 @@ const Allgrouptasbeeh = ({ route }) => {
     };
 
 
+     // handle date time
+     const handleDateChange = (date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const formattedDate = `${year}/${month}/${day}`;
+        setdeadline(formattedDate);
+    };
+
+
 
     useEffect(() => {
         Tasbeehlogs();
@@ -66,11 +81,11 @@ const Allgrouptasbeeh = ({ route }) => {
     const Show = ({ item }) => (
         // (item.Flag==1&&Adminid!=Userid||item.Flag==2&&Adminid!=Userid)&&( 
         // )
-            <TouchableOpacity
+        <TouchableOpacity
             disabled={item.Flag === 1 || item.Flag === 2}
             onPress={() => {
                 navigation.navigate("TasbeehGroup", {
-                    "groupid": groupid, "Userid": Userid, "Adminid": Adminid, "tasbeehid": item.id, "title": title,"tid":item.tid
+                    "groupid": groupid, "Userid": Userid, "Adminid": Adminid, "tasbeehid": item.id, "title": title, "tid": item.tid
                 })
             }}
             style={styles.cardContainer}
@@ -91,7 +106,7 @@ const Allgrouptasbeeh = ({ route }) => {
                         </View>
                     )}
                 </View>
-                
+
                 <View style={styles.cardBody}>
                     <View style={styles.progressContainer}>
                         <View style={styles.progressInfo}>
@@ -107,7 +122,7 @@ const Allgrouptasbeeh = ({ route }) => {
                             <Text style={styles.progressValue}>{item.Goal - item.Achieved}</Text>
                         </View>
                     </View>
-                    
+
                     {item?.deadline && (
                         <View style={styles.deadlineContainer}>
                             <Ionicons name="calendar" size={16} color="#666" />
@@ -116,21 +131,23 @@ const Allgrouptasbeeh = ({ route }) => {
                             </Text>
                         </View>
                     )}
-                </View> 
-                
+                </View>
+
                 {(item.Flag != 0 && Adminid == Userid) &&
                     <View style={styles.buttonContainer}>
-                        <TouchableOpacity 
+                        <TouchableOpacity
                             style={[
                                 styles.button,
                                 item.Flag == 1 ? styles.reopenButton : styles.reactivateButton
                             ]}
-                            onPress={()=>{
-                                item.Flag===1?
-                                reopentasbeeh(item.id)
-                                :
-                                console.log("reactive is")
-
+                            onPress={() => {
+                                item.Flag === 1 ?
+                                    reopentasbeeh(item.id)
+                                    :
+                                    item.deadline?
+                                    setShowModal(true)
+                                    :
+                                    console.log("calling")
                             }}
                         >
                             <Text style={styles.buttonText}>
@@ -155,7 +172,6 @@ const Allgrouptasbeeh = ({ route }) => {
                 {Userid == Adminid && (
                     <TouchableOpacity
                         onPress={() => {
-                          
                             navigation.navigate("Addmemberingroup", { groupid, Adminid });
                         }}
                     >
@@ -174,6 +190,38 @@ const Allgrouptasbeeh = ({ route }) => {
                     </View>
                 }
             />
+
+            {/* Delete Confirmation Modal */}
+            <Modal transparent visible={showModal} animationType="fade">
+                <View style={styles.modalOverlay}>
+                    <View style={styles.confirmationCard}>
+                        <Text style={styles.confirmationTitle}>Select new Deadline</Text>
+                        <View style={styles.calendarContainer}>
+                            <View style={styles.calendarWrapper}>
+                                <CalendarPicker
+                                    onDateChange={(date) => handleDateChange(date)}
+                                    minDate={new Date()}
+                                    previousComponent={null}
+                                />
+                            </View>
+                        </View>
+                        <View style={styles.confirmationButtons}>
+                            <TouchableOpacity
+                                onPress={() => setShowModal(false)}
+                                style={[styles.confirmationButton, styles.cancelButton]}
+                            >
+                                <Text style={styles.confirmationButtonText}>Cancel</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={[styles.confirmationButton, styles.deleteButton]}
+                            >
+                                <Text style={styles.confirmationButtonText}>Submit</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
         </View>
     );
 };
@@ -295,6 +343,63 @@ const styles = StyleSheet.create({
     reactivateButton: {
         backgroundColor: '#51cf66',
     },
+    // Confirmation Modal
+    confirmationCard: {
+        backgroundColor: 'white',
+        borderRadius: 16,
+        width: '90%',
+        padding: 20,
+    },
+    confirmationTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#333',
+        textAlign: 'center',
+        marginBottom: 8,
+    },
+    confirmationText: {
+        fontSize: 16,
+        color: '#555',
+        textAlign: 'center',
+        marginBottom: 24,
+    },
+    confirmationButtons: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    confirmationButton: {
+        flex: 1,
+        paddingVertical: 12,
+        borderRadius: 8,
+        alignItems: 'center',
+    },
+    cancelButton: {
+        backgroundColor: '#e0e0e0',
+        marginRight: 8,
+    },
+    deleteButton: {
+        backgroundColor: '#51cf66',
+        marginLeft: 8,
+    },
+    confirmationButtonText: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: 'white',
+    },
+    modalOverlay: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0,0,0,0.5)',
+    },
+    calendarContainer: {
+        width: '100%',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    calendarWrapper: {
+        transform: [{ scale: 0.9 }],
+    }
 });
 
 export default Allgrouptasbeeh;
