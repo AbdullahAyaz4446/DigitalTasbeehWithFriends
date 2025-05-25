@@ -66,14 +66,8 @@ const App = () => {
         <Stack.Screen name="Addmemberingroup" component={Addmemberingroup} />
       </Stack.Navigator>
     </NavigationContainer>
-
   );
 }
 
 export default App;
-{/* <Stack.Screen name="Home">
-{(props) => (
-  <OnlineProvider userId={props.route.params?.userId}>
-    <HomeScreen {...props} />
-  </OnlineProvider>
-)} */}
+

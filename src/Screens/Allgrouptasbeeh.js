@@ -18,6 +18,7 @@ const Allgrouptasbeeh = ({ route }) => {
     const [logdata, setlogdata] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const[deadline,setdeadline]=useState();
+    const today = new Date();
 
 
     const Tasbeehlogs = async () => {
@@ -57,6 +58,25 @@ const Allgrouptasbeeh = ({ route }) => {
     };
 
 
+    // reactivation tasbeeh api function
+    const reactivateTasbeeh = async (id) => {
+        try {
+            const query = `Reactivecompetetasbeeh?id=${encodeURIComponent(id)}&enndate=${encodeURIComponent(deadline)}`;
+            const response = await fetch(AssignTasbeh + query);
+            if (response.ok) {
+                const result = await response.json();
+                console.log(result);
+                setShowModal(false);
+                await Tasbeehlogs();
+            } else {
+                const result = await response.text();
+                console.log(result);
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
      // handle date time
      const handleDateChange = (date) => {
         const year = date.getFullYear();
@@ -65,8 +85,6 @@ const Allgrouptasbeeh = ({ route }) => {
         const formattedDate = `${year}/${month}/${day}`;
         setdeadline(formattedDate);
     };
-
-
 
     useEffect(() => {
         Tasbeehlogs();
@@ -144,10 +162,11 @@ const Allgrouptasbeeh = ({ route }) => {
                                 item.Flag === 1 ?
                                     reopentasbeeh(item.id)
                                     :
-                                    item.deadline?
+                                    item.deadline==today?
                                     setShowModal(true)
                                     :
-                                    console.log("calling")
+                                    reactivateTasbeeh(item.id)
+                                    console.log("calling");
                             }}
                         >
                             <Text style={styles.buttonText}>
