@@ -77,6 +77,7 @@ const TasbeehGroup = ({ route }) => {
   const [tasbeehdeatiles, settasbeehdeatiles] = useState([]);
   const [itemProgress, setItemProgress] = useState({});
   const flatListRef = useRef(null);
+  const [groupusertasbeehdeatilesid,setgroupusertasbeehdeatilesid] = useState();
 
 
   const toggleOptions = () => {
@@ -162,6 +163,7 @@ const TasbeehGroup = ({ route }) => {
         setachived(result?.Current || 0);
         setgoal(result?.Goal || 0);
         setlogmemberdata(result);
+        console.log("groupusertasbeehdeatilesid",result?.groupusertasbeehdeatilesid);
       } else {
         setlogmemberdata(null);
       }

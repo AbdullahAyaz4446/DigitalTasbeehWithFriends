@@ -166,7 +166,7 @@ const Allgrouptasbeeh = ({ route }) => {
                                     setShowModal(true)
                                     :
                                     reactivateTasbeeh(item.id)
-                                    console.log("calling");
+                                   
                             }}
                         >
                             <Text style={styles.buttonText}>
