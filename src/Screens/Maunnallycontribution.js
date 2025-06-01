@@ -138,6 +138,9 @@ const Maunnallycontribution = ({ route }) => {
                 <View>
                     <Text style={[styles.headerTitle, { flex: 0 }]}>Group Members:{data.length}</Text>
                 </View>
+                <View>
+                    <Text style={[styles.headerTitle, { flex: 0 }]}>Count:{Goal}</Text>
+                </View>
                 <View style={{ marginTop: 20 }}>
                     <Text style={[styles.headerTitle, { flex: 0 }]}>Group Members Details</Text>
                 </View>

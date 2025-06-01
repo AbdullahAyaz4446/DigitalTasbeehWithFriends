@@ -14,7 +14,7 @@ import { useNavigation } from '@react-navigation/native';
 import { colors } from '../utiles/colors';
 import { SelectList } from 'react-native-dropdown-select-list';
 import { Checkbox } from 'react-native-paper';
-import { OnlineContext } from './OnlineContext';
+
 
 const CreateGroupSingle = ({ route }) => {
     const navigation = useNavigation();

@@ -44,6 +44,7 @@ const AssignTasbeeh = ({ route }) => {
                 "Tasbeeh_id": tasbeehid.substring(2),
                 "Goal": count,
                 "End_date": deadline
+
             });
 
         }

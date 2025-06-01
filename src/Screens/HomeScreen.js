@@ -81,10 +81,16 @@ const HomeScreen = ({ route }) => {
           </View>
           <View>
             <TouchableOpacity style={styles.dashboardbutton}>
+              <Image source={require('../Assests/History.png')} style={styles.logo} />
+            </TouchableOpacity>
+            <Text style={styles.dashboradtest}>History</Text>
+          </View>
+          {/* <View>
+            <TouchableOpacity style={styles.dashboardbutton}>
               <Image source={require('../Assests/Activeunactive.png')} style={styles.logo} />
             </TouchableOpacity>
             <Text style={styles.dashboradtest}>Active/Unactive</Text>
-          </View>
+          </View> */}
         </View>
         <View style={styles.dashboard}>
           <View>
@@ -105,12 +111,12 @@ const HomeScreen = ({ route }) => {
           </View>
         </View>
         <View style={styles.dashboard}>
-          <View>
+          {/* <View>
             <TouchableOpacity style={styles.dashboardbutton}>
               <Image source={require('../Assests/History.png')} style={styles.logo} />
             </TouchableOpacity>
             <Text style={styles.dashboradtest}>History</Text>
-          </View>
+          </View> */}
           <View>
             <TouchableOpacity onPress={() => navigation.navigate('Start')} style={styles.dashboardbutton}>
               <Image source={require('../Assests/Logout.png')} style={styles.logo} />
