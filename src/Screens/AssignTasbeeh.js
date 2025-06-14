@@ -26,11 +26,23 @@ const AssignTasbeeh = ({ route }) => {
     const [groups, setGroups] = useState([]); // Only for groups
     const [single, setsingle] = useState([]); // Only for single tasbeeh
     const [combinedData, setCombinedData] = useState([]); // Combined when needed
+    const [day, setday] = useState('');
+   
 
 
     const selectiontype = [
         { key: '1', value: 'Equally' },
         { key: '2', value: 'Mannully' },
+    ];
+
+    const days = [
+        { key: '0', value: 'Sunday' },
+        { key: '1', value: 'Monday' },
+        { key: '2', value: 'Tuesday' },
+        { key: '3', value: 'Wednesday' },
+        { key: '4', value: 'Thusday' },
+        { key: '5', value: 'Friday' },
+        { key: '6', value: 'Saturady' }
     ];
 
 
@@ -44,9 +56,8 @@ const AssignTasbeeh = ({ route }) => {
                 "Tasbeeh_id": tasbeehid.substring(2),
                 "Goal": count,
                 "End_date": deadline
-
             });
-
+         
         }
     }, [contributetype, navigation]);
 
@@ -146,6 +157,7 @@ const AssignTasbeeh = ({ route }) => {
             Alert.alert('Error', 'Something went wrong. Please check your network.');
         }
     };
+
     // Assign Tasbeeh Api Function
     const Assigntasbeeh = async () => {
 
@@ -157,6 +169,7 @@ const AssignTasbeeh = ({ route }) => {
                     Tasbeeh_id: tasbeehid.substring(2),
                     Goal: parseInt(count, 10),
                     Enddate: deadline,
+                    schedule: day
                 }
                 console.log("Final API Payload:", tasbeehobject);
                 const responce = await fetch(Singletasbeeh + 'Assigntosingletasbeeh', {
@@ -187,6 +200,7 @@ const AssignTasbeeh = ({ route }) => {
                 Tasbeeh_id: tasbeehid.substring(2),
                 Goal: parseInt(count, 10),
                 End_date: deadline,
+                schedule: day,
             };
 
             console.log("Final API Payload:", AssignTasbeehobj);
@@ -204,13 +218,14 @@ const AssignTasbeeh = ({ route }) => {
                     if (response.ok) {
                         const ans = await response.json();
                         console.log(ans);
-                        DistributeTasbeehEqually();
+                        DistributeTasbeehEqually(ans.ID);
                         navigation.goBack();
                     } else {
                         const ans = await response.text();
                         console.log(ans);
                     }
                 }
+                
                 else {
                     Alert.alert(
                         'Alert',
@@ -230,10 +245,11 @@ const AssignTasbeeh = ({ route }) => {
     };
 
     // Equally Contribution  Api Function\
-    const DistributeTasbeehEqually = async () => {
+    const DistributeTasbeehEqually = async (id) => {
         try {
-            const tid = tasbeehid.substring(2);
-            const Query = `DistributeTasbeehEqually?groupid=${encodeURIComponent(groupid)}&tasbeehid=${encodeURIComponent(tid)}`;
+
+            console.log("Group ID:", id);
+            const Query = `DistributeTasbeehEqually?groupid=${encodeURIComponent(groupid)}&tasbeehid=${encodeURIComponent(id)}`;
             console.log(Query);
             const response = await fetch(SendRequest + Query, {
                 method: 'POST',
@@ -298,6 +314,19 @@ const AssignTasbeeh = ({ route }) => {
                                 setSelectedType(selected.type);
                             }}
                             placeholder="Select Group/Single"
+                            search={false}
+                            boxStyles={styles.selectListBox}
+                            inputStyles={styles.selectListInput}
+                            dropdownStyles={styles.selectListDropdown}
+                            dropdownTextStyles={styles.selectListDropdownText}
+                            save='key'
+                        />
+                    </View>
+                    <View>
+                        <SelectList
+                            data={days}
+                            setSelected={(value) => { setday(value) }}
+                            placeholder="Select Day"
                             search={false}
                             boxStyles={styles.selectListBox}
                             inputStyles={styles.selectListInput}

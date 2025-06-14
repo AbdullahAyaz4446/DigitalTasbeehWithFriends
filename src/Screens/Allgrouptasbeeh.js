@@ -17,13 +17,13 @@ const Allgrouptasbeeh = ({ route }) => {
     const { groupid, title, Userid, Adminid } = route.params;
     const [logdata, setlogdata] = useState([]);
     const [showModal, setShowModal] = useState(false);
-    const[deadline,setdeadline]=useState();
+    const [deadline, setdeadline] = useState();
     const today = new Date();
 
 
     const Tasbeehlogs = async () => {
         try {
-            const query = `Tasbeehlogs?groupid=${encodeURIComponent(groupid)}`;
+            const query = `Tasbeehlogs?groupid=${encodeURIComponent(groupid)}&userid=${encodeURIComponent(Userid)}`;
             const response = await fetch(Group + query);
 
             if (response.ok) {
@@ -77,8 +77,8 @@ const Allgrouptasbeeh = ({ route }) => {
         }
     }
 
-     // handle date time
-     const handleDateChange = (date) => {
+    // handle date time
+    const handleDateChange = (date) => {
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const day = String(date.getDate()).padStart(2, '0');
@@ -103,7 +103,7 @@ const Allgrouptasbeeh = ({ route }) => {
             disabled={item.Flag === 1 || item.Flag === 2}
             onPress={() => {
                 navigation.navigate("TasbeehGroup", {
-                    "groupid": groupid, "Userid": Userid, "Adminid": Adminid, "tasbeehid": item.id, "title": title, "tid": item.tid
+                    "groupid": groupid, "Userid": Userid, "Adminid": Adminid, "tasbeehid": item.id, "title":item.title, "tid": item.tid
                 })
             }}
             style={styles.cardContainer}
@@ -162,11 +162,11 @@ const Allgrouptasbeeh = ({ route }) => {
                                 item.Flag === 1 ?
                                     reopentasbeeh(item.id)
                                     :
-                                    item.deadline==today?
-                                    setShowModal(true)
-                                    :
-                                    reactivateTasbeeh(item.id)
-                                   
+                                    item.deadline == today ?
+                                        setShowModal(true)
+                                        :
+                                        reactivateTasbeeh(item.id)
+
                             }}
                         >
                             <Text style={styles.buttonText}>
@@ -201,7 +201,7 @@ const Allgrouptasbeeh = ({ route }) => {
             </View>
 
             <FlatList
-                data={logdata}
+                data={logdata.filter(item => item.day == today.getDay() || item.day == null)}
                 renderItem={Show}
                 ListEmptyComponent={
                     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>

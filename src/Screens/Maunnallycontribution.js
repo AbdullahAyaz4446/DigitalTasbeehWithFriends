@@ -53,8 +53,7 @@ const Maunnallycontribution = ({ route }) => {
 
                 if (response.ok) {
                     const ans = await response.json();
-                    console.log("hello muannly calling")
-                    Distributemunally();
+                    Distributemunally(ans.ID);
                 } else {
                     const ans = await response.text();
                     console.log(ans);
@@ -70,11 +69,12 @@ const Maunnallycontribution = ({ route }) => {
     };
 
     //Distrbute Tasbeeh Manually
-    const Distributemunally = async () => {
+    const Distributemunally = async (id) => {
         try {
+            console.log(id);
             const formData = new FormData();
             formData.append("groupid", groupid.toString());
-            formData.append("tasbeehid", Tasbeeh_id.toString());
+            formData.append("tasbeehid",id);
 
             formData.append("id", JSON.stringify(groupmembersid));
             formData.append("count", JSON.stringify(count));
@@ -120,7 +120,7 @@ const Maunnallycontribution = ({ route }) => {
     }
 
     useEffect(() => {
-        console.log("Group ID: ", groupid);
+        console.log("Group ID: ", Tasbeeh_id);
         getallGroupMembers();
         console.log("COunt", count);
         console.log("Ids", groupmembersid);

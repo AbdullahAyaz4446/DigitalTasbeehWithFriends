@@ -28,10 +28,10 @@ const LoginScreen = () => {
       console.log("pressed");
       console.log(ipadd);
       const query = `Login?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
-      const responce = await fetch(url + query);
-      if (responce.ok) {
+      const response = await fetch(url + query);
+      if (response.ok) {
         console.log("Hello");
-        var Userid = await responce.json();
+        var Userid = await response.json();
         console.log(Userid);
         navigation.navigate('Home', {
           "Userdata": Userid,

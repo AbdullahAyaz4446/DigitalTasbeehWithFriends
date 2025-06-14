@@ -7,7 +7,8 @@ import {
   ActivityIndicator,
   Modal,
   TouchableWithoutFeedback,
-  FlatList
+  FlatList,
+  TextInput
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -77,7 +78,10 @@ const TasbeehGroup = ({ route }) => {
   const [tasbeehdeatiles, settasbeehdeatiles] = useState([]);
   const [itemProgress, setItemProgress] = useState({});
   const flatListRef = useRef(null);
-  const [groupusertasbeehdeatilesid,setgroupusertasbeehdeatilesid] = useState();
+  const [showModal, setShowModal] = useState(false);
+  const [tasbeehdeatilesid, settasbeehdeatilesid] = useState(null);
+  const [Message, setMessage] = useState("");
+
 
 
   const toggleOptions = () => {
@@ -94,6 +98,7 @@ const TasbeehGroup = ({ route }) => {
   );
 
   useEffect(() => {
+
     if (logmemberdata?.Current && logmemberdata?.Goal) {
       const progressPercentage = Math.round((logmemberdata.Current / logmemberdata.Goal) * 100);
       setProgress(progressPercentage);
@@ -146,6 +151,7 @@ const TasbeehGroup = ({ route }) => {
     }
   };
 
+
   const saveProgress = async (progressData) => {
     try {
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(progressData));
@@ -163,7 +169,8 @@ const TasbeehGroup = ({ route }) => {
         setachived(result?.Current || 0);
         setgoal(result?.Goal || 0);
         setlogmemberdata(result);
-        console.log("groupusertasbeehdeatilesid",result?.groupusertasbeehdeatilesid);
+        console.log("groupusertasbeehdeatilesid", result?.groupusertasbeehdeatilesid);
+        settasbeehdeatilesid(result?.groupusertasbeehdeatilesid);
       } else {
         setlogmemberdata(null);
       }
@@ -306,7 +313,7 @@ const TasbeehGroup = ({ route }) => {
     }
   };
 
-
+  // close tasbeeh api function
   const closetasbeeh = async () => {
     try {
       const query = `Closetasbeeh?id=${encodeURI(tasbeehid)}`;
@@ -345,6 +352,26 @@ const TasbeehGroup = ({ route }) => {
     }
   }
 
+  // api function to leave tasbeeh
+  const leavetasbeeh = async () => {
+    try {
+
+    
+      const query = `Leavetasbeeh?id=${encodeURIComponent(tasbeehdeatilesid)}&Message=${encodeURIComponent(Message)}`;
+      const responce = await fetch(url + query);
+      console.log(responce);
+      if (responce.ok) {
+        const data = await responce.json();
+        console.log(data);
+        navigation.goBack();
+      }
+      else {
+        console.log("not leave");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   if (loading) {
     return (
@@ -404,7 +431,8 @@ const TasbeehGroup = ({ route }) => {
                     style={styles.dropdownOption}
                     onPress={() => {
                       setShowOptions(false);
-                      navigation.navigate("LeaveGroup", { groupid, Userid });
+                      setShowModal(true);
+
                     }}
                   >
                     <Text style={[styles.dropdownOptionText, { color: 'red' }]}>Leave Tasbeeh</Text>
@@ -448,7 +476,7 @@ const TasbeehGroup = ({ route }) => {
                 isComplete && styles.completedCard,
                 isChainComplete && styles.chainCompletedCard
               ]}>
-                
+
                 <View style={[
                   styles.countBadge,
                   !isPreviousComplete && styles.disabledBadge,
@@ -477,12 +505,12 @@ const TasbeehGroup = ({ route }) => {
             );
           }}
           keyExtractor={(item, index) => index.toString()}
-          // contentContainerStyle={{ paddingBottom: 300 }} // Add space for FAB
-          // showsVerticalScrollIndicator={false}
-          // maintainVisibleContentPosition={{
-          //   minIndexForVisible: 0,
-          //   autoscrollToTopThreshold: 30,
-          // }}
+        // contentContainerStyle={{ paddingBottom: 300 }} // Add space for FAB
+        // showsVerticalScrollIndicator={false}
+        // maintainVisibleContentPosition={{
+        //   minIndexForVisible: 0,
+        //   autoscrollToTopThreshold: 30,
+        // }}
         />
       </View>
 
@@ -499,8 +527,43 @@ const TasbeehGroup = ({ route }) => {
         </TouchableOpacity>
       </View>
 
-      
 
+      <Modal transparent visible={showModal} animationType="fade">
+        <TouchableWithoutFeedback onPress={() => setShowModal(false)}>
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalCard}>
+              <Text style={styles.confirmationText}>you want to leave this Tasbeeh</Text>
+              <View style={styles.inputcontainer}>
+                <Text style={styles.label}>Reason</Text>
+                <TextInput
+                  style={[styles.input, { color: "black" }]}
+                  placeholder="Enter Your Reason"
+                  placeholderTextColor="#A9A9A9"
+                  value={Message}
+                  onChangeText={setMessage}
+                />
+              </View>
+              <View style={styles.confirmationButtons}>
+                <TouchableOpacity
+                  onPress={() => setShowModal(false)}
+                  style={[styles.confirmationButton, styles.cancelButton]}
+                >
+                  <Text style={styles.confirmationButtonText}>Cancel</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => {
+                    leavetasbeeh();
+                  }}
+                  style={[styles.confirmationButton, styles.deleteButton]}
+                >
+                  <Text style={styles.confirmationButtonText}>Leave</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
     </View>
   );
 };
@@ -711,5 +774,65 @@ const styles = StyleSheet.create({
   chainCompletedCard: {
     borderLeftWidth: 4,
     borderLeftColor: '#4CAF50',
-  }
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  inputcontainer: {
+    marginVertical: 5,
+  },
+  label: {
+    color: "black",
+    fontWeight: "bold",
+    fontSize: 20,
+    paddingLeft: 10,
+  },
+  input: {
+    height: 50,
+    borderColor: "#000",
+    borderWidth: 1,
+    padding: 10,
+    borderRadius: 100,
+  },
+  modalCard: {
+    backgroundColor: 'white',
+    borderRadius: 16,
+    width: '90%',
+    maxHeight: '70%',
+    padding: 20,
+  },
+  confirmationText: {
+    fontSize: 20,
+    color: '#F44336',
+    textAlign: 'center',
+    marginBottom: 24,
+  },
+  confirmationButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 20
+  },
+  confirmationButton: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  cancelButton: {
+    backgroundColor: '#e0e0e0',
+    marginRight: 8,
+  },
+  deleteButton: {
+    backgroundColor: '#F44336',
+    marginLeft: 8,
+  },
+  confirmationButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: 'white',
+  },
+
 });

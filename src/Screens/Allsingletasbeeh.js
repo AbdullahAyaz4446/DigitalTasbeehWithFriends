@@ -104,7 +104,7 @@ const Allsingletasbeeh = ({ route }) => {
             disabled={item.Flag === 1 || item.Flag === 2}
             onPress={() => {
                 navigation.navigate("Singletasbeeh", {
-                    "tasbeehId": tasbeehId, "Name": Name, "astid": item.ID, "tid": item.tid
+                    "tasbeehId": tasbeehId, "Name":item.title, "astid": item.ID, "tid": item.tid
                 })
             }}
 
@@ -115,13 +115,13 @@ const Allsingletasbeeh = ({ route }) => {
                     <Text style={styles.cardTitle}>
                         {item.title}
                     </Text>
-                    {(item.Flag !== 0) && (
+                    {(item.Flag != 0) && (
                         <View style={[
                             styles.statusBadge,
-                            item.Flag === 1 ? styles.closedBadge : styles.completedBadge
+                            item.Flag ==1 ? styles.closedBadge : styles.completedBadge
                         ]}>
                             <Text style={styles.statusText}>
-                                {item.Flag === 1 ? "Closed" : "Completed"}
+                                {item.Flag ==1 ? "Closed" : "Completed"}
                             </Text>
                         </View>
                     )}

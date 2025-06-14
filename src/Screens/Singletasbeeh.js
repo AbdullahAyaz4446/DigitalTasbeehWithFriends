@@ -410,11 +410,7 @@ const TasbeehGroup = ({ route }) => {
           keyExtractor={(item, index) => index.toString()}
         />
       </View>
-
-
-
-   
-
+      
       <View style={styles.fabContainer}>
         <TouchableOpacity
           style={[styles.fab, isComplete && styles.disabledFab]}

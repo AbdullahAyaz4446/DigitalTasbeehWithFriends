@@ -24,6 +24,7 @@ const AllTasbeehScreen = ({ route }) => {
   const [existtasbeeh, setexisttasbeeh] = useState([]);
   const navigation = useNavigation();
 
+
   // All Tasbeeh Api Function
   const Alltasbeeh = async () => {
     try {
@@ -43,6 +44,7 @@ const AllTasbeehScreen = ({ route }) => {
     }
   };
 
+  
   // Delete Tasbeeh Api Function
   const deletetasbeeh = async (ID) => {
     console.log("delete tasbeeh is calling");
@@ -270,7 +272,7 @@ const AllTasbeehScreen = ({ route }) => {
           </>
         )}
       </View>
-      
+
       <FlatList
         data={tasbeeh.reverse()}
         renderItem={Show}
