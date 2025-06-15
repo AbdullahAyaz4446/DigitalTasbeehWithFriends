@@ -44,7 +44,7 @@ const AllTasbeehScreen = ({ route }) => {
     }
   };
 
-  
+
   // Delete Tasbeeh Api Function
   const deletetasbeeh = async (ID) => {
     console.log("delete tasbeeh is calling");
@@ -194,7 +194,7 @@ const AllTasbeehScreen = ({ route }) => {
           <Text style={styles.cardSubtitle}>{item.Type}</Text>
         </View>
         {!editingItem && (
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={() => { item.type === "Quran" || "Compund" ? deletetasbeeh(item.ID) : Deletewazifa(item.ID) }}
             style={styles.deleteButton}
           >
@@ -213,9 +213,9 @@ const AllTasbeehScreen = ({ route }) => {
           <Text style={styles.existingCardTitle}>{item.Tasbeeh_Title}</Text>
           <Text style={styles.existingCardSubtitle}>{item.Type}</Text>
         </View>
-        
+
         <View style={styles.existingCardActions}>
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={() => {
               setexisttasbeeh(existtasbeeh.filter(t => t.ID !== item.ID));
               settasbeeh(prev => [...(prev || []), item]);
@@ -224,9 +224,9 @@ const AllTasbeehScreen = ({ route }) => {
           >
             <Ionicons name="remove-circle-outline" size={24} color="#ff4444" />
           </TouchableOpacity>
-        
+
           {existtasbeeh.length > 1 && index !== 0 && (
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={() => Swapdata(item.ID)}
               style={styles.existingCardButton}
             >
@@ -279,7 +279,7 @@ const AllTasbeehScreen = ({ route }) => {
         keyExtractor={(item) => item.ID.toString()}
         contentContainerStyle={styles.listContainer}
       />
-      
+
       {editingItem && (
         <View style={styles.existingChainContainer}>
           <View style={styles.chainHeader}>
@@ -303,34 +303,60 @@ const AllTasbeehScreen = ({ route }) => {
           <Ionicons name="add" size={40} color="white" />
         </TouchableOpacity>
       )}
-      
       <Modal transparent visible={showModal} animationType="fade">
-        <TouchableWithoutFeedback onPress={() => setShowModal(false)}>
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Select Option</Text>
-              <TouchableOpacity 
-                onPress={() => {
-                  setShowModal(false);
-                  navigation.navigate('CraeteTasbeeh', { "Userid": Userid })
-                }} 
-                style={styles.modalOption}
-              >
-                <Text style={styles.modalOptionText}>Quran Tasbeeh</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                onPress={() => {
-                  setShowModal(false);
-                  navigation.navigate('Wazifa', { "Userid": Userid })
-                }} 
-                style={styles.modalOption}
-              >
-                <Text style={styles.modalOptionText}>Wazifa Tasbeeh</Text>
-              </TouchableOpacity>
-            </View>
+  <View style={styles.modalOverlay}>
+    <TouchableWithoutFeedback onPress={() => setShowModal(false)}>
+      <View style={styles.modalBackground} />
+    </TouchableWithoutFeedback>
+    
+    <View style={styles.optionModalContainer}>
+      <View style={styles.modalHeader}>
+        <Text style={styles.modalTitle}>Select Tasbeeh Type</Text>
+        <TouchableOpacity
+          onPress={() => setShowModal(false)}
+          style={styles.closeButton}
+        >
+          <Ionicons name="close" size={24} color={colors.primary} />
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.modalOptionsContainer}>
+        <TouchableOpacity
+          onPress={() => {
+            setShowModal(false);
+            navigation.navigate('CraeteTasbeeh', { "Userid": Userid });
+          }}
+          style={styles.modalOptionCard}
+        >
+          <View style={styles.optionIconContainer}>
+            <Ionicons name="book-outline" size={28} color={colors.primary} />
           </View>
-        </TouchableWithoutFeedback>
-      </Modal>
+          <View style={styles.optionTextContainer}>
+            <Text style={styles.modalOptionTitle}>Quran Tasbeeh</Text>
+            <Text style={styles.modalOptionDescription}>Create from Quranic verses</Text>
+          </View>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => {
+            setShowModal(false);
+            navigation.navigate('Wazifa', { "Userid": Userid });
+          }}
+          style={styles.modalOptionCard}
+        >
+          <View style={styles.optionIconContainer}>
+            <Ionicons name="sparkles-outline" size={28} color={colors.primary} />
+          </View>
+          <View style={styles.optionTextContainer}>
+            <Text style={styles.modalOptionTitle}>Wazifa Tasbeeh</Text>
+            <Text style={styles.modalOptionDescription}>Create spiritual practices</Text>
+          </View>
+        </TouchableOpacity>
+      </View>
+    </View>
+  </View>
+</Modal>
+
     </View>
   );
 };
@@ -376,7 +402,7 @@ const styles = StyleSheet.create({
     color: 'black',
     backgroundColor: 'white',
   },
-  
+
   // Card Styles for Main Tasbeeh List
   cardContainer: {
     backgroundColor: "#92A5E3",
@@ -410,7 +436,7 @@ const styles = StyleSheet.create({
   deleteButton: {
     padding: 8,
   },
-  
+
   // Existing Chain Styles
   existingChainContainer: {
     marginTop: 20,
@@ -430,10 +456,10 @@ const styles = StyleSheet.create({
   chainListContainer: {
     maxHeight: 300,
   },
-  
+
   // Existing Card Styles
   existingCardContainer: {
-    backgroundColor:"white",
+    backgroundColor: "white",
     borderRadius: 12,
     padding: 16,
     marginVertical: 8,
@@ -468,41 +494,80 @@ const styles = StyleSheet.create({
     padding: 8,
     marginLeft: 8,
   },
-  
+
   // Modal Styles
-  modalOverlay: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    padding: 20,
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    padding: 24,
-    borderRadius: 16,
-    width: '90%',
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 20,
-    color: 'black',
-  },
-  modalOption: {
-    backgroundColor: colors.tasbeehconatiner,
-    padding: 16,
-    borderRadius: 10,
-    marginBottom: 12,
-    alignItems: 'center',
-  },
-  modalOptionText: {
-    fontSize: 18,
-    color: 'black',
-    fontWeight: '500',
-  },
+ modalOverlay: {
+  flex: 1,
+  backgroundColor: 'rgba(0,0,0,0.5)',
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+modalBackground: {
+  position: 'absolute',
+  top: 0,
+  bottom: 0,
+  left: 0,
+  right: 0,
+},
+optionModalContainer: {
+  backgroundColor: 'white',
+  borderRadius: 16,
+  width: '90%',
+  maxWidth: 400,
+  overflow: 'hidden',
+},
+modalHeader: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  padding: 16,
+  borderBottomWidth: 1,
+  borderBottomColor: '#f0f0f0',
+},
+modalTitle: {
+  fontSize: 18,
+  fontWeight: '600',
+  color: colors.primary,
+  alignContent:'center'
   
+},
+closeButton: {
+  padding: 4,
+},
+modalOptionsContainer: {
+  padding: 16,
+},
+modalOptionCard: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  backgroundColor: '#f8f9fa',
+  borderRadius: 12,
+  padding: 16,
+  marginBottom: 12,
+},
+optionIconContainer: {
+  backgroundColor: colors.primary + '20', 
+  width: 48,
+  height: 48,
+  borderRadius: 24,
+  justifyContent: 'center',
+  alignItems: 'center',
+  marginRight: 16,
+},
+optionTextContainer: {
+  flex: 1,
+},
+modalOptionTitle: {
+  fontSize: 16,
+  fontWeight: '600',
+  color: '#2c3e50',
+  marginBottom: 4,
+},
+modalOptionDescription: {
+  fontSize: 13,
+  color: '#7f8c8d',
+},
+
   // FAB Style
   fab: {
     position: 'absolute',
@@ -520,6 +585,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.5,
   },
+  
 });
 
 export default AllTasbeehScreen;
