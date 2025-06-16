@@ -13,7 +13,7 @@ import { Checkbox } from 'react-native-paper';
 
 const Friends = ({ route }) => {
     const navigation = useNavigation();
-    const { groupid, Adminid } = route.params;
+    const { groupid, Adminid, selectedItem } = route.params;
     const [data, setdata] = useState([]);
     const [Existinggroupmembers, setExistinggroupmembers] = useState([]);
     const [selectedmembersid, setselectedmembersid] = useState([]);
@@ -35,19 +35,19 @@ const Friends = ({ route }) => {
         }
     };
 
-// Get Existing Group Members
-const ExistingGetgroupmembers = async () => {
-    try {
-        const query = `Allgroupmember?groupid=${encodeURIComponent(groupid)}`;
-        const response = await fetch(url + query);
-        if (response.ok) {
-            const result = await response.json();
-            setExistinggroupmembers(result);
+    // Get Existing Group Members
+    const ExistingGetgroupmembers = async () => {
+        try {
+            const query = `Allgroupmember?groupid=${encodeURIComponent(groupid || selectedItem.groupid)}`;
+            const response = await fetch(url + query);
+            if (response.ok) {
+                const result = await response.json();
+                setExistinggroupmembers(result);
+            }
+        } catch (error) {
+            console.log(error);
         }
-    } catch (error) {
-        console.log(error);
-    }
-};
+    };
     /// handle check box
     const handleCheckboxToggle = (id) => {
         setselectedmembersid((prevSelected) => {
@@ -86,11 +86,34 @@ const ExistingGetgroupmembers = async () => {
             console.log(error);
         }
     }
+    // Reassign tasbeeh to specfix member
+    const reassign = async (id) => {
+        const formData = new FormData();
+        formData.append("userid", id);
+        formData.append("groupid", selectedItem.groupid);
+        formData.append("grouptasbeehid", selectedItem.Group_Tasbeeh_id);
+        formData.append("adminid", selectedItem.Groupadminid);
+        formData.append("assigncount", selectedItem.Assign_count - selectedItem.Current_count);
+        formData.append("id", selectedItem.ID);
+        const responce = await fetch(AssignTasbeh + 'Reassigntasbeehtospecficmember', {
+            method: 'POST',
+            body: formData,
+        });
+        if (responce.ok) {
+            navigation.goBack();
+        } else {
+          console.log("failed to reassign tasbeeh");
+        }
+
+    };
 
     useEffect(() => {
         members();
         ExistingGetgroupmembers();
     }, []);
+
+
+    
 
     // Check if a user is already in the group
     const isUserInGroup = (userId) => {
@@ -99,23 +122,34 @@ const ExistingGetgroupmembers = async () => {
 
     // Updated card-style render item
     const Show = ({ item }) => (
-        <View style={styles.cardContainer}>
-            <View style={styles.cardContent}>
-                <View style={styles.avatar}>
-                    <Ionicons name="person" size={24} color="#fff" />
-                </View>
-                <Text style={styles.cardText}>{item.name}</Text>
-                {isUserInGroup(item.ID) ? (
-                    <Text style={styles.alreadyAddedText}>Already Added in group</Text>
-                ) :
-                    <Checkbox
 
-                        status={selectedmembersid.includes(item.ID) ? 'checked' : 'unchecked'}
-                        onPress={() => handleCheckboxToggle(item.ID)}
-                        color="black" />
-                }
-            </View>
+        <View style={styles.cardContainer} >
+            <TouchableOpacity
+                disabled={groupid == undefined ? false : true}
+                onPress={() => {
+                    reassign(item.ID);
+                }}
+            >
+                <View style={styles.cardContent}>
+                    <View style={styles.avatar}>
+                        <Ionicons name="person" size={24} color="#fff" />
+                    </View>
+                    <Text style={styles.cardText}>{item.name}</Text>
+                    {isUserInGroup(item.ID) ? (
+                        <Text style={styles.alreadyAddedText}>Already Added in group</Text>
+                    ) : groupid != undefined ? (
+                        <Checkbox
+                            status={selectedmembersid.includes(item.ID) ? 'checked' : 'unchecked'}
+                            onPress={() => handleCheckboxToggle(item.ID)}
+                            color="black" />
+                    )
+                        :
+                        null
+                    }
+                </View>
+            </TouchableOpacity>
         </View>
+
     );
 
     return (
@@ -130,13 +164,15 @@ const ExistingGetgroupmembers = async () => {
                 data={data.filter(item => item.ID != Adminid)}
                 renderItem={Show}
             />
-            <View style={styles.footer}>
-                <TouchableOpacity onPress={()=>{
-                    Addmemberingroup();
-                }} style={styles.button}>
-                    <Text style={styles.buttonText}>Submit</Text>
-                </TouchableOpacity>
-            </View>
+            {groupid != undefined &&
+                <View style={styles.footer}>
+                    <TouchableOpacity onPress={() => {
+                        Addmemberingroup();
+                    }} style={styles.button}>
+                        <Text style={styles.buttonText}>Submit</Text>
+                    </TouchableOpacity>
+                </View>
+            }
         </View>
     );
 };
@@ -229,8 +265,8 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     alreadyAddedText: {
-                fontSize: 14,
-                color: 'green',
-                fontStyle: 'italic',
-            }
+        fontSize: 14,
+        color: 'green',
+        fontStyle: 'italic',
+    }
 });

@@ -505,12 +505,12 @@ const TasbeehGroup = ({ route }) => {
             );
           }}
           keyExtractor={(item, index) => index.toString()}
-        // contentContainerStyle={{ paddingBottom: 300 }} // Add space for FAB
-        // showsVerticalScrollIndicator={false}
-        // maintainVisibleContentPosition={{
-        //   minIndexForVisible: 0,
-        //   autoscrollToTopThreshold: 30,
-        // }}
+        contentContainerStyle={{ paddingBottom: 300 }} // Add space for FAB
+        showsVerticalScrollIndicator={false}
+        maintainVisibleContentPosition={{
+          minIndexForVisible: 0,
+          autoscrollToTopThreshold: 30,
+        }}
         />
       </View>
 

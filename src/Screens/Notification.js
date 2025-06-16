@@ -12,7 +12,7 @@ import {
     ScrollView
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect,useNavigation } from '@react-navigation/native';
 import { colors } from '../utiles/colors';
 
 const Notification = ({ route }) => {
@@ -22,7 +22,6 @@ const Notification = ({ route }) => {
     const [notifications, setNotifications] = useState([]);
     const [leavemembers, setleavemembers] = useState([]);
     const [tasbeehdeatiles, settasbeehdeatiles] = useState([]);
-    const [showModal, setShowModal] = useState(false);
     const [combinedData, setCombinedData] = useState([]); // Combined when needed
     const [showReassignModal, setShowReassignModal] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
@@ -174,13 +173,11 @@ const Notification = ({ route }) => {
                             <TouchableOpacity
                                 style={styles.modalOption}
                                 onPress={() => {
-                                    navigation.navigate('SelectMembers', {
-                                        groupId: selectedItem.Group_id,
-                                        tasbeehId: selectedItem.Group_Tasbeeh_id,
-                                        remainingCount: selectedItem.Assign_Count - selectedItem.Current_Count
+                                    navigation.navigate("Addmemberingroup", { selectedItem,Adminid:Userid
                                     });
                                     setShowReassignModal(false);
                                 }}
+                                
                             >
                                 <Ionicons name="people-outline" size={22} color={colors.primary} />
                                 <Text style={styles.modalOptionText}>Select Members</Text>
@@ -205,6 +202,12 @@ const Notification = ({ route }) => {
         Allrequest();
     }, [Userid]);
 
+    // Usefocuseffect To Get All from specfic members or munnaly assign when you come back
+      useFocusEffect(
+        React.useCallback(() => {
+          leavemembersdeatiles();
+        }, [])
+      );
     //combine leave members and notifications
     useEffect(() => {
         const combined = [...(notifications || []), ...(leavemembers || [])];
@@ -260,58 +263,6 @@ const Notification = ({ route }) => {
         );
     };
 
-
-    // // Updated Notification Item Component with Card View
-    // const NotificationItem = ({ item }) => (
-    //     item.Type=="request"?
-    //     <View style={styles.cardContainer}>
-    //         <View style={styles.cardHeader}>
-    //             <Text style={styles.cardTitle}>{item.GroupTitle}</Text>
-    //             <TouchableOpacity
-    //                 onPress={() => {
-    //                     Allrequestdetails(item.Tasbeehname.Id);
-    //                     setmodel(true);
-    //                 }}
-    //                 style={styles.infoButton}
-    //             >
-    //                 <Ionicons name="information-circle" size={24} color={colors.primary} />
-    //             </TouchableOpacity>
-    //         </View>
-
-    //         <View style={styles.cardBody}>
-    //             <Text style={styles.cardText}>
-    //                 <Text style={styles.highlightText}>{item.GroupTitle}</Text>
-    //                 <Text> sent you a request to read </Text>
-    //                 <Text style={styles.highlightText}>{item.Tasbeehname.Title}</Text>
-    //                 <Text> (count: </Text>
-    //                 <Text style={styles.highlightText}>{item.Count}</Text>
-    //                 <Text>)</Text>
-    //             </Text>
-    //         </View>
-
-    //         <View style={styles.cardFooter}>
-    //             <TouchableOpacity
-    //                 style={[styles.actionButton, styles.acceptButton]}
-    //                 onPress={() => handleAccept(item.id)}
-    //             >
-    //                 <Text style={styles.actionButtonText}>Accept</Text>
-    //             </TouchableOpacity>
-
-    //             <View style={styles.divider} />
-
-    //             <TouchableOpacity
-    //                 style={[styles.actionButton, styles.rejectButton]}
-    //                 onPress={() => handleReject(item.id)}
-    //             >
-    //                 <Text style={styles.actionButtonText}>Reject</Text>
-    //             </TouchableOpacity>
-    //         </View>
-    //     </View>:
-    //      <View style={styles.cardContainer}>
-    //       <Text style={{color:'black'}}>{item.Message}</Text>
-    //     </View>
-    // );
-
     const NotificationItem = ({ item }) => {
         if (item.Type === "leave") {
             return (
@@ -346,9 +297,10 @@ const Notification = ({ route }) => {
                     <TouchableOpacity
                         style={styles.assignButton}
                         onPress={() => {
-                            ReassignModal();
+                           
                             setSelectedItem(item);
                             setShowReassignModal(true);
+                            
                         }}
                     >
                         <View style={styles.buttonContent}>
@@ -406,23 +358,13 @@ const Notification = ({ route }) => {
                         <Ionicons name="ban-outline" size={24} color="white" />
                     </TouchableOpacity>
                 </View>
-                <ReassignModal />
+               
             </View>
         );
 
     };
 
-    // Updated Tasbeeh Details Item for Modal
-    const TasbeehDetailItem = ({ item }) => (
-        <View style={styles.detailCard}>
-            {(item.Type == "Wazifa" || item.Type == "Quran") && (
-                <Text style={styles.detailType}>{item.Type}</Text>
-            )}
-            <Text style={styles.detailText}>{item.Text}</Text>
-            <Text style={styles.detailCount}>Count: {item.Count}</Text>
-        </View>
-    );
-
+   
     return (
         <View style={styles.container}>
             <View style={styles.header}>
@@ -491,6 +433,7 @@ const Notification = ({ route }) => {
                     </View>
                 </View>
             </Modal>
+             <ReassignModal/>
 
         </View>
     );

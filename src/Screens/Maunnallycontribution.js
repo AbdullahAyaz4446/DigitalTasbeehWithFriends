@@ -71,6 +71,7 @@ const Maunnallycontribution = ({ route }) => {
     //Distrbute Tasbeeh Manually
     const Distributemunally = async (id) => {
         try {
+            
             console.log(id);
             const formData = new FormData();
             formData.append("groupid", groupid.toString());
