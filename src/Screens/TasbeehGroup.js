@@ -357,7 +357,7 @@ const TasbeehGroup = ({ route }) => {
     try {
 
     
-      const query = `Leavetasbeeh?id=${encodeURIComponent(tasbeehdeatilesid)}&Message=${encodeURIComponent(Message)}`;
+      const query = `Leavetasbeeh?id=${encodeURIComponent(tasbeehdeatilesid)}&Message=${encodeURIComponent(Message)}&userid=${encodeURIComponent(Userid)}`;
       const responce = await fetch(url + query);
       console.log(responce);
       if (responce.ok) {
@@ -409,7 +409,7 @@ const TasbeehGroup = ({ route }) => {
                   style={styles.dropdownOption}
                   onPress={() => {
                     setShowOptions(false);
-                    navigation.navigate("Deatilesgrouptasbeeh", { groupid, tasbeehid, Userid });
+                    navigation.navigate("Deatilesgrouptasbeeh", { groupid, tasbeehid,Userid,title});
                   }}
                 >
                   <Text style={styles.dropdownOptionText}>Progress</Text>

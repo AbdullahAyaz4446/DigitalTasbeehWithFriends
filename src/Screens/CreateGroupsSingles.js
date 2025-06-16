@@ -306,6 +306,7 @@ const CreateGroupSingle = ({ route }) => {
                                 </View>
                             )}
                             keyExtractor={(item) => item.ID}
+                             contentContainerStyle={{ paddingBottom: 100 }}
                         />
 
                     </View>
@@ -375,7 +376,9 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     onselectgroupdata: {
+        flexGrow: 1 ,
         margin: 20,
+        
     },
     selectMembersTitle: {
         color: 'black',

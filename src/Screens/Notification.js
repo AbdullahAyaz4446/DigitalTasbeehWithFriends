@@ -275,24 +275,6 @@ const Notification = ({ route }) => {
                     <View style={styles.leaveNotificationBody}>
                         <Text style={styles.leaveNotificationText}>{item.Message}</Text>
 
-                        <View style={styles.leaveNotificationMeta}>
-                            {item.Enddate && (
-                                <View style={styles.metaItem}>
-                                    <Ionicons name="calendar-outline" size={16} color="#666" />
-                                    <Text style={styles.metaText}>
-                                        End Date: {new Date(item.Enddate).toLocaleDateString()}
-                                    </Text>
-                                </View>
-                            )}
-                            {item.Assign_count && (
-                                <View style={styles.metaItem}>
-                                    <Ionicons name="checkmark-done-outline" size={16} color="#666" />
-                                    <Text style={styles.metaText}>
-                                        Assigned: {item.Current_count}/{item.Assign_count}
-                                    </Text>
-                                </View>
-                            )}
-                        </View>
                     </View>
                     <TouchableOpacity
                         style={styles.assignButton}

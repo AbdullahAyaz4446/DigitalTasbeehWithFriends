@@ -9,15 +9,19 @@ import { Item } from 'react-native-paper/lib/typescript/components/Drawer/Drawer
 
 const Deatilesgrouptasbeeh = ({ route }) => {
     const navigation = useNavigation();
-    const { groupid, Userid, Adminid, tasbeehid } = route.params;
+    const { groupid, Userid, Adminid, tasbeehid,title} = route.params;
     const [showprogress, setshowprogress] = useState(true);
+    useEffect(() => {
+     console.log(title);
+    }
+    , []);
     return (
         <View style={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                     <Ionicons name="arrow-back-circle-sharp" size={40} color="#000" />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Tasbeeh Progress</Text>
+                <Text style={styles.headerTitle}>{title}</Text>
             </View>
 
             <View>
