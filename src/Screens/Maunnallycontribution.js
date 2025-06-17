@@ -14,7 +14,7 @@ import { colors } from '../utiles/colors';
 
 const Maunnallycontribution = ({ route }) => {
     const navigation = useNavigation();
-    const { groupid, Userid, Tasbeeh_id, Goal, End_date } = route.params;
+    const { groupid, Userid, Tasbeeh_id, Goal, End_date ,leaverid} = route.params;
     const [data, setdata] = useState([]);
     const [grouptitle, setgrouptitle] = useState();
     const [groupmembersid, setgroupmembersid] = useState([]);
@@ -71,12 +71,10 @@ const Maunnallycontribution = ({ route }) => {
     //Distrbute Tasbeeh Manually
     const Distributemunally = async (id) => {
         try {
-            
             console.log(id);
             const formData = new FormData();
             formData.append("groupid", groupid.toString());
             formData.append("tasbeehid",id);
-
             formData.append("id", JSON.stringify(groupmembersid));
             formData.append("count", JSON.stringify(count));
             
@@ -99,9 +97,42 @@ const Maunnallycontribution = ({ route }) => {
         }
     };
 
+      //Distrbute Tasbeeh Manually
+    const reDistributemunally = async () => {
+        try {
+            console.log("Re-distributing is calling",leaverid);
+            const formData = new FormData();
+            formData.append("groupid", groupid);
+            formData.append("tasbeehid",Tasbeeh_id);
+            formData.append("goal",Goal);
+            formData.append("leaveid",leaverid);
+            formData.append("id", JSON.stringify(groupmembersid));
+            formData.append("count", JSON.stringify(count));
+            
+
+            const distributionResponse = await fetch(SendRequest + 'reassignDistributeTasbeehManually', {
+                method: 'POST',
+                body: formData,
+            });
+            console.log(distributionResponse);
+            
+            if (distributionResponse.ok) {
+                navigation.goBack();
+                navigation.goBack();
+            } else {
+                const errorData = await distributionResponse.json();
+                throw new Error(errorData.message || "Failed to distribute tasbeeh");
+            }
+
+        } catch (error) {
+            console.error("Error distributing tasbeeh:", error);
+        }
+    };
+
     // Get All Group Members 
     const getallGroupMembers = async () => {
         try {
+           
             const query = `ShowGroupm?groupid=${groupid}`;
             const responce = await fetch(SendRequest + query);
             if (responce.ok) {
@@ -182,7 +213,7 @@ const Maunnallycontribution = ({ route }) => {
 
             </View>
             <View>
-                <TouchableOpacity onPress={() => Assigntasbeeh()} style={styles.button}>
+                <TouchableOpacity onPress={() => End_date!=undefined?Assigntasbeeh():reDistributemunally()} style={styles.button}>
                     <Text style={styles.buttonText}>Assign</Text>
                 </TouchableOpacity>
             </View>

@@ -108,6 +108,27 @@ const Notification = ({ route }) => {
         }
     }
 
+    // rreassign tasbeeh to equallt to all members
+    const handleEqualDistribution = async () => {
+        try {
+            const goal=selectedItem.Assign_count-selectedItem.Current_count;
+            const query=`reassigntasbehequally?groupid=${encodeURIComponent(selectedItem.groupid)}&Goal=${encodeURIComponent(goal)}&grouptasbeehid=${encodeURIComponent(selectedItem.Group_Tasbeeh_id)}&leaveid=${encodeURIComponent(selectedItem.ID)}`;
+            const response = await fetch(SendRequest+ query);
+            console.log(response);
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Reassigned Data:', data);
+            }
+            else {
+                const errorText = await response.text();
+                console.error('Reassign Error:', errorText);
+            }
+            
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     //get all leave members  tasbeeh deatiles
     const leavemembersdeatiles = async () => {
         try {
@@ -147,7 +168,7 @@ const Notification = ({ route }) => {
                             <TouchableOpacity
                                 style={styles.modalOption}
                                 onPress={() => {
-                                    handleEqualDistribution(selectedItem.Group_Tasbeeh_id);
+                                    handleEqualDistribution();
                                     setShowReassignModal(false);
                                 }}
                             >
@@ -158,11 +179,8 @@ const Notification = ({ route }) => {
                             <TouchableOpacity
                                 style={styles.modalOption}
                                 onPress={() => {
-                                    navigation.navigate('ManualAssignment', {
-                                        groupTasbeehId: selectedItem.Group_Tasbeeh_id,
-                                        remainingCount: selectedItem.Assign_Count - selectedItem.Current_Count,
-                                        groupId: selectedItem.Group_id
-                                    });
+                                    const Goal=selectedItem.Assign_count-selectedItem.Current_count;
+                                   navigation.navigate("Maunnallycontribution",{"groupid":selectedItem.groupid,Userid,Tasbeeh_id:selectedItem.Group_Tasbeeh_id,Goal,leaverid:selectedItem.ID});
                                     setShowReassignModal(false);
                                 }}
                             >
