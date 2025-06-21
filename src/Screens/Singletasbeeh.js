@@ -6,7 +6,9 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   TouchableWithoutFeedback,
-  FlatList
+  FlatList,
+  Modal,
+  TextInput
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -72,12 +74,79 @@ const TasbeehGroup = ({ route }) => {
   const [showOptions, setShowOptions] = useState(false);
   const [tasbeehdeatiles, settasbeehdeatiles] = useState([]);
   const [itemProgress, setItemProgress] = useState({});
+  const [showsavelogModal, setShowsavelogModal] = useState(false);
+  const [showReminderModal, setShowReminderModal] = useState(false);
+  const [notes, setNotes] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState(false);
+  const [savedProgress, setSavedProgress] = useState(null);
+  const [isChainComplete, setIsChainComplete] = useState(false);
+  const [currentTasbeehType, setCurrentTasbeehType] = useState('');
 
+
+
+  const handleSaveProgress = async () => {
+    try {
+      if (isChainComplete || currentTasbeehType !== 'Quran') return;
+      setIsSaving(true);
+      setSaveError(false);
+      const tasbeehlog = {
+        Userid: astid,
+        grouptasbeehid: tasbeehId,
+        note: notes,
+        startdate: null,
+        leaveat: null
+
+      };
+      const response = await fetch(Group + "Savetasbeehlog", {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(tasbeehlog),
+      });
+      if (response.ok) {
+        navigation.goBack();
+      } else {
+        setSaveError(true);
+      }
+    } catch (error) {
+      setSaveError(true);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+
+  const handlefetchProgress = async () => {
+    try {
+      setIsSaving(true);
+      setSaveError(false);
+      const query = `fetchtasbeehlog?Userid=${encodeURIComponent(astid)}&grouptasbeehid=${encodeURIComponent(tasbeehId)}`;
+      const response = await fetch(Group + query);
+      console.log("response", response);
+      if (response.ok) {
+        const data = await response.json();
+        console.log("tasbeeh log ......", data);
+        setSavedProgress(data);
+        setShowReminderModal(true);
+
+      } else {
+        setSaveError(true);
+        console.log("helo error");
+      }
+    } catch (error) {
+      setSaveError(true);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
 
   const toggleOptions = () => {
     setShowOptions(!showOptions);
   }
+
 
   {/*Use Effects*/ }
   useFocusEffect(
@@ -85,6 +154,24 @@ const TasbeehGroup = ({ route }) => {
       Singletasbeehprogress();
     }, [])
   );
+  useEffect(() => {
+    handlefetchProgress();
+  }, [])
+  useEffect(() => {
+    const initializeProgress = async () => {
+      const savedProgress = await loadProgress();
+      setItemProgress(savedProgress);
+
+      // Set initial type from first incomplete item
+      const firstIncomplete = tasbeehdeatiles.findIndex((item, idx) =>
+        (savedProgress[idx] || 0) < item.Count
+      );
+      if (firstIncomplete !== -1) {
+        setCurrentTasbeehType(tasbeehdeatiles[firstIncomplete].Type || '');
+      }
+    };
+    initializeProgress();
+  }, [tasbeehdeatiles]);
 
   useEffect(() => {
     if (logmemberdata?.Achieved && logmemberdata?.Goal) {
@@ -97,13 +184,13 @@ const TasbeehGroup = ({ route }) => {
   }, [logmemberdata]);
 
 
-    useEffect(() => {
-      const initializeProgress = async () => {
-        const savedProgress = await loadProgress();
-        setItemProgress(savedProgress);
-      };
-      initializeProgress();
-    }, []);
+  useEffect(() => {
+    const initializeProgress = async () => {
+      const savedProgress = await loadProgress();
+      setItemProgress(savedProgress);
+    };
+    initializeProgress();
+  }, []);
 
 
   const STORAGE_KEY = `@TasbeehProgress_${tasbeehId}_${astid}_${tid}`;
@@ -173,8 +260,8 @@ const TasbeehGroup = ({ route }) => {
 
   // const incrementProgress = async () => {
   //   try {
-      // const query = `Readsingletasbeeh?id=${encodeURI(tasbeehId)}&tasbeehid=${encodeURI(astid)}`
-      // const response = await fetch(Singletasbeeh + query);
+  // const query = `Readsingletasbeeh?id=${encodeURI(tasbeehId)}&tasbeehid=${encodeURI(astid)}`
+  // const response = await fetch(Singletasbeeh + query);
   //     if (response.ok) {
   //       const result = await response.json();
   //       await Singletasbeehprogress();
@@ -192,69 +279,72 @@ const TasbeehGroup = ({ route }) => {
   //   }
   // }
 
-    const incrementProgress = async () => {
-      try {
-        // Get current active index (first incomplete item)
-        const activeIndex = tasbeehdeatiles.findIndex((item, index) => {
-          const currentCount = itemProgress[index] || 0;
-          return currentCount < item.Count;
-        });
-  
-        if (activeIndex === -1) {
-          // All items completed - reset and increment main counter
+  const incrementProgress = async () => {
+    try {
+      // Get current active index (first incomplete item)
+      const activeIndex = tasbeehdeatiles.findIndex((item, index) => {
+        const currentCount = itemProgress[index] || 0;
+        return currentCount < item.Count;
+      });
+
+      if (activeIndex === -1) {
+        // All items completed - reset and increment main counter
+        await handleChainCompletion();
+        return;
+      }
+      // ADD THIS: Get and set the current tasbeeh type
+      const currentItem = tasbeehdeatiles[activeIndex];
+      setCurrentTasbeehType(currentItem.Type || '');
+
+      // Update count for current item
+      const updatedProgress = {
+        ...itemProgress,
+        [activeIndex]: (itemProgress[activeIndex] || 0) + 1
+      };
+
+      setItemProgress(updatedProgress);
+      await saveProgress(updatedProgress);
+
+      // Check if item is now complete
+      if (updatedProgress[activeIndex] >= tasbeehdeatiles[activeIndex].Count) {
+        console.log(`Completed ${tasbeehdeatiles[activeIndex].Text}`);
+
+        // Check if this was the last item in the chain
+        const allCompleted = tasbeehdeatiles.every((item, idx) =>
+          (updatedProgress[idx] || 0) >= item.Count
+        );
+
+        if (allCompleted) {
           await handleChainCompletion();
-          return;
         }
-  
-        // Update count for current item
-        const updatedProgress = {
-          ...itemProgress,
-          [activeIndex]: (itemProgress[activeIndex] || 0) + 1
-        };
-  
-        setItemProgress(updatedProgress);
-        await saveProgress(updatedProgress);
-  
-        // Check if item is now complete
-        if (updatedProgress[activeIndex] >= tasbeehdeatiles[activeIndex].Count) {
-          console.log(`Completed ${tasbeehdeatiles[activeIndex].Text}`);
-  
-          // Check if this was the last item in the chain
-          const allCompleted = tasbeehdeatiles.every((item, idx) =>
-            (updatedProgress[idx] || 0) >= item.Count
-          );
-  
-          if (allCompleted) {
-            await handleChainCompletion();
-          }
-        }
-  
-        setFilledDots(prev => (prev >= 7 ? 0 : prev + 1));
-      } catch (error) {
-        console.log('Error incrementing progress:', error);
       }
-    };
+
+      setFilledDots(prev => (prev >= 7 ? 0 : prev + 1));
+    } catch (error) {
+      console.log('Error incrementing progress:', error);
+    }
+  };
 
 
-    const handleChainCompletion = async () => {
-      try {
-        // Reset all item progress
-        setItemProgress({});
-        await AsyncStorage.removeItem(STORAGE_KEY);
-  
-        // Increment main counter
-        const query = `Readsingletasbeeh?id=${encodeURI(tasbeehId)}&tasbeehid=${encodeURI(astid)}`
-        const response = await fetch(Singletasbeeh + query);
-  
-        if (response.ok) {
-          const result = await response.json();
-                await Singletasbeehprogress();
-  
-        }
-      } catch (error) {
-        console.log('Error handling chain completion:', error);
+  const handleChainCompletion = async () => {
+    try {
+      // Reset all item progress
+      setItemProgress({});
+      await AsyncStorage.removeItem(STORAGE_KEY);
+
+      // Increment main counter
+      const query = `Readsingletasbeeh?id=${encodeURI(tasbeehId)}&tasbeehid=${encodeURI(astid)}`
+      const response = await fetch(Singletasbeeh + query);
+
+      if (response.ok) {
+        const result = await response.json();
+        await Singletasbeehprogress();
+
       }
-    };
+    } catch (error) {
+      console.log('Error handling chain completion:', error);
+    }
+  };
 
   const closetasbeeh = async () => {
     try {
@@ -306,7 +396,13 @@ const TasbeehGroup = ({ route }) => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity onPress={() => {
+          if (currentTasbeehType === 'Quran' && !isChainComplete) {
+            setShowsavelogModal(true);
+          } else {
+            navigation.goBack();
+          }
+        }}>
           <Ionicons name="arrow-back-circle-sharp" size={40} color="#000" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{Name}</Text>
@@ -410,7 +506,7 @@ const TasbeehGroup = ({ route }) => {
           keyExtractor={(item, index) => index.toString()}
         />
       </View>
-      
+
       <View style={styles.fabContainer}>
         <TouchableOpacity
           style={[styles.fab, isComplete && styles.disabledFab]}
@@ -422,6 +518,99 @@ const TasbeehGroup = ({ route }) => {
           </Text>
         </TouchableOpacity>
       </View>
+      {/* Save Progress Modal */}
+      <Modal transparent visible={showsavelogModal && currentTasbeehType === 'Quran' && !isChainComplete} animationType="fade">
+        <TouchableWithoutFeedback onPress={() => setShowsavelogModal(false)}>
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalCard}>
+              <View style={styles.modalHeader}>
+                <Ionicons name="bookmark" size={24} color={colors.primary} />
+                <Text style={styles.modalTitle}>Save Your Reading Progress</Text>
+              </View>
+
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Where did you stop?</Text>
+                <Text style={styles.sectionSubtitle}>Example: "Ayah 45 or "Line 5"</Text>
+                <TextInput
+                  style={styles.inputField}
+                  placeholder="Enter exact position..."
+                  value={notes}
+                  onChangeText={setNotes}
+                  keyboardType='numeric'
+                />
+              </View>
+
+              {isSaving && (
+                <View style={styles.networkStatus}>
+                  <ActivityIndicator size="small" color={colors.primary} />
+                  <Text style={styles.networkStatusText}>Saving your progress...</Text>
+                </View>
+              )}
+
+              {saveError && (
+                <View style={styles.errorStatus}>
+                  <Ionicons name="warning" size={16} color="#ff4444" />
+                  <Text style={styles.errorStatusText}>Failed to save. Please try again.</Text>
+                </View>
+              )}
+
+              <View style={styles.buttonRow}>
+                <TouchableOpacity
+                  style={styles.cancelBtn}
+                  onPress={() => setShowsavelogModal(false)}
+                >
+                  <Text style={styles.cancelBtnText}>Cancel</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.saveBtn}
+                  onPress={handleSaveProgress}
+                  disabled={isSaving}
+                >
+                  <Ionicons name="save" size={18} color="white" />
+                  <Text style={styles.saveBtnText}> Save</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+
+      {/* Reminder Modal */}
+      <Modal transparent visible={showReminderModal && currentTasbeehType === 'Quran' && !isChainComplete} animationType="slide">
+        <TouchableWithoutFeedback onPress={() => setShowReminderModal(false)}>
+          <View style={styles.modalOverlay}>
+            <View style={[styles.modalCard, { maxWidth: '90%' }]}>
+              <View style={styles.modalHeader}>
+                <Ionicons name="time" size={24} color={colors.primary} />
+                <Text style={styles.modalTitle}>Welcome Back!</Text>
+              </View>
+
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>You left at:</Text>
+                <View style={[styles.inputField, { backgroundColor: '#f8f9fa' }]}>
+                  <Text style={{ fontSize: 16, color: '#333' }}>
+                    {savedProgress?.note || 'No position saved'}
+                  </Text>
+                </View>
+              </View>
+
+              <Text style={[styles.sectionSubtitle, { textAlign: 'center', marginBottom: 20 }]}>
+                Last saved: {savedProgress?.leaveat}
+              </Text>
+
+              <View style={styles.buttonRow}>
+                <TouchableOpacity
+                  style={[styles.cancelBtn, { flex: 1 }]}
+                  onPress={() => setShowReminderModal(false)}
+                >
+                  <Text style={styles.cancelBtnText}>Close</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
     </View>
   );
 };
@@ -629,6 +818,111 @@ const styles = StyleSheet.create({
   chainCompletedCard: {
     borderLeftWidth: 4,
     borderLeftColor: '#4CAF50',
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    padding: 20,
+  },
+  modalCard: {
+    width: '100%',
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+    paddingBottom: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginLeft: 10,
+    color: '#333',
+  },
+  section: {
+    marginBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '500',
+    marginBottom: 5,
+    color: '#444',
+  },
+  sectionSubtitle: {
+    fontSize: 13,
+    color: '#888',
+    marginBottom: 10,
+    fontStyle: 'italic',
+  },
+  inputField: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 12,
+    backgroundColor: '#f9f9f9',
+    color:'black'
+  },
+  networkStatus: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  networkStatusText: {
+    marginLeft: 8,
+    color: '#666',
+    fontSize: 14,
+  },
+  errorStatus: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  errorStatusText: {
+    marginLeft: 8,
+    color: '#ff4444',
+    fontSize: 14,
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10,
+  },
+  cancelBtn: {
+    flex: 1,
+    padding: 14,
+    marginRight: 10,
+    alignItems: 'center',
+    borderRadius: 8,
+    backgroundColor: '#f0f0f0',
+  },
+  cancelBtnText: {
+    color: '#555',
+    fontWeight: '500',
+  },
+  saveBtn: {
+    flex: 1,
+    padding: 14,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 8,
+    backgroundColor: colors.primary,
+  },
+  saveBtnText: {
+    color: 'white',
+    fontWeight: '500',
   },
 });
 

@@ -174,8 +174,21 @@ const AllTasbeehScreen = ({ route }) => {
     })
   };
 
-  // Flat List To Show All Tasbeeh Function - Updated with Card View
-  const Show = ({ item }) => (
+const Show = ({ item }) => {
+  const handleDelete = () => {
+    if (item.type === "Quran" || item.type === "Compound") {
+      deletetasbeeh(item.ID);
+    } else {
+      Deletewazifa(item.ID);
+    }
+  };
+
+  const handleEdit = () => {
+    // Add your edit logic here
+    console.log("Editing item:", item);
+  };
+
+  return (
     <TouchableOpacity
       onLongPress={() => handleLongPress(item)}
       activeOpacity={0.7}
@@ -183,7 +196,6 @@ const AllTasbeehScreen = ({ route }) => {
         if (editingItem) {
           settasbeeh(tasbeeh.filter(t => t.ID !== item.ID));
           setexisttasbeeh(prev => [...(prev || []), item]);
-          console.log(existtasbeeh);
         }
       }}
       style={styles.cardContainer}
@@ -193,17 +205,30 @@ const AllTasbeehScreen = ({ route }) => {
           <Text style={styles.cardTitle}>{item.Tasbeeh_Title}</Text>
           <Text style={styles.cardSubtitle}>{item.Type}</Text>
         </View>
+        
         {!editingItem && (
-          <TouchableOpacity
-            onPress={() => { item.type === "Quran" || "Compund" ? deletetasbeeh(item.ID) : Deletewazifa(item.ID) }}
-            style={styles.deleteButton}
-          >
-            <Ionicons name="trash-outline" size={24} color="#ff4444" />
-          </TouchableOpacity>
+          <View style={styles.actionButtonsRow}>
+            {/* <TouchableOpacity
+              onPress={handleEdit}
+              style={styles.iconButton}
+            >
+              <Ionicons name="pencil-outline" size={20} color={colors.primary} />
+            </TouchableOpacity> */}
+            
+            <View style={styles.iconSpacer} />
+            
+            <TouchableOpacity
+              onPress={handleDelete}
+              style={styles.iconButton}
+            >
+              <Ionicons name="trash-outline" size={20} color="#ff4444" />
+            </TouchableOpacity>
+          </View>
         )}
       </View>
     </TouchableOpacity>
   );
+};
 
   // Flat List To Show Existing Tasbeeh data - Updated with Card View
   const Showexistingtasbeehdata = ({ item, index }) => (
@@ -435,6 +460,16 @@ const styles = StyleSheet.create({
   },
   deleteButton: {
     padding: 8,
+  },
+   actionButtonsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  iconButton: {
+    padding: 8,
+  },
+  iconSpacer: {
+    width: 16, // Adjust spacing between icons as needed
   },
 
   // Existing Chain Styles
