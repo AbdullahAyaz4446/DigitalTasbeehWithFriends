@@ -98,7 +98,7 @@ const Friends = ({ route }) => {
         const responce = await fetch(AssignTasbeh + 'Reassigntasbeehtospecficmember', {
             method: 'POST',
             body: formData,
-        });
+        }); 
         if (responce.ok) {
             navigation.goBack();
         } else {

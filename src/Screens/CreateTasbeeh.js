@@ -42,197 +42,197 @@
 
 
 
-    // {/*Sign Up Api Function */ }
-    // const Addtitle = async () => {
-    //     try {
-    //         const Tasbeeh = {
-    //             "Tasbeeh_Title": tasbeehTitle,
-    //             "User_id": Userid,
-    //             "Type": "Quran",
-    //         };
-    //         const response = await fetch(tasbeehurl + "createtasbeehtitle", {
-    //             method: 'POST',
-    //             headers: {
-    //                 'Content-Type': 'application/json'
-    //             },
-    //             body: JSON.stringify(Tasbeeh)
-    //         });
+// {/*Sign Up Api Function */ }
+// const Addtitle = async () => {
+//     try {
+//         const Tasbeeh = {
+//             "Tasbeeh_Title": tasbeehTitle,
+//             "User_id": Userid,
+//             "Type": "Quran",
+//         };
+//         const response = await fetch(tasbeehurl + "createtasbeehtitle", {
+//             method: 'POST',
+//             headers: {
+//                 'Content-Type': 'application/json'
+//             },
+//             body: JSON.stringify(Tasbeeh)
+//         });
 
-    //         if (response.ok) {
-    //             const ans = await response.json();
+//         if (response.ok) {
+//             const ans = await response.json();
 
-    //             return ans;
+//             return ans;
 
-    //         } else {
-    //             const ans = await response.text();
-    //             console.log(ans);
-    //         }
-    //     } catch (error) {
-    //         console.log(error.message);
-    //     }
-    // };
-
-
-
-    // {/*Add Quran Tasbeeh Function */ }
-    // const Addqurantasbeeh = async () => {
-    //     try {
-    //         if (selectedSurah && selectedAyahFrom && selectedAyahTo && count) {
-    //             const surahName = surahData.find(surah => surah.key === selectedSurah)?.value;
-    //             const tasbeehData = {
-    //                 surahName: surahName,
-    //                 ayahNumberFrom: selectedAyahFrom,
-    //                 ayahNumberTo: selectedAyahTo,
-    //                 count: count
-    //             };
-
-    //             const queryString = new URLSearchParams(tasbeehData).toString();
-
-    //             const response = await fetch(`${tasbeehurl}addqurantasbeeh?${queryString}`, {
-    //                 method: 'POST',
-    //                 headers: {
-    //                     'Content-Type': 'application/json',
-    //                 }
-    //             });
-
-    //             if (response.ok) {
-    //                 const ans = await response.json();
-    //                 setqurantasbeehdata([...qurantasbeehdata, ...ans]);
-    //                 ans.forEach(element => {
-    //                     setquranid(element.ID)
-    //                 });
-
-    //             } else {
-    //                 const ans = await response.text();
-    //                 console.log(ans);
-    //             }
-    //         } else {
-    //             console.log("Please fill all the fields.");
-    //         }
-    //     } catch (error) {
-    //         console.log(error.message);
-    //     }
-    // };
+//         } else {
+//             const ans = await response.text();
+//             console.log(ans);
+//         }
+//     } catch (error) {
+//         console.log(error.message);
+//     }
+// };
 
 
 
-    // {/*Compund Qurantasbeeh Id and Tasbeeh Id  Function*/ }
-    // const Compundtasbeehdata = async () => {
-    //     var id = await Addtitle();
-    //     if (id) {
-    //         try {
-    //             const updatedCompund = compund.map((element) => ({
-    //                 ...element,
-    //                 Tasbeeh_id: id,
-    //             }));
-    //             const response = await fetch(tasbeehurl + "createcoumpoundtasbeeh", {
-    //                 method: 'POST',
-    //                 headers: {
-    //                     'Content-Type': 'application/json',
-    //                 },
-    //                 body: JSON.stringify(updatedCompund),
-    //             });
+// {/*Add Quran Tasbeeh Function */ }
+// const Addqurantasbeeh = async () => {
+//     try {
+//         if (selectedSurah && selectedAyahFrom && selectedAyahTo && count) {
+//             const surahName = surahData.find(surah => surah.key === selectedSurah)?.value;
+//             const tasbeehData = {
+//                 surahName: surahName,
+//                 ayahNumberFrom: selectedAyahFrom,
+//                 ayahNumberTo: selectedAyahTo,
+//                 count: count
+//             };
 
-    //             if (response.ok) {
-    //                 const ans = await response.text();
-    //                 console.log(ans);
-    //                 Compundtasbeeh = [];
-    //                 // navigation.navigate('Alltasbeeh', {
-    //                 //     "Userid": Userid
-    //                 // })
-    //                 navigation.goBack();
-    //             } else {
-    //                 const ans = await response.text();
-    //                 console.log("Error:", ans);
-    //             }
-    //         } catch (error) {
-    //             console.log(error.message);
-    //         }
-    //     }
+//             const queryString = new URLSearchParams(tasbeehData).toString();
 
-    // };
+//             const response = await fetch(`${tasbeehurl}addqurantasbeeh?${queryString}`, {
+//                 method: 'POST',
+//                 headers: {
+//                     'Content-Type': 'application/json',
+//                 }
+//             });
 
+//             if (response.ok) {
+//                 const ans = await response.json();
+//                 setqurantasbeehdata([...qurantasbeehdata, ...ans]);
+//                 ans.forEach(element => {
+//                     setquranid(element.ID)
+//                 });
 
-
-    // {/*Delete quranTasbeeh Api Function*/ }
-    // const deletequrantasbeeh = async (ID) => {
-    //     if (!ID) {
-    //         console.log("Invalid ID: ID is null or undefined.");
-    //         return;
-    //     }
-    //     try {
-    //         const query = `Deletequrantasbeeh?id=${ID}`;
-    //         const response = await fetch(tasbeehurl + query);
-    //         if (response.ok) {
-    //             const ans = await response.json(); // Assuming `ans` contains the deleted ID
-    //             console.log("Delete Response:", ans);
-    //             setcompund((prevItems) => prevItems.filter(item => item.Quran_Tasbeeh_id !== ans));
-    //             setqurantasbeehdata((pre) => pre.filter(item => item.ID !== ID));
-    //         } else {
-    //             const ans = await response.text();
-    //             console.log("Error Response:", ans);
-    //         }
-    //     } catch (error) {
-    //         console.log("Error:", error.message);
-    //     }
-    // };
+//             } else {
+//                 const ans = await response.text();
+//                 console.log(ans);
+//             }
+//         } else {
+//             console.log("Please fill all the fields.");
+//         }
+//     } catch (error) {
+//         console.log(error.message);
+//     }
+// };
 
 
 
+// {/*Compund Qurantasbeeh Id and Tasbeeh Id  Function*/ }
+// const Compundtasbeehdata = async () => {
+//     var id = await Addtitle();
+//     if (id) {
+//         try {
+//             const updatedCompund = compund.map((element) => ({
+//                 ...element,
+//                 Tasbeeh_id: id,
+//             }));
+//             const response = await fetch(tasbeehurl + "createcoumpoundtasbeeh", {
+//                 method: 'POST',
+//                 headers: {
+//                     'Content-Type': 'application/json',
+//                 },
+//                 body: JSON.stringify(updatedCompund),
+//             });
 
-    // {/*Swaping the qureen text*/ }
-    // const Swapdata = (ID) => {
-    //     setqurantasbeehdata(predata => {
-    //         const currentindex = predata.findIndex((item) => item.ID === ID);
-    //         const copydata = [...predata];
-    //         [copydata[currentindex], copydata[currentindex - 1]] =
-    //             [copydata[currentindex - 1], copydata[currentindex]];
-    //         return copydata;
-    //     });
-    //     setcompund(prevCompund => {
-    //         const currentIndex = prevCompund.findIndex(item => item.Quran_Tasbeeh_id == ID);
-    //         if (currentIndex === -1 || currentIndex === 0) return prevCompund;
+//             if (response.ok) {
+//                 const ans = await response.text();
+//                 console.log(ans);
+//                 Compundtasbeeh = [];
+//                 // navigation.navigate('Alltasbeeh', {
+//                 //     "Userid": Userid
+//                 // })
+//                 navigation.goBack();
+//             } else {
+//                 const ans = await response.text();
+//                 console.log("Error:", ans);
+//             }
+//         } catch (error) {
+//             console.log(error.message);
+//         }
+//     }
 
-    //         const newCompund = [...prevCompund];
-    //         [newCompund[currentIndex], newCompund[currentIndex - 1]] =
-    //             [newCompund[currentIndex - 1], newCompund[currentIndex]];
+// };
 
-    //         return newCompund;
-    //     });
-    // }
+
+
+// {/*Delete quranTasbeeh Api Function*/ }
+// const deletequrantasbeeh = async (ID) => {
+//     if (!ID) {
+//         console.log("Invalid ID: ID is null or undefined.");
+//         return;
+//     }
+//     try {
+//         const query = `Deletequrantasbeeh?id=${ID}`;
+//         const response = await fetch(tasbeehurl + query);
+//         if (response.ok) {
+//             const ans = await response.json(); // Assuming `ans` contains the deleted ID
+//             console.log("Delete Response:", ans);
+//             setcompund((prevItems) => prevItems.filter(item => item.Quran_Tasbeeh_id !== ans));
+//             setqurantasbeehdata((pre) => pre.filter(item => item.ID !== ID));
+//         } else {
+//             const ans = await response.text();
+//             console.log("Error Response:", ans);
+//         }
+//     } catch (error) {
+//         console.log("Error:", error.message);
+//     }
+// };
 
 
 
 
-    // {/*Handle Surah From the drop down function*/ }
-    // const handleSurahChange = (surahKey) => {
-    //     setSelectedSurah(surahKey);
-    //     const selected = surahData.find((s) => s.key === surahKey);
-    //     if (selected) {
-    //         const ayahList = selected.ayahs.map((ayah) => ({
-    //             key: ayah.toString(),
-    //             value: ayah.toString(),
-    //         }));
-    //         setAyahOptions(ayahList);
-    //         setSelectedAyahFrom(null);
-    //         setSelectedAyahTo(null);
-    //         setAyahToOptions([]);
-    //     }
-    // };
+// {/*Swaping the qureen text*/ }
+// const Swapdata = (ID) => {
+//     setqurantasbeehdata(predata => {
+//         const currentindex = predata.findIndex((item) => item.ID === ID);
+//         const copydata = [...predata];
+//         [copydata[currentindex], copydata[currentindex - 1]] =
+//             [copydata[currentindex - 1], copydata[currentindex]];
+//         return copydata;
+//     });
+//     setcompund(prevCompund => {
+//         const currentIndex = prevCompund.findIndex(item => item.Quran_Tasbeeh_id == ID);
+//         if (currentIndex === -1 || currentIndex === 0) return prevCompund;
+
+//         const newCompund = [...prevCompund];
+//         [newCompund[currentIndex], newCompund[currentIndex - 1]] =
+//             [newCompund[currentIndex - 1], newCompund[currentIndex]];
+
+//         return newCompund;
+//     });
+// }
 
 
 
 
-    // {/*Handle ayahnumber From the drop down function*/ }
-    // const handleAyahFromChange = (ayahFromKey) => {
-    //     setSelectedAyahFrom(ayahFromKey);
-    //     const startAyah = parseInt(ayahFromKey, 10);
-    //     const filteredAyahs = ayahOptions.filter(
-    //         (ayah) => parseInt(ayah.key, 10) >= startAyah
-    //     );
-    //     setAyahToOptions(filteredAyahs);
-    //     setSelectedAyahTo(null);
-    // };
+// {/*Handle Surah From the drop down function*/ }
+// const handleSurahChange = (surahKey) => {
+//     setSelectedSurah(surahKey);
+//     const selected = surahData.find((s) => s.key === surahKey);
+//     if (selected) {
+//         const ayahList = selected.ayahs.map((ayah) => ({
+//             key: ayah.toString(),
+//             value: ayah.toString(),
+//         }));
+//         setAyahOptions(ayahList);
+//         setSelectedAyahFrom(null);
+//         setSelectedAyahTo(null);
+//         setAyahToOptions([]);
+//     }
+// };
+
+
+
+
+// {/*Handle ayahnumber From the drop down function*/ }
+// const handleAyahFromChange = (ayahFromKey) => {
+//     setSelectedAyahFrom(ayahFromKey);
+//     const startAyah = parseInt(ayahFromKey, 10);
+//     const filteredAyahs = ayahOptions.filter(
+//         (ayah) => parseInt(ayah.key, 10) >= startAyah
+//     );
+//     setAyahToOptions(filteredAyahs);
+//     setSelectedAyahTo(null);
+// };
 
 
 
@@ -536,8 +536,13 @@ const CreateTasbeeh = ({ route }) => {
 
     const surahData = [
         { key: '1', value: 'Al-Fatiha', ayahs: [1, 2, 3, 4, 5, 6, 7] },
-        { key: '2', value: 'Al-Baqarah', ayahs: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] },
-        { key: '3', value: 'Al-Imran', ayahs: [1, 2, 3, 4, 5] },
+        { key: '2', value: 'Al-Baqarah', ayahs: Array.from({ length: 286 }, (_, i) => i + 1) },
+        { key: '3', value: 'Al-Imran', ayahs: Array.from({ length: 200 }, (_, i) => i + 1) },
+        { key: '4', value: 'An-Nisa', ayahs: Array.from({ length: 176 }, (_, i) => i + 1) },
+        { key: '5', value: 'Al-Maidah', ayahs: Array.from({ length: 120 }, (_, i) => i + 1) },
+        { key: '6', value: 'Al-Anam', ayahs: Array.from({ length: 165 }, (_, i) => i + 1) },
+        { key: '7', value: 'Al-Araf', ayahs: Array.from({ length: 206 }, (_, i) => i + 1) },
+
     ];
 
 

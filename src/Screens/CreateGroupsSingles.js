@@ -309,7 +309,7 @@ const CreateGroupSingle = ({ route }) => {
                              contentContainerStyle={{ paddingBottom: 100 }}
                         />
 
-                    </View>
+                    </View> 
                 )}
             </View>
 

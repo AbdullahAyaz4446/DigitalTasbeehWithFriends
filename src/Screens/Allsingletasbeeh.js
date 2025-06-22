@@ -5,7 +5,8 @@ import {
     StyleSheet,
     TouchableOpacity,
     FlatList,
-    Modal
+    Modal,
+    TouchableWithoutFeedback
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -15,7 +16,9 @@ const Allsingletasbeeh = ({ route }) => {
     const navigation = useNavigation();
     const { tasbeehId, Name } = route.params;
     const [logdata, setlogdata] = useState([]);
-    const [showModal, setShowModal] = useState(false);
+    const [showCalendarModal, setShowCalendarModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [selectedItemId, setSelectedItemId] = useState(null);
     const [deadline, setdeadline] = useState();
     const today = new Date();
 
@@ -30,14 +33,12 @@ const Allsingletasbeeh = ({ route }) => {
             }
             else {
                 const result = await responce.json();
-
                 console.log(result);
             }
         } catch (error) {
             console.log(error);
         }
     }
-
 
     const reopentasbeeh = async (id) => {
         try {
@@ -57,8 +58,6 @@ const Allsingletasbeeh = ({ route }) => {
         }
     }
 
-
-
     const reactivateTasbeeh = async (id) => {
         try {
             console.log("reactivateTasbeeh called with id:", id);
@@ -68,6 +67,7 @@ const Allsingletasbeeh = ({ route }) => {
             if (responce.ok) {
                 const result = await responce.json();
                 console.log(result);
+                setShowCalendarModal(false);
                 await getlogeddata();
             }
             else {
@@ -79,17 +79,36 @@ const Allsingletasbeeh = ({ route }) => {
         }
     }
 
+    const deleteTasbeeh = async (id) => {
+        try {
+            const query = `delete?id=${encodeURIComponent(id)}`;
+            const responce = await fetch(Singletasbeeh + query);
+            if (responce.ok) {
+                const result = await responce.json();
+                console.log(result);
+                setShowDeleteModal(false);
+            }
+            else {
+                const result = await responce.json();
+                console.log(result);
+            }
+            await getlogeddata();
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
+    
     useFocusEffect(
         React.useCallback(() => {
             getlogeddata();
         }, [])
     );
+
     useEffect(() => {
         getlogeddata();
     }, [tasbeehId]);
 
-    // handle date time
     const handleDateChange = (date) => {
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -98,16 +117,18 @@ const Allsingletasbeeh = ({ route }) => {
         setdeadline(formattedDate);
     };
 
-
     const Show = ({ item }) => (
         <TouchableOpacity
             disabled={item.Flag === 1 || item.Flag === 2}
             onPress={() => {
                 navigation.navigate("Singletasbeeh", {
-                    "tasbeehId": tasbeehId, "Name":item.title, "astid": item.ID, "tid": item.tid
+                    "tasbeehId": tasbeehId, "Name": item.title, "astid": item.ID, "tid": item.tid
                 })
             }}
-
+            onLongPress={() => {
+                setSelectedItemId(item.ID);
+                setShowDeleteModal(true);
+            }}
             style={styles.cardContainer}
         >
             <View style={styles.card}>
@@ -118,10 +139,10 @@ const Allsingletasbeeh = ({ route }) => {
                     {(item.Flag != 0) && (
                         <View style={[
                             styles.statusBadge,
-                            item.Flag ==1 ? styles.closedBadge : styles.completedBadge
+                            item.Flag == 1 ? styles.closedBadge : styles.completedBadge
                         ]}>
                             <Text style={styles.statusText}>
-                                {item.Flag ==1 ? "Closed" : "Completed"}
+                                {item.Flag == 1 ? "Closed" : "Completed"}
                             </Text>
                         </View>
                     )}
@@ -165,13 +186,11 @@ const Allsingletasbeeh = ({ route }) => {
                                     reopentasbeeh(item.ID)
                                     :
                                     item.deadline == today ?
-                                        setShowModal(true)
+                                        setShowCalendarModal(true)
                                         :
-                                        reactivateTasbeeh(item.ID
-
-                                        );
-                            }
-                            }
+                                        reactivateTasbeeh(item.ID);
+                                setSelectedItemId(item.ID);
+                            }}
                         >
                             <Text style={styles.buttonText}>
                                 {item.Flag == 1 ? 'Reopen' : 'Reactivate'}
@@ -183,12 +202,8 @@ const Allsingletasbeeh = ({ route }) => {
         </TouchableOpacity>
     );
 
-
     return (
         <View style={styles.container}>
-
-
-
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                     <Ionicons name="arrow-back-circle-sharp" size={40} color="#000" />
@@ -206,11 +221,11 @@ const Allsingletasbeeh = ({ route }) => {
                 }
             />
 
-            {/* Delete Confirmation Modal */}
-            <Modal transparent visible={showModal} animationType="fade">
-                <View style={styles.modalOverlay}>
-                    <View style={styles.confirmationCard}>
-                        <Text style={styles.confirmationTitle}>Select new Deadline</Text>
+            {/* Calendar Modal for Reactivation */}
+            <Modal transparent visible={showCalendarModal} animationType="fade">
+                <View style={styles.calendarModalOverlay}>
+                    <View style={styles.calendarModalCard}>
+                        <Text style={styles.calendarModalTitle}>Select new Deadline</Text>
                         <View style={styles.calendarContainer}>
                             <View style={styles.calendarWrapper}>
                                 <CalendarPicker
@@ -220,27 +235,53 @@ const Allsingletasbeeh = ({ route }) => {
                                 />
                             </View>
                         </View>
-                        <View style={styles.confirmationButtons}>
+                        <View style={styles.calendarModalButtons}>
                             <TouchableOpacity
-                                onPress={() => setShowModal(false)}
-                                style={[styles.confirmationButton, styles.cancelButton]}
+                                onPress={() => setShowCalendarModal(false)}
+                                style={[styles.calendarModalButton, styles.calendarModalCancelButton]}
                             >
-                                <Text style={styles.confirmationButtonText}>Cancel</Text>
+                                <Text style={styles.calendarModalButtonText}>Cancel</Text>
                             </TouchableOpacity>
-
                             <TouchableOpacity
-                                style={[styles.confirmationButton, styles.deleteButton]}
+                                style={[styles.calendarModalButton, styles.calendarModalSubmitButton]}
+                                onPress={() => reactivateTasbeeh(selectedItemId)}
                             >
-                                <Text style={styles.confirmationButtonText}>Submit</Text>
+                                <Text style={styles.calendarModalButtonText}>Submit</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
                 </View>
             </Modal>
+
+            {/* Delete Confirmation Modal */}
+            <Modal transparent visible={showDeleteModal} animationType="fade">
+                <TouchableWithoutFeedback onPress={() => setShowDeleteModal(false)}>
+                    <View style={styles.deleteModalOverlay}>
+                        <View style={styles.deleteModalContent}>
+                            <Text style={styles.deleteModalTitle}>
+                                Do You Want to Delete this tasbeeh?
+                            </Text>
+                            <View style={styles.deleteModalButtons}>
+                                <TouchableOpacity
+                                    onPress={() => setShowDeleteModal(false)}
+                                    style={styles.deleteModalCancelButton}
+                                >
+                                    <Text style={styles.deleteModalButtonText}>Cancel</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    onPress={() => deleteTasbeeh(selectedItemId)}
+                                    style={styles.deleteModalDeleteButton}
+                                >
+                                    <Text style={styles.deleteModalButtonText}>Delete</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                </TouchableWithoutFeedback>
+            </Modal>
         </View>
     );
 };
-
 
 const styles = StyleSheet.create({
     container: {
@@ -359,7 +400,100 @@ const styles = StyleSheet.create({
     reactivateButton: {
         backgroundColor: '#51cf66',
     },
+    // Calendar Modal Styles
+    calendarModalOverlay: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0,0,0,0.5)',
+    },
+    calendarModalCard: {
+        backgroundColor: 'white',
+        borderRadius: 16,
+        width: '90%',
+        padding: 20,
+    },
+    calendarModalTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#333',
+        textAlign: 'center',
+        marginBottom: 8,
+    },
+    calendarContainer: {
+        width: '100%',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    calendarWrapper: {
+        transform: [{ scale: 0.9 }],
+    },
+    calendarModalButtons: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 20,
+    },
+    calendarModalButton: {
+        flex: 1,
+        paddingVertical: 12,
+        borderRadius: 8,
+        alignItems: 'center',
+    },
+    calendarModalCancelButton: {
+        backgroundColor: '#e0e0e0',
+        marginRight: 8,
+    },
+    calendarModalSubmitButton: {
+        backgroundColor: '#51cf66',
+        marginLeft: 8,
+    },
+    calendarModalButtonText: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: 'white',
+    },
+    // Delete Modal Styles
+    deleteModalOverlay: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0,0,0,0.5)',
+    },
+    deleteModalContent: {
+        backgroundColor: 'white',
+        padding: 25,
+        borderRadius: 20,
+        width: '90%',
+    },
+    deleteModalTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        textAlign: 'center',
+        marginBottom: 25,
+        color: 'black',
+    },
+    deleteModalButtons: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    deleteModalCancelButton: {
+        backgroundColor: '#e0e0e0',
+        padding: 12,
+        borderRadius: 10,
+        width: '48%',
+    },
+    deleteModalDeleteButton: {
+        backgroundColor: 'red',
+        padding: 12,
+        borderRadius: 10,
+        width: '48%',
+    },
+    deleteModalButtonText: {
+        fontSize: 18,
+        color: 'white',
+        textAlign: 'center',
+        fontWeight: '500',
+    },
 });
-
 
 export default Allsingletasbeeh;
