@@ -22,6 +22,8 @@ import Singletasbeehdeatiles from './src/Screens/Singletasbeehdeatiles';
 import Allgrouptasbeeh from './src/Screens/Allgrouptasbeeh';
 import Allsingletasbeeh from './src/Screens/Allsingletasbeeh';
 import Addmemberingroup from './src/Screens/Addmemberingroup';
+import AllSchedule from './src/Screens/Allschedulestasbeeh';
+
 
 const App = () => {
   const Stack = createNativeStackNavigator();
@@ -64,6 +66,7 @@ const App = () => {
         <Stack.Screen name="Allgrouptasbeeh" component={Allgrouptasbeeh} />
         <Stack.Screen name="Allsingletasbeeh" component={Allsingletasbeeh} />
         <Stack.Screen name="Addmemberingroup" component={Addmemberingroup} />
+          <Stack.Screen name="AllSchedule" component={AllSchedule} />
       </Stack.Navigator>
     </NavigationContainer>
   );
