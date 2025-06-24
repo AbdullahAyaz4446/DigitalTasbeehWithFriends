@@ -22,6 +22,7 @@ const Allgrouptasbeeh = ({ route }) => {
     const [deadline, setdeadline] = useState();
     const [id, setid] = useState();
     const [showOptions, setShowOptions] = useState(false);
+    const [modalAction, setModalAction] = useState('');
 
 
     const today = new Date();
@@ -102,6 +103,25 @@ const Allgrouptasbeeh = ({ route }) => {
         }
     };
 
+    //update date api. function
+    const updatedate = async () => {
+        try {
+            const query = `updatedate?id=${encodeURIComponent(id)}&newenddate =${encodeURIComponent(deadline)}`;
+            const response = await fetch(Group + query);
+            if (response.ok) {
+                const result = await response.json();
+                console.log(result);
+                setShowModal(false);
+                await Tasbeehlogs();
+            } else {
+                const result = await response.text();
+                console.log(result);
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
     // handle date time
     const handleDateChange = (date) => {
         const year = date.getFullYear();
@@ -122,97 +142,102 @@ const Allgrouptasbeeh = ({ route }) => {
     );
 
     const Show = ({ item }) => (
-    <TouchableOpacity
-        disabled={item.Flag === 1 || item.Flag === 2}
-        onPress={() => {
-            navigation.navigate("TasbeehGroup", {
-                "groupid": groupid, "Userid": Userid, "Adminid": Adminid, "tasbeehid": item.id, "title": item.title, "tid": item.tid
-            })
-        }}
-        onLongPress={() => { setid(item.id), setShowModald(true) }}
-        style={styles.cardContainer}
-    >
-        <View style={styles.card}>
-            <View style={styles.cardHeader}>
-                <Text style={styles.cardTitle}>
-                    {item.title}
-                </Text>
-                {(item.Flag !== 0) && (
-                    <View style={[
-                        styles.statusBadge,
-                        item.Flag === 1 ? styles.closedBadge : styles.completedBadge
-                    ]}>
-                        <Text style={styles.statusText}>
-                            {item.Flag === 1 ? "Closed" : "Completed"}
-                        </Text>
-                    </View>
-                )}
-            </View>
-
-            <View style={styles.cardBody}>
-                <View style={styles.progressContainer}>
-                    <View style={styles.progressInfo}>
-                        <Text style={styles.progressLabel}>Goal:</Text>
-                        <Text style={styles.progressValue}>{item.Goal}</Text>
-                    </View>
-                    <View style={styles.progressInfo}>
-                        <Text style={styles.progressLabel}>Achieved:</Text>
-                        <Text style={styles.progressValue}>{item.Achieved}</Text>
-                    </View>
-                    <View style={styles.progressInfo}>
-                        <Text style={styles.progressLabel}>Remaining:</Text>
-                        <Text style={styles.progressValue}>{item.Goal - item.Achieved}</Text>
-                    </View>
+        <TouchableOpacity
+            disabled={item.Flag === 1 || item.Flag === 2}
+            onPress={() => {
+                navigation.navigate("TasbeehGroup", {
+                    "groupid": groupid, "Userid": Userid, "Adminid": Adminid, "tasbeehid": item.id, "title": item.title, "tid": item.tid
+                })
+            }}
+            onLongPress={() => { setid(item.id), setShowModald(true) }}
+            style={styles.cardContainer}
+        >
+            <View style={styles.card}>
+                <View style={styles.cardHeader}>
+                    <Text style={styles.cardTitle}>
+                        {item.title}
+                    </Text>
+                    {(item.Flag !== 0) && (
+                        <View style={[
+                            styles.statusBadge,
+                            item.Flag === 1 ? styles.closedBadge : styles.completedBadge
+                        ]}>
+                            <Text style={styles.statusText}>
+                                {item.Flag === 1 ? "Closed" : "Completed"}
+                            </Text>
+                        </View>
+                    )}
                 </View>
 
-                {item?.deadline && (
-                    <View style={styles.deadlineContainer}>
-                        <Ionicons name="calendar" size={16} color="#666" />
-                        <Text style={styles.deadlineText}>
-                            Deadline: {item.deadline.split('T')[0]}
-                        </Text>
-                        {Adminid == Userid && (
-                            <TouchableOpacity 
-                                style={styles.editButton}
-                                onPress={() => {
-                                    setid(item.id);
-                                    setdeadline(item.deadline.split('T')[0]);
-                                    setShowModal(true);
-                                }}
-                            >
-                                <Ionicons name="create-outline" size={16} color="#666" />
-                            </TouchableOpacity>
-                        )}
+                <View style={styles.cardBody}>
+                    <View style={styles.progressContainer}>
+                        <View style={styles.progressInfo}>
+                            <Text style={styles.progressLabel}>Goal:</Text>
+                            <Text style={styles.progressValue}>{item.Goal}</Text>
+                        </View>
+                        <View style={styles.progressInfo}>
+                            <Text style={styles.progressLabel}>Achieved:</Text>
+                            <Text style={styles.progressValue}>{item.Achieved}</Text>
+                        </View>
+                        <View style={styles.progressInfo}>
+                            <Text style={styles.progressLabel}>Remaining:</Text>
+                            <Text style={styles.progressValue}>{item.Goal - item.Achieved}</Text>
+                        </View>
                     </View>
-                )}
-            </View>
 
-            {(item.Flag != 0 && Adminid == Userid) &&
-                <View style={styles.buttonContainer}>
-                    <TouchableOpacity
-                        style={[
-                            styles.button,
-                            item.Flag == 1 ? styles.reopenButton : styles.reactivateButton
-                        ]}
-                        onPress={() => {
-                            item.Flag === 1 ?
-                                reopentasbeeh(item.id)
-                                :
-                                item.deadline == today ?
-                                    setShowModal(true)
-                                    :
-                                    reactivateTasbeeh(item.id)
-                        }}
-                    >
-                        <Text style={styles.buttonText}>
-                            {item.Flag == 1 ? 'Reopen' : 'Reactivate'}
-                        </Text>
-                    </TouchableOpacity>
+                    {(item?.deadline && item.day == null) && (
+                        <View style={styles.deadlineContainer}>
+                            <Ionicons name="calendar" size={16} color="#666" />
+                            <Text style={styles.deadlineText}>
+                                Deadline: {item.deadline.split('T')[0]}
+                            </Text>
+                            {Adminid == Userid && (
+                                <TouchableOpacity
+                                    style={styles.editButton}
+                                    onPress={() => {
+                                        setModalAction('update');
+                                        setid(item.id);
+                                        setdeadline(item.deadline.split('T')[0]);
+                                        setShowModal(true);
+                                    }}
+                                >
+                                    <Ionicons name="create-outline" size={16} color="#666" />
+                                </TouchableOpacity>
+                            )}
+                        </View>
+                    )}
                 </View>
-            }
-        </View>
-    </TouchableOpacity>
-);
+
+                {(item.Flag != 0 && Adminid == Userid) &&
+                    <View style={styles.buttonContainer}>
+                        <TouchableOpacity
+                            style={[
+                                styles.button,
+                                item.Flag == 1 ? styles.reopenButton : styles.reactivateButton
+                            ]}
+                            onPress={() => {
+                                if (item.Flag === 1) {
+                                    reopentasbeeh(item.id);
+                                } else {
+                                    if (item.deadline == today) {
+                                        setModalAction('reactivate');
+                                        setid(item.id);
+                                        setShowModal(true);
+                                    } else {
+                                        reactivateTasbeeh(item.id);
+                                    }
+                                }
+                            }}
+                        >
+                            <Text style={styles.buttonText}>
+                                {item.Flag == 1 ? 'Reopen' : 'Reactivate'}
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                }
+            </View>
+        </TouchableOpacity>
+    );
 
 
     return (
@@ -251,7 +276,7 @@ const Allgrouptasbeeh = ({ route }) => {
                                         style={styles.dropdownOption}
                                         onPress={() => {
                                             setShowOptions(false);
-                                            navigation.navigate("AllSchedule",{groupid, Userid, Adminid});
+                                            navigation.navigate("AllSchedule", { groupid, Userid, Adminid });
                                         }}
                                     >
                                         <Text style={styles.dropdownOptionText}>All Schedules Tasbeeh</Text>
@@ -296,8 +321,15 @@ const Allgrouptasbeeh = ({ route }) => {
                             </TouchableOpacity>
                             <TouchableOpacity
                                 style={[styles.calendarModalButton, styles.calendarModalSubmitButton]}
-                                onPress={() => reactivateTasbeeh(item.id)}
+                                onPress={() => {
+                                    if (modalAction === 'reactivate') {
+                                        reactivateTasbeeh(id);
+                                    } else {
+                                        updatedate();
+                                    }
+                                }}
                             >
+
                                 <Text style={styles.calendarModalButtonText}>Submit</Text>
                             </TouchableOpacity>
                         </View>
@@ -575,9 +607,9 @@ const styles = StyleSheet.create({
         zIndex: 98,
     },
     editButton: {
-    marginLeft: 140,
-    padding: 4,
-},
+        marginLeft: 140,
+        padding: 4,
+    },
 
 });
 

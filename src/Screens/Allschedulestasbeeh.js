@@ -19,6 +19,8 @@ const Allschedulestasbeeh = ({ route }) => {
     const [showDayModal, setShowDayModal] = useState(false);
     const [selectedTasbeeh, setSelectedTasbeeh] = useState(null);
     const [selectedDay, setSelectedDay] = useState(null);
+    const [showModald, setShowModald] = useState(false);
+    const [id, setid] = useState();
     const today = new Date();
 
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -43,23 +45,51 @@ const Allschedulestasbeeh = ({ route }) => {
         }
     };
 
-    const updateTasbeehDay = async () => {
+    // delete tasbeeh api function
+    const deletetasbeeh = async (id) => {
         try {
-            const query = `UpdateTasbeehDay?id=${encodeURIComponent(selectedTasbeeh.id)}&day=${encodeURIComponent(selectedDay)}`;
-            const response = await fetch(Group + query);
-            
+            const query = `Deletetasbeehingroup?id=${encodeURIComponent(id)}`;
+            const response = await fetch(AssignTasbeh + query);
             if (response.ok) {
                 const result = await response.json();
                 console.log(result);
-                setShowDayModal(false);
-                Tasbeehlogs(); // Refresh the list
+                setShowModald(false);
+                await Tasbeehlogs();
             } else {
-                console.log('Failed to update day');
+                const result = await response.text();
+                console.log(result);
             }
         } catch (error) {
             console.error(error);
         }
     };
+
+    // update date api function
+    const updatetasbeehday = async () => {
+        try {
+            if (selectedTasbeeh && selectedDay !== null) {
+                const query = `updateday?id=${encodeURIComponent(id)}&day=${encodeURIComponent(selectedDay)}`;
+                const response = await fetch(Group + query);
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log(result);
+                    setShowDayModal(false);
+                    await Tasbeehlogs();
+                } else {
+                    const result = await response.text();
+                    console.log(result);
+                }
+            } else {
+                console.log("Selected tasbeeh or day is not set");
+            }
+
+
+        }catch (error) {
+            console.error(error);   
+        }
+    };
+
+
 
     useEffect(() => {
         Tasbeehlogs();
@@ -70,12 +100,12 @@ const Allschedulestasbeeh = ({ route }) => {
     };
 
     const Show = ({ item }) => (
-          <TouchableOpacity
-                disabled={item.Flag === 1 || item.Flag === 2}
-               onLongPress={()=>{console.log("calling delete")}}
-                style={styles.cardContainer}
-            >
-          
+        <TouchableOpacity
+            disabled={item.Flag === 1 || item.Flag === 2}
+             onLongPress={() => { setid(item.id), setShowModald(true) }}
+            style={styles.cardContainer}
+        >
+
             <View style={styles.card}>
                 <View style={styles.cardHeader}>
                     <Text style={styles.cardTitle}>
@@ -117,18 +147,19 @@ const Allschedulestasbeeh = ({ route }) => {
                             </Text>
                         </View>
                     )}
-                    
+
                     <View style={styles.dayContainer}>
                         <Ionicons name="time" size={16} color="#666" />
                         <Text style={styles.dayText}>
                             Scheduled on: {getDayName(item.day)}
                         </Text>
                         {Adminid === Userid && (
-                            <TouchableOpacity 
+                            <TouchableOpacity
                                 style={styles.editButton}
                                 onPress={() => {
                                     setSelectedTasbeeh(item);
                                     setSelectedDay(item.day);
+                                    setid(item.id);
                                     setShowDayModal(true);
                                 }}
                             >
@@ -162,13 +193,13 @@ const Allschedulestasbeeh = ({ route }) => {
                 contentContainerStyle={{ paddingBottom: 20 }}
             />
 
-          
+
             <Modal transparent visible={showDayModal} animationType="fade">
                 <TouchableWithoutFeedback onPress={() => setShowDayModal(false)}>
                     <View style={styles.modalOverlay}>
                         <View style={styles.modalContent}>
                             <Text style={styles.modalTitle}>Select Day</Text>
-                            
+
                             {days.map((day, index) => (
                                 <TouchableOpacity
                                     key={index}
@@ -193,9 +224,36 @@ const Allschedulestasbeeh = ({ route }) => {
                                 </TouchableOpacity>
                                 <TouchableOpacity
                                     style={styles.saveButton}
-                                    onPress={updateTasbeehDay}
+                                onPress={updatetasbeehday}
                                 >
                                     <Text style={styles.buttonText}>Save</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                </TouchableWithoutFeedback>
+            </Modal>
+            {/* Delete Confirmation Modal */}
+            <Modal transparent visible={showModald} animationType="fade">
+                <TouchableWithoutFeedback onPress={() => setShowModald(false)}>
+                    <View style={styles.deleteModalOverlay}>
+                        <View style={styles.deleteModalContent}>
+                            <Text style={styles.deleteModalTitle}>
+                                Do You Want to Delete this Schedule tasbeeh
+                            </Text>
+                            <View style={styles.deleteModalButtons}>
+                                <TouchableOpacity
+                                    onPress={() => setShowModald(false)}
+                                    style={styles.deleteModalCancelButton}>
+                                    <Text style={styles.deleteModalButtonText}>Cancel</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        deletetasbeeh(id);
+                                        setShowModald(false);
+                                    }}
+                                    style={styles.deleteModalDeleteButton}>
+                                    <Text style={styles.deleteModalButtonText}>Delete</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -368,6 +426,48 @@ const styles = StyleSheet.create({
     buttonText: {
         color: 'white',
         fontWeight: 'bold',
+    },
+    // Delete Confirmation Modal (second modal)
+    deleteModalOverlay: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0,0,0,0.5)',
+    },
+    deleteModalContent: {
+        backgroundColor: 'white',
+        padding: 25,
+        borderRadius: 20,
+        width: '90%',
+    },
+    deleteModalTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        textAlign: 'center',
+        marginBottom: 25,
+        color: 'black',
+    },
+    deleteModalButtons: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    deleteModalCancelButton: {
+        backgroundColor: "#92A5E3",
+        padding: 12,
+        borderRadius: 10,
+        width: '48%',
+    },
+    deleteModalDeleteButton: {
+        backgroundColor: 'red',
+        padding: 12,
+        borderRadius: 10,
+        width: '48%',
+    },
+    deleteModalButtonText: {
+        fontSize: 18,
+        color: 'white',
+        textAlign: 'center',
+        fontWeight: '500',
     },
 });
 

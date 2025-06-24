@@ -519,6 +519,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { useNavigation } from '@react-navigation/native';
 import { colors } from '../utiles/colors';
 import { SelectList } from 'react-native-dropdown-select-list';
+import { Item } from 'react-native-paper/lib/typescript/components/Drawer/Drawer';
 
 const CreateTasbeeh = ({ route }) => {
     const { Userid } = route.params;
@@ -543,7 +544,7 @@ const CreateTasbeeh = ({ route }) => {
         { key: '6', value: 'Al-Anam', ayahs: Array.from({ length: 165 }, (_, i) => i + 1) },
         { key: '7', value: 'Al-Araf', ayahs: Array.from({ length: 206 }, (_, i) => i + 1) },
 
-    ];
+    ]; 
 
 
     {/*Sign Up Api Function */ }
@@ -623,12 +624,14 @@ const CreateTasbeeh = ({ route }) => {
     {/*Compund Qurantasbeeh Id and Tasbeeh Id  Function*/ }
     const Compundtasbeehdata = async () => {
         var id = await Addtitle();
+        console.log("id exist",id);
         if (id) {
             try {
-                const updatedCompund = compund.map((element) => ({
-                    ...element,
+                const updatedCompund = compund.map((Item) => ({
+                    ...item,
                     Tasbeeh_id: id,
                 }));
+                console.log("Compund data before API call:", updatedCompund);
                 const response = await fetch(tasbeehurl + "createcoumpoundtasbeeh", {
                     method: 'POST',
                     headers: {
@@ -655,8 +658,6 @@ const CreateTasbeeh = ({ route }) => {
         }
 
     };
-
-
 
     {/*Delete quranTasbeeh Api Function*/ }
     const deletequrantasbeeh = async (ID) => {
@@ -700,9 +701,10 @@ const CreateTasbeeh = ({ route }) => {
             const newCompund = [...prevCompund];
             [newCompund[currentIndex], newCompund[currentIndex - 1]] =
                 [newCompund[currentIndex - 1], newCompund[currentIndex]];
-
+              
             return newCompund;
         });
+     
     }
 
 
